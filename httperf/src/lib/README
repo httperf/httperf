@@ -1,0 +1,4 @@
+This directory contains library-replacement functions that are needed
+on some platforms.  This code is copyright by the Free Software
+Foundation and a copy of the license under which it is distributed can
+be found in the file COPYING.LIB in this directory.
