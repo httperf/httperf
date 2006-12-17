@@ -1,0 +1,786 @@
+2006-12-08  Ted Bullock <tbullock@canada.com>
+	
+	* Bug Fixes: Added a number of fixes from the mailing lists
+	over the last 6 years.
+
+	* compiler warnings: Compiler warnings in core.c and wsesslog.c
+	
+	* configuration: Fixes a problem with the "configure" setup
+	where the "--prefix=" option wasn't being obeyed
+
+	* zero length: Fixes bug in http.c (parse_header)with zero
+	length content
+
+	* Host Header: Identify machine by FQD rather than hostname
+
+	* Persistent Connections: Added Persistent connections to HTTP 1.0
+	requests
+
+	* Robust alloca.h: Robust way to handle the header file that
+	defines the alloca function <alloca.h> for linux and stdlib.h for
+	BSD and others
+
+	* Time Discrepancy: Fixed a discrepancy between the data produced
+	by httperf and the documentation in regards to timing.
+
+	* wsesslog Crash: Fixed a problem with the wsesslog crashing
+	httperf due to an unhandled session failure from a burdened server
+
+2000-10-31  David Mosberger  <davidm@hpl.hp.com>
+
+	* Version 0.8 released.
+
+	* core.c (do_recv) [!HAVE_SSL]: Avoid referncing param.use_ssl.
+	(do_send): Ditto.
+
+	* core.c (core_ssl_connect): Print error message if SSL connect
+	fails.  ERR_print_errors_fp() may not print anything if there
+	error is due to, e.g., trying to connect to a non-existent port.
+
+	* httperf.c (main): Initialize port to -1.  Once parameters have
+	been processed, port defaults to 443 if SSL is in use, 80
+	otherwise.
+
+2000-10-30  David Mosberger  <davidm@hpl.hp.com>
+
+	* httperf.man: Update man-page with new options (based on Martin's
+	descriptions.
+
+	* httperf.c (usage): Mention --port.
+
+2000-10-27  David Mosberger  <davidm@hpl.hp.com>
+
+	* httperf.man: Mention request summary in description of
+	--print-request.
+
+	* stat/print_reply.c (print_request): Print request header/content
+	summary line.
+
+	* httperf.c (usage): Bring in sync with implemented options
+	(Martin's patch).
+	(longopts): Order in alphabetical order (Martin's patch).
+
+2000-10-25  David Mosberger  <davidm@hpl.hp.com>
+
+	* stat/print_reply.c (flush_print_buf): New.
+	(Call_Private_Data): New.
+	(CALL_PRIVATE_DATA): New.
+	(call_private_data_offset): New.
+	(print_buf): Rewrite to support line-buffering and new output
+	format.
+	(call_destroyed): New.
+	(print_reply_hdr): New (based on Martin's original version).
+	(send_raw_data): Ditto.
+	(recv_raw_data): Ditto.
+	(recv_stop): Print reply summary (based on Martin's version).
+	(init): Update to support the new print options.
+
+	* httperf.c: Replace --print-replies/--print-request with more
+	general versions of these options.
+
+	* httperf.man: Add info on new --print-reply and --print-request
+	options.
+
+2000-10-24  David Mosberger  <davidm@hpl.hp.com>
+
+	* httperf.c (main): Initialize ssl_ctx.
+	(main): Use SSLv3_client_method() instead of SSLv23_client_method().
+	The latter doesn't work.
+
+	* httperf.h (ssl_ctx): New global variable.
+
+	* conn.h [HAVE_SSL]: Drop unnecessary includes of <openssl/rsa.h>,
+	<openssl/crypto.h>, <openssl/x509.h>, and <openssl/pem.h>.  Drop
+	per-connect "ctx" member (it's global now).
+	
+	* conn.c (conn_init): Create SSL connection info and set cipher
+	list (if necessary).
+
+	* core.c (core_ssl_connect): Don't create SSL connection info
+	here (done in conn.c now).  Always tell SSL about the
+	file descriptor of the socket.
+
+	* sess.c (sess_deinit) [HAVE_SSL]: Free SSL info if it exists.
+
+	* gen/session.c (create_conn): If param.ssl_reuse is in effect,
+	re-use SSL session if we have one or update session info with
+	newly created SSL session.
+
+	* httperf.c [HAVE_SSL]: Include <openssl/rand.h>.
+	(main): Call RAND_seed() with a zero buffer.
+
+2000-10-23  David Mosberger  <davidm@hpl.hp.com>
+
+	* conn.c (conn_init): Don't initialize conn->ssl to zero---that
+	has been done by object_new() already.
+
+	* gen/session.c (create_conn): If reusing SSL session ids, create
+	SSL structure and save SSL info in session structure.
+
+	* sess.c (sess_deinit) [HAVE_SSL]: Free SSL session if it's
+	non-NULL.
+
+	* httperf.h: Declare "use_ssl" only if HAVE_SSL is defined.
+	Add ssl_no_reuse and ssl_cipher_list.
+
+	* httperf.c (struct longopts): Add --ssl-no-reuse and ssl-ciphers.
+	(main): Handle --ssl-cipher_list and --ssl-no-reuse options.
+
+2000-10-19  David Mosberger  <davidm@hpl.hp.com>
+
+	* core.c (core_ssl_connect): Bring debug messages in sync with
+	rest of httperf.  If s->ssl exists already, skip right to
+	SSL_connect().  If SSL_connect() returns SSL_ERROR_WANT_READ or
+	SSL_ERROR_WANT_WRITE, mark the appropriate fd set as active and
+	return immediately to wait for more data.  Use
+	ERR_print_errors_fp() to print SSL-related errors.
+	(core_loop): Check for S_CONNECTING state before doing anything
+	else.
+
+	* README: Document configuration option "--enable-debug".
+
+	* configure.in: Add support for --enable-debug.
+
+2000-10-16  David Mosberger  <davidm@hpl.hp.com>
+
+	* configure.in: Add AC_TYPE_LONG_LONG check (defines u_wide as
+	"unsigned long long" if the compiler can grok it, "unsigned long"
+	otherwise).
+
+	* aclocal.m4: New file.
+
+	* stat/basic.c: Include "config.h".
+	(struct basic): Change type of hdr_bytes_received,
+	reply_bytes_received, and footer_bytes_received from
+	size_t to u_wide.
+	(dump): Change type of total_size to u_wide.
+
+2000-10-11  David Mosberger  <davidm@hpl.hp.com>
+
+	* httperf.h (VERSION): Change to 0.8beta.
+
+	* configure.in: New file.
+	* Makefile.in: Ditto.
+	* stat/Makefile.in: Ditto.
+	* gen/Makefile.in: Ditto.
+	* lib/Makefile.in: Ditto.
+
+2000-08-29  David Mosberger  <davidm@hpl.hp.com>
+
+	* httperf.c (main): Call core_exit() on a SIGINT.
+
+2000-08-21  David Mosberger  <davidm@hpl.hp.com>
+
+	* core.c (core_init): Bound maximum number of open files to
+	FD_SETSIZE.
+
+2000-04-25  David Mosberger  <davidm@hpl.hp.com>
+
+	* httperf.c (main): Add a call to fpsetmask(0) to get non-finite
+	IEEE arithmetic to work on older versions of FreeBSD.
+
+1998-12-21  David Mosberger  <davidm@hpl.hp.com>
+
+	* Version 0.7 released.
+
+	* Makefile (install): New make target.
+
+	* httperf.h (VERSION): Define as "0.7".
+
+	* gen/wsesslog.c (parse_config): Remove blank in sscanf() format
+	since this caused problems on FreeBSD and NetBSD.  This bug was
+	reported by Stephane Eranian.
+
+1998-12-08  David Mosberger  <david_mosberger@hp.com>
+
+	* httperf.c (struct longopts): Add option "method".
+	(usage): Document option --method.
+	(main): Handle --method.
+
+	* httperf.h (struct Cmdline_Params): New member "method".
+
+	* gen/misc.c: Renamed from add_header.c.  This file now implements
+	both --add-header and --method.
+
+1998-11-23  David Mosberger  <david_mosberger@hp.com>
+
+	* httperf.c (longopts): New option "add-header".
+	(main): Handle --add-header.
+
+	* httperf.h (struct Cmdline_Params): New member
+	"additional_header".
+
+	* gen/add_header.c: New file.
+
+1998-09-18  David Mosberger  <davidm@hpl.hp.com>
+
+	* gen/session.c (call_done):
+	(conn_failed): Call create_conn() instead of sess_failure() in
+	case param.retry_on_failure is set and the connection has not been
+	successful (received at least one good response)
+
+	* gen/wsess.c (call_destroyed): Call sess_dec_ref() only if
+	session didn't fail.
+
+1998-09-14  David Mosberger  <davidm@hpl.hp.com>
+
+	* README: Replace "session" with "connection" and "call" with
+	"request" to reflect current terminology (reported by Christian
+	Petit).  Also fixed various other typos and grammatical problems.
+
+1998-09-11  David Mosberger  <davidm@hpl.hp.com>
+
+	* gen/session.c (call_done): When param.retry_on_failure is set,
+	re-issue call instead of causing session to fail.
+
+	* httperf.c (usage): Add --retry-on-failure option.
+	(struct longopts): Ditto.
+
+	* httperf.man: Document --retry-on-failure option.
+
+1998-07-23  David Mosberger  <davidm@hpl.hp.com>
+
+	* stat/sess_stat.c: Use sess->failed instead of maintaining
+	private session-failure flag.
+
+1998-07-21  David Mosberger  <davidm@hpl.hp.com>
+
+	* sess.c (sess_failure): Don't signal EV_SESS_FAILED more than
+	once per session.
+
+	* core.c (do_send): Clear c->recvq_next.  This is necessary now
+	because the same call may be issued multiple times (due to
+	connection failures).  Hence there is no longer a guarantee that
+	c->recvq_next has been cleared by object_new().
+	(do_send): Rename s to conn and c to call.
+
+1998-07-20  David Mosberger-Tang  <David.Mosberger@acm.org>
+
+	* core.c (do_recv): Set s->state to S_REPLY_DONE when done with an
+	HTTP/1.0 response (mirrors code in http_process_reply_bytes()).
+	(do_recv): No need to check for nread == 0.
+
+	* stat/basic.c (init): Print basic.conn_lifetime_min only if
+	basic.num_lifetimes > 0.
+
+	* core.c (core_close): Fix typo (call -> all).
+
+1998-07-08  David Mosberger  <davidm@hpl.hp.com>
+
+	* core.c (do_send): Set s->state to S_REPLY_STATUS only if this is
+	the first send---we don't want to interfere with the parsing of an
+	in-progress reply.
+
+1998-06-19  David Mosberger  <davidm@hpl.hp.com>
+
+	* Version 0.6 released.
+
+	* gen/wsesslog.c (issue_calls): Limit `to_create' by the number
+	of calls that the session can queue.
+
+	* gen/session.c (session_max_qlen): New function.
+	(session_current_qlen): Ditto.
+	(max_qlen): New variable.
+
+	* httperf.man: Fix typos.
+
+1998-06-18  David Mosberger  <davidm@hpl.hp.com>
+
+	* gen/session.c (MAX_CONN): Up MAX_CONN to 16.
+
+	* object.c (object_new): panic() instead of assert(0) when
+	encountering an unknown object type.
+
+	* gen/wsesslog.c (user_think_time_expired): Remove stale comment.
+
+	* gen/sess_cookie.c (struct Call_Private_Data): New member cookie.
+	(call_recv_hdr): Remove padding bogosity.
+	(call_issue): Copy cookie from session to call object.
+
+1998-06-17  David Mosberger  <davidm@hpl.hp.com>
+
+	* timer.c (timer_cancel): Instead of an assertion failure, print a
+	message on stderr when timer_cancel(t) is called from within a
+	timeout handler t.
+
+	* Feedback from Dick Carter:
+	* gen/wsesslog.c (parse_config): Remove stale comment.
+	* httperf.h: Fix typo in comment for min_iat.
+	* httperf.c (usage): Fix typo in --period args.
+	* call.c (call_append_request_header): Fix typo in debug message.
+
+1998-06-09  David Mosberger  <davidm@hpl.hp.com>
+
+	* stat/print_reply.c: New file.
+	* stat/sess_stat.c: Ditto.
+
+	* stat/wsess_stat.c: Remove.
+
+	* stat/basic.c: Move stats macros into stats.h.
+	(RATE_INTERVAL): Remove.
+	(interval_start): Ditto.
+	(perf_sample): Rename from sample_rate().
+	(conn_fail): Count EPIPE as a `connection reset' error.
+	(init): Register perf_sample as handler for EV_PERF_SAMPLE.
+	Remove scheduling of performance sampling timer.
+	(dump): Print connection lifetime histogram only if verbose > 1.
+	Print average connection length in number of replies/connection.
+	
+	* stat/stats.h: New file.
+
+	* stat/basic.c: Add copyright message.
+
+	* stat/Makefile (libstat.a): Mention sess_stat.o and
+	print_reply.o.
+
+	* object.c: New file.
+	* object.h: Ditto.
+	* sess.c: Ditto.
+	* sess.h: Ditto.
+
+	* httperf.h (VERSION): Up version number to 0.6.
+	(object_is_conn): Remove (now in object.h).
+	(object_is_call): Ditto.
+	(enum Object_Type): Ditto.
+	(struct Object): Ditto.
+	(object_type_size): Ditto.
+	(struct Cmdline_Params): New mebers max_piped, max_conns,
+	print_replies, and session_cookies.
+
+	* httperf.c (perf_sample_start): New variable to keep track of
+	when latest sample interval started.
+	(struct longopts): Add entries for max-connections,
+	max-piped-calls, print-replies, and session-cookies.
+	(usage): Update usage() message.
+	(perf_sample): New function.
+	(main): Remove uri_wsesslog generator.  Add sess_stat stats
+	collector.  Handle --max-connections, --max-piped, --print-replies
+	and --session-cookies. Start performance sampling timer.
+
+	* http.c (get_line): Use sizeof (s->line_buf) instead of
+	s->line_buf_size.
+	(parse_status_line): Do strcmp() to find out whether call
+	was a HEAD request.  Ignore `100 Continue' replies.
+
+	* gen/wsesslog.h: Remove.
+
+	* gen/wsess.c: Modify to take advantage of session manager
+	(gen/session.c).
+
+	* gen/wsesslog.c: Modify to take advantage of session manager
+	and merge with uri_wsesslog.c.
+
+	* gen/uri_wlog.c (set_uri): Use call_set_uri().
+	* gen/uri_wset.c (set_uri): Ditto.
+
+	* gen/uri_fixed.c (uri_len): New variable.
+	(set_uri): Use call_set_uri().
+	(init): Initialize uri_len.
+
+	* gen/session.c: New file.
+	* gen/session.h: Ditto.
+
+	* gen/sess_cookie.c: New file (based on wsess.c).
+
+	* gen/conn_rate.c: File renamed from sess_rate.c.
+
+	* gen/call_seq.c: Modify to take advantage of reference counting.
+
+	* gen/Makefile (libgen.a): Remove uri_wsesslog (it's part of
+	wsesslog now).
+
+	* gen/uri_wsesslog.c: Remove.
+	* gen/uri_wsesslog.h: Ditto.
+	
+	* event.h (Event_Type): New member EV_PERF_SAMPLE for performance
+	sampling (invoked once every 5 seconds).  Rename EV_USER_NEW to
+	EV_SESS_NEW and EV_USER_DESTROYED to EV_SESS_DESTROYED.  New
+	member EV_SESS_FAILED that is signalled when a session fails.
+
+	* core.c (do_send): Remove left-over assert()ion.
+	(do_send): Preserve io vector element that is being sent in
+	iov_saved.  Call call_dec_ref() when the connection is closing.
+	(recv_done): Rename `c' to `call' and invoke call_dec_ref().
+	(do_recv): Call conn_failure() only if errno != EAGAIN (for Linux).
+	(core_send): Add `conn' argument.  Fill in req.iov[IE_HOST] and
+	req.iov[IE_PROTL] only (rest has been filled in by call_set_* macros).
+	Call call_inc_ref() once the call is ready.
+	(core_close): Rename `s' to `conn'.  Destroy pending calls calls
+	on the sendq and recvq by calling call_dec_ref().  Call conn_dec_ref()
+	at the end.
+	(core_loop): Obtain a reference to the connection object for the
+	duration of read & write processing.
+
+	* conn.h: Include <object.h>.
+	(MAX_HDR_LINE_LEN): New macro.
+	(struct Conn): Remove member first_owned and line_size.  Replace
+	line_buf pointer with line_buf array.
+	(conn_init): Declare.
+	(conn_deinit): Ditto.
+	(conn_new): New macro.
+	(conn_inc_ref): Ditto.
+	(conn_dec_ref): Ditto.
+
+	* conn.c: Remove include of <errno.h> and <event.h>.
+	(conn_new): Remove.
+	(conn_destroy): Ditto.
+	(conn_init): New function.
+	(conn_deinit): Ditto.
+
+	* call.h: (enum HTTP_Method): Remove.
+	Include <object.h>.
+	(struct Call): Remove members loc_len, loc, uri_len, uri,
+	orig_host, extra_hdrs, contents_len, contents.  New member:
+	iov_saved.
+	(call_init): Declare.
+	(call_deinit): Ditto.
+	(call_new): New macro.
+	(call_inc_ref): Ditto.
+	(call_dec_ref): Ditto.
+	(call_set_method): Ditto.
+	(call_set_location): Ditto.
+	(call_set_uri): Ditto.
+	(call_set_contents): Ditto.
+
+	* call.c (call_method_name): Remove.
+	(free_call_list): Remove.
+	(call_new): Remove.
+	(call_init): New function.
+	(call_deinit): Ditto.
+	(call_append_request_header): Fill req.iov[IE_FIRST_HEADER +
+	num_hdrs] instead of req.extra_hdrs[num_hdrs].
+
+	* Makefile (HTTPERF): Mention object and sess.
+
+1998-05-29  David Mosberger  <davidm@hpl.hp.com>
+
+	* Version 0.5 released.
+
+	* core.c (core_send): Fix setup of IE_METHOD and insert blank
+	character in IE_BLANK.
+
+	* call.h (enum IOV_Element): Add IE_BLANK.
+
+1998-05-27  David Mosberger  <davidm@hpl.hp.com>
+
+	* timer.c: Rename t_next to t_curr.
+	(timer_tick): Set t_next _after_ invoking the callback.  This
+	allows the callback to cancel all other timers (except itself).
+	(timer_cancel): Add assertion to ensure that timer_cancel() is
+	not called from within the handler of a given timer.
+
+	* httperf.h (enum Dist_Type): New type.
+	(struct Rate_Info): Ditto.
+	(struct Cmdline_Params): Change type of RATE member from Time to
+	Rate_Info.  New member WSESSLOG.
+	(panic): Declare.
+
+	* httperf.h (VERSION): Up version number to 0.5.
+
+	* httperf.c: Include <ctype.h> and <stdarg.h>.  New options:
+	close-with-reset, period, wsesslog.
+	(usage): Add usage message for new options.
+	(panic): New function.
+	(main): Declare wsesslog, uri_wsesslog, and wsesslog_stat.
+	Initialize param.rate.dist with DETERMINISTIC.  Handle --period
+	and --wsesslog options.  Fix typo: user think time is 3rd, not 4th
+	parameter in wsess parameter list.
+	(main): Call timer_tick() after initializating the statistic
+	collectors and workload generators so our notion of the current
+	time is reasonably accurate.
+
+	* gen/wsess.c (req_create): Use call_append_request_header().
+	(start): Initialize rg_sess.rate with &param.rate.
+
+	* gen/uri_wsesslog.h: New file (by Dick Carter).
+	* gen/uri_wsesslog.c: Ditto.
+	* gen/wsesslog.h: Ditto.
+	* gen/wsesslog.c: Ditto.
+
+	* gen/uri_wlog.c: Drop inclusion of <stdarg.h>.
+	Move panic() from here to httperf.c.
+
+	* gen/sess_rate.c (start): Initialize rg.rate with &param.rate.
+
+	* gen/rate.h: New member next_interarrival_time.  New member
+	xsubi.  Replace PERIOD member with RATE member.
+	(rate_generator_stop): Drop second argument (RATE).
+
+	* gen/rate.c: Include <math.h>, <stdio.h>, and <stdlib.h>.
+	(next_arrival_time_det): New function.
+	(next_arrival_time_uniform): Ditto.
+	(next_arrival_time_exp): Ditto.
+	(tick): Invoke (*next_arrival_time)() to determine next delay.
+	(rate_generator_start): Initialize rg->xsubi based on
+	param.client.id.  Initialize rg->next_interarrival_time based on
+	desired distribution.
+
+	* gen/Makefile (libgen.a): Mention wsesslog.o and uri_wsesslog.o
+
+	* core.c (core_connect): Don't rely on realloc(0, SIZE) doing the
+	right thing.
+	(core_connect): Clear newly allocated sd_to_conn elements after
+	allocating them.
+	(core_send): Use call_method_name.  Copy in defined
+	c->req.extra_hdrs[i] iovecs.  Copy in IE_CONTENT iovec.
+
+	* call.h: New value HM_LEN.
+	(MAX_EXTRA_HEADERS): New macro.  Replace IE_HEADERS with
+	IE_FIRST_HEADER and IE_LAST_HEADER.  Make extra_hdrs an array of
+	`struct iovec'.  New member num_extra_hdrs.
+	(call_append_request_header): Declare new function.
+
+	* call.c: New array.
+	(call_append_request_header): New function.
+
+1998-05-26  David Mosberger  <davidm@hpl.hp.com>
+
+	* COPYRIGHT: Add 1998 as copyright year.
+
+	* stat/basic.c (dump): If no connections have been created, print
+	0.0 for minimm connection lifetime.  This avoids a core-dump under
+	FreeBSD, which seems to have a problem printing IEEE infinity.
+
+1998-05-22  David Mosberger  <davidm@hpl.hp.com>
+
+	* call.c (method_name): New variable.
+
+1998-04-27  David Mosberger  <davidm@hpl.hp.com>
+
+	* core.c (do_recv): Ignore EAGAIN errors---Linux 2.0.32 sometimes
+	returns EAGAIN on a read() if a previous write() resulted in
+	EAGAIN.
+
+	* AUTHORS: New file.
+
+1998-03-24  David Mosberger  <davidm@hpl.hp.com>
+
+	* gen/wsess.c (call_done): Also fall back to non-persistent
+	session if c->req.version < HTTP/1.1.
+
+1998-03-18  David Mosberger  <davidm@hpl.hp.com>
+
+	* httperf.c (usage): Fix typo: --recv-buffer -> --send-buffer.
+
+	* gen/wsess.c (dump): Rename "Sess" to "Session" in statistics
+	output.
+
+	* core.c (core_connect): Turn on closing with RESET only when
+	param.close_with_reset is set.
+
+1998-03-17  David Mosberger  <davidm@hpl.hp.com>
+
+	* stat/basic.c (dump): In "Total" line, rename "call" to "req".
+
+	* Version 0.41 released.
+
+	* core.c: Include <sys/resource.h> after <sys/types.h> to get it
+	to compile under FreeBSD (which seems to have a broken libc).
+
+	* stat/basic.c (dump): Complete renaming of "session" to "call".
+	Rename "Call" to "Request".
+
+1998-03-16  David Mosberger  <davidm@hpl.hp.com>
+
+	* Version 0.4 released.
+
+	* httperf.h (VERSION): Change version number to 0.4.
+
+	* httperf.c: (longopts): Add --http-version.
+	(main): Initialize param.http_version to HTTP/1.  Support parsing
+	of --http-version option.  Echo --http-version option if version
+	other than 1.1 is selected.
+
+	* httperf.h (struct Cmdline_Params): New member HTTP_VERSION.
+
+	* core.c (core_send): Support generation of HTTP/1.0 requests.
+
+	* Patches by Stephane Eranian:
+
+	* httperf.man: Mention --wlog parameter.
+
+	* Makefile (clean): Use $(MAKE) instead of make.
+
+1998-03-12  David Mosberger  <davidm@hpl.hp.com>
+
+	* httperf.c: Renamed Session to Conn to avoid confusion between
+	user sessions and TCP connections.
+
+1998-03-02  David Mosberger  <davidm@hpl.hp.com>
+
+	* gen/wsess.c (user_destroy): Signal EV_USER_DESTROYED.
+	(user_create): Signal EV_USER_NEW.
+	(start): Register rate-generator with event EV_USER_DESTROYED
+	instead of EV_SESSION_DESTROYED.
+
+	* event.h: New events EV_USER_NEW and EV_USER_DESTROYED.
+	* event.c: Ditto.
+
+1998-02-27  David Mosberger  <davidm@hpl.hp.com>
+
+	* session.h: Remove unused first_call member.
+
+1998-02-26  David Mosberger  <davidm@hpl.hp.com>
+
+	* gen/wsess.c (call_recv_hdr): Always check for Connection: and
+	Set-Cookie: headers (not just for first call).
+	(req_create): Modify to support bursts.
+	(user_connect): Ditto.
+	(sess_destroyed): Ditto.
+	(call_destroyed): Ditto.
+
+1998-02-25  David Mosberger  <davidm@hpl.hp.com>
+
+	* core.c (lffs): Fix lffs() so it returns 0 when no bits at all
+	are set in a 64 bit long.
+	(set_active): Set recvq timeout if timeout==0.0 (the old code failed
+	to timeout connections that were waiting for replies).
+
+1998-02-23  David Mosberger  <davidm@hpl.hp.com>
+
+	* Version 0.3 released.
+
+	* timer.c (timer_now_forced): New function.
+
+	* httperf.h (Cmdline_params): New member burst_len.
+
+	* httperf.c: New option --burst-length.  At present, only
+	gen/call_seq.c supports this (gen/wsess does not).
+
+	* gen/wsess.c (struct User): New members: found_close_hdr,
+	conn_start, call_start, and cookie.
+	(req_create): Insert cookie as extra header if there is one.
+	(call_recv_hdr): New function.  Looks for "Connection: close" and
+	"Set-Cookie:" headers.
+
+	* gen/call_seq.c (Sess_Private_Data): New member "num_finished".
+	(issue_calls): Add support for --burst-len parameter.
+	(call_destroyed): Ditto.
+
+	* core.c (SYSCALL): Call timer_now_forced() instead of timer_now().
+	(core_connect): Keep track of longest back-to-back burst.
+	(core_connect): Set SO_LINGER option so that TCP RST is sent when
+	closing the socket.  This avoids the client melting down on
+	HP-UX 10.20 due to a large number of TCP connections in TIME_WAIT
+	state (HP-UX is broken as far as bind()/connect() is concerned when
+	there are many TCP control blocks).
+	(core_exit): Print maximum connect burst length.
+
+	* core.c (max_burst_len): New variable to keep track of longest
+	back-to-back burst generated (large bursts are usually a sign of
+	the client being overloaded).
+
+1998-02-13  David Mosberger  <davidm@hpl.hp.com>
+
+	* stat/basic.c (sess_fail): Print one unexpected error number per
+	execution, independent of DBG.
+
+1998-02-06  David Mosberger  <davidm@hpl.hp.com>
+
+	* core.c (do_send): Maintain sendq_tail & recvq_tail.
+	(core_send): Ditto.
+	(recv_done): Ditto.
+
+	* session.h (Session): New members SENDQ_TAIL and RECVQ_TAIL.
+
+	* core.c (set_active): Set watchdog timer to the minimum of the
+	timeout of the request being sent and that being received (if such
+	requests exist).
+	(do_send): Set c->timeout.
+	(core_connect): Ditto.
+	(core_send): Ditto.
+
+	* call.h: Replace (unused) WATCHDOG member with TIMEOUT.
+
+	* timer.c (timer_schedule): Handle negative delays gracefully.
+
+1998-01-28  David Mosberger  <davidm@hpl.hp.com>
+
+	* Version 0.2 released to SixFlags team.
+
+1998-01-26  David Mosberger  <davidm@hpl.hp.com>
+
+	* gen/call_seq.c (sess_closed): New function.
+	(init): Register sess_closed() so we notice when session closes
+	prematurely.
+
+1998-01-21  David Mosberger  <davidm@hpl.hp.com>
+
+	* httperf.c (main): Don't quit after printing version
+	information---it's useful to run a test and have this info as
+	well.
+
+1998-01-14  David Mosberger  <davidm@hpl.hp.com>
+
+	* stat/basic.c (dump): Add num_sock_reset to total error count.
+
+1998-01-12  David Mosberger  <davidm@hpl.hp.com>
+
+	* stat/basic.c (struct basic): New member num_sock_reset.
+	(sess_fail): Increment num_sock_reset for ECONNRESET.
+	(dump): Print num_sock_reset.
+
+	* core.c (do_recv): Call session_failure() when reading < 0 bytes.
+
+	* stat/basic.c (sess_fail): Print error number when getting an
+	unexpected errno and DBG > 0.
+
+1998-01-09  David Mosberger  <davidm@hpl.hp.com>
+
+	* httperf.c (main): Print only one newline (second newline is
+	printed by stat collectors).
+
+	* stat/basic.c (dump): Print session lifetime histogram first
+	(so it goes right after the rate output).
+
+1998-01-08  David Mosberger  <davidm@hpl.hp.com>
+
+	* core.c (port_get): Recode so port numbers are returned in
+	strictly increasing order (until a wraparound after 65535 occurs).
+	This avoids problems with NT 4.0 which disallows reusing the port
+	pair of a properly shut down TCP connection (which creates
+	problems when testing an NT server with clients running on HP-UX
+	or similar platforms).
+
+1998-01-07  David Mosberger  <davidm@hpl.hp.com>
+
+	* gen/sess_rate.c: Adapt to use rate.c.
+
+	* timer.c (timer_schedule): Adjust "delay" if realtime has grown
+	bigger than next_tick (meaning that "spoke" is behind).
+
+	* call.c (call_destroy): prev wasn't updated in the search loop.
+
+1998-01-06  David Mosberger  <davidm@hpl.hp.com>
+
+	* stat/basic.c (dump): Print minmum rate as zero if there are no
+	rate samples.
+
+1997-12-23  David Mosberger  <davidm@hpl.hp.com>
+
+	* stat/basic.c (struct basic): Add members num_reply_rates,
+	reply_rate_sum, reply_rate_sum2, reply_rate_min, and
+	reply_rate_max.
+	(interval_start, num_replies): New vars.
+	(sample_rate): New function to sample reply rate.
+	(init): Schedule rate sampler.
+	(dump): Print min, avg, max, and stddev of sampled reply rate.
+
+	* httperf.c: Add --client and --think-timeout options.
+
+1997-12-17  David Mosberger  <davidm@hpl.hp.com>
+
+	* http.c (parse_data): Return TRUE to indicate that all bytes
+	(of present chunk) have been received (instead of setting
+	state to S_REPLY_DONE).
+
+	* httperf.h (ALIGN): Fix macro (need AND with _complement_...).
+
+	* http.c (xfer_chunked): Fix typo: check for content_bytes >=
+	content_length (not vice versa).
+
+	* uri_wset.c (set_uri): Fix uri_len computation.
+
+	* sess_rate.c (destroyed): Fix typo: test for param.rate <= 0 (not
+	<0).
+
