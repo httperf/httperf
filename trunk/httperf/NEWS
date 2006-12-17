@@ -1,0 +1,76 @@
+-*-Mode: outline-*-
+
+* New in version 0.8.1:
+
+** Numerous bug fixes. See ChangeLog for details
+
+* New in version 0.8:
+
+** httperf is now released under the GNU General Public License (GPL).
+
+** Preliminary support for SSL (Secure Socket Layer).  See README for details.
+
+** New options (see man-page for details):
+	--print-reply (replaced --print-replies)
+	--print-request
+	--ssl
+	--ssl-ciphers
+	--ssl-no-reuse
+
+* New in version 0.7:
+
+** New options (see man-page for details):
+	--add-header
+	--method
+	--retry-on-failure
+
+** Bug fixes
+	- fixed some segfaults in the session workload generator
+	- specifying option --session-cookie when not using a session
+	  workload generator now prints an error message instead of
+	  core dumping
+
+* New in version 0.6:
+
+** New options (see man-page for details):
+	--max-connections
+	--max-piped-calls
+	--print-replies
+	--session-cookies
+
+** Cookie support now must be requested explicitly when using a session-based
+   workload generator.  To do this, specify option --session-cookie.
+
+* New in version 0.5:
+
+** Normal connection closing is the default again.  To request closing TCP
+   connections with a RESET, specify option --close-with-reset.
+
+** --wsesslog option added to support log-file based session
+   specification (contributed by Dick Carter).
+
+** --period option added to allow a more flexible way to specify
+   session/connection interarrival time.  Unlike the --rate
+   argument, this allows deterministic (fixed), uniform, and
+   exponentially distributed interarrival times (contributed by Dick
+   Carter).
+
+** Various bug fixes (see ChangeLog for details).
+
+* New in version 0.41:
+
+** In basic statistic, rename "call" to "request".
+
+* New in version 0.4:
+
+** Option --http-version can be used to select the HTTP protocol version
+   used in sending requests. 1.0 and 1.0 are the only allowed values
+   for this option at this point.
+
+** What used to be called a "session" is now called a "connection".  This
+   reduces confusion between TCP connections and user sessions.
+
+** Stephane's log-file based URL generated has been added.
+
+** The session workload generator now supports the --burst-length
+   parameter to generate bursty session.
