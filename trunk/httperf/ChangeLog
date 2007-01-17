@@ -1,3 +1,7 @@
+2007-01-02  Ted Bullock <tbullock@canada.com>
+
+	*License: Included openssl linking exception
+
 2006-12-08  Ted Bullock <tbullock@canada.com>
 	
 	* Bug Fixes: Added a number of fixes from the mailing lists
