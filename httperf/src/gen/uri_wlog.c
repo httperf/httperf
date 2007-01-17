@@ -1,7 +1,7 @@
 /*
     httperf -- a tool for measuring web server performance
-    Copyright (C) 2000  Hewlett-Packard Company
-    Contributed by Stephane Eranian <eranian@hpl.hp.com>
+    Copyright (C) 2007  Hewlett-Packard Company and Contributors
+    Contributed by David Mosberger-Tang
 
     This file is part of httperf, a web server performance measurment
     tool.
@@ -10,6 +10,16 @@
     modify it under the terms of the GNU General Public License as
     published by the Free Software Foundation; either version 2 of the
     License, or (at your option) any later version.
+    
+    In addition, as a special exception, the copyright holders give
+    permission to link the code of this work with the OpenSSL project's
+    "OpenSSL" library (or with modified versions of it that use the same
+    license as the "OpenSSL" library), and distribute linked combinations
+    including the two.  You must obey the GNU General Public License in
+    all respects for all of the code used other than "OpenSSL".  If you
+    modify this file, you may extend this exception to your version of the
+    file, but you are not obligated to do so.  If you do not wish to do
+    so, delete this exception statement from your version.
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
