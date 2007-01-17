@@ -8,7 +8,7 @@ AC_CONFIG_HEADER([config.h])
 
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(httperf, 0.9)
+AM_INIT_AUTOMAKE(httperf, 0.9.0)
 
 # Turn on Debug if necessary
 AC_ARG_ENABLE(debug,
