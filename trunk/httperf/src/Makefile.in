@@ -37,7 +37,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-bin_PROGRAMS = httperf$(EXEEXT)
+bin_PROGRAMS = httperf$(EXEEXT) idleconn$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -55,6 +55,9 @@ am_httperf_OBJECTS = httperf.$(OBJEXT) object.$(OBJEXT) call.$(OBJEXT) \
 	http.$(OBJEXT) timer.$(OBJEXT)
 httperf_OBJECTS = $(am_httperf_OBJECTS)
 httperf_DEPENDENCIES = gen/libgen.a lib/libutil.a stat/libstat.a
+am_idleconn_OBJECTS = idleconn.$(OBJEXT)
+idleconn_OBJECTS = $(am_idleconn_OBJECTS)
+idleconn_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -62,8 +65,8 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(httperf_SOURCES)
-DIST_SOURCES = $(httperf_SOURCES)
+SOURCES = $(httperf_SOURCES) $(idleconn_SOURCES)
+DIST_SOURCES = $(httperf_SOURCES) $(idleconn_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
@@ -173,6 +176,7 @@ SUBDIRS = gen lib stat
 AM_CFLAGS = -Wall -I$(srcdir)/{gen,lib,stat}/
 AM_LDFLAGS = -lm
 httperf_SOURCES = httperf.c object.c call.c conn.c sess.c core.c event.c http.c timer.c
+idleconn_SOURCES = idleconn.c
 httperf_LDADD = gen/libgen.a lib/libutil.a stat/libstat.a
 all: all-recursive
 
@@ -233,6 +237,9 @@ clean-binPROGRAMS:
 httperf$(EXEEXT): $(httperf_OBJECTS) $(httperf_DEPENDENCIES) 
 	@rm -f httperf$(EXEEXT)
 	$(LINK) $(httperf_LDFLAGS) $(httperf_OBJECTS) $(httperf_LDADD) $(LIBS)
+idleconn$(EXEEXT): $(idleconn_OBJECTS) $(idleconn_DEPENDENCIES) 
+	@rm -f idleconn$(EXEEXT)
+	$(LINK) $(idleconn_LDFLAGS) $(idleconn_OBJECTS) $(idleconn_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -246,6 +253,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/event.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/http.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/httperf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/idleconn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/object.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sess.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/timer.Po@am__quote@
