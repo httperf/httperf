@@ -3,7 +3,7 @@
 
 srcdir=`dirname $0`
 
-#ACLOCAL_FLAGS="-I ${srcdir}/m4 ${ACLOCAL_FLAGS}"
+ACLOCAL_FLAGS="-I ${srcdir}/m4 ${ACLOCAL_FLAGS}"
 
 fail() {
     status=$?
