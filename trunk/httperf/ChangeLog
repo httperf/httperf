@@ -1,3 +1,13 @@
+2007-01-20  Ted Bullock  <tbullock@canada.com>
+
+	* Included the shell script autogen.sh to compile the necessary 
+	autotool components.
+	
+	* Removed redundant configuration files from CVS, regenerate these
+	with the autogen.sh script (recommend autoconf 2.60 and above)
+
+	* Removed the ttest.c file from CVS
+
 2007-01-16  Ted Bullock <tbullock@canada.com>
 	* Build System: Updated build system to a more typical directory
 	layout and wrote missing makefile.am files for automake
