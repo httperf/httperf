@@ -3,7 +3,7 @@
 
 srcdir=`dirname $0`
 
-ACLOCAL_FLAGS="-I ${srcdir}/m4 ${ACLOCAL_FLAGS}"
+#ACLOCAL_FLAGS="-I ${srcdir}/m4 ${ACLOCAL_FLAGS}"
 
 fail() {
     status=$?
@@ -15,14 +15,14 @@ fail() {
 # Refresh GNU autotools toolchain: libtool
 echo "Removing libtool cruft"
 rm -f ltmain.sh config.guess config.sub
-echo "Running libtoolize"
-libtoolize --copy --force || fail
 
 # Refresh GNU autotools toolchain: aclocal autoheader
 echo "Removing aclocal cruft"
 rm -f aclocal.m4
 echo "Running aclocal $ACLOCAL_FLAGS"
 aclocal $ACLOCAL_FLAGS || fail
+echo "Running libtoolize"
+libtoolize --copy --force || fail
 echo "Removing autoheader cruft"
 rm -f config.h.in src/config.h.in
 echo "Running autoheader"
