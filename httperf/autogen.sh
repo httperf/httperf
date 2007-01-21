@@ -23,6 +23,8 @@ echo "Running aclocal $ACLOCAL_FLAGS"
 aclocal $ACLOCAL_FLAGS || fail
 echo "Running libtoolize"
 libtoolize --copy --force || fail
+echo "Running aclocal $ACLOCAL_FLAGS"
+aclocal $ACLOCAL_FLAGS || fail
 echo "Removing autoheader cruft"
 rm -f config.h.in src/config.h.in
 echo "Running autoheader"
