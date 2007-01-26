@@ -1,11 +1,13 @@
 SUBDIRS = gen lib stat
 
 # what flags you want to pass to the C compiler & linker
-AM_CFLAGS = -Wall -I$(srcdir)/{gen,lib,stat}/
+AM_CFLAGS = -Wall -I$(srcdir)/{gen,lib,stat}/ -I.
 AM_LDFLAGS = -lm
 
 bin_PROGRAMS = httperf idleconn
-httperf_SOURCES = httperf.c object.c call.c conn.c sess.c core.c event.c http.c timer.c
+httperf_SOURCES = httperf.c httperf.h object.c object.h call.c call.h conn.c \
+  conn.h sess.c sess.h core.c core.h event.c event.h http.c http.h timer.c \
+  timer.h
 idleconn_SOURCES = idleconn.c
 
 httperf_LDADD = gen/libgen.a lib/libutil.a stat/libstat.a
