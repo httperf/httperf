@@ -36,7 +36,7 @@ AC_CHECK_LIB(resolv, inet_aton)
 # Checks for header files.
 AC_FUNC_ALLOCA
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h libintl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h openssl/ssl.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h libintl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h openssl/ssl.h getopt.h])
 
 if test "$ac_cv_header_openssl_ssl_h" = "yes" \
 	-a "$ac_cv_lib_ssl_SSL_version" = "yes" \

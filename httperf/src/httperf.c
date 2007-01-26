@@ -61,7 +61,9 @@
 
 #include <ctype.h>
 #include <errno.h>
-#include <getopt.h>
+#ifdef HAVE_GETOPT_H
+  #include <getopt.h>
+#endif  
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
