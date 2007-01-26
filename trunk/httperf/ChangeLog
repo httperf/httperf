@@ -1,3 +1,7 @@
+2007-01-25  Ted Bullock  <tbullock@canada.com>
+
+	* wsesslog.c changed a sprintf call to the more secure snprintf
+
 2007-01-20  Ted Bullock  <tbullock@canada.com>
 
 	* Included the shell script autogen.sh to compile the necessary 
