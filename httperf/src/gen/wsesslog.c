@@ -553,7 +553,8 @@ parse_config (void)
 	      if ((sptr->current_req->contents_len = strlen (contents)) != 0)
 		{
 		  sptr->current_req->contents = strdup (contents);
-		  sprintf (sptr->current_req->extra_hdrs,
+		  snprintf (sptr->current_req->extra_hdrs,
+			    sizeof(sptr->current_req->extra_hdrs),
 			    "Content-length: %d\r\n",
 			   sptr->current_req->contents_len);
 		  sptr->current_req->extra_hdrs_len =
