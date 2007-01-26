@@ -353,7 +353,7 @@ _getopt_initialize (optstring)
 	 file name wildcard expansion and therefore should not be
 	 considered as options.  */
       char var[100];
-      sprintf (var, "_%d_GNU_nonoption_argv_flags_", getpid ());
+      snprintf (var, sizeof(var), "_%d_GNU_nonoption_argv_flags_", getpid ());
       nonoption_flags = getenv (var);
       if (nonoption_flags == NULL)
 	nonoption_flags_len = 0;
