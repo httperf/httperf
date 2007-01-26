@@ -1,3 +1,9 @@
+2007-01-26  Ted Bullock  <tbullock@canada.com>
+
+	* Removed getopt.c and getopt1.c from build process
+
+	* httperf.c Wrapped call to getopt.h in pre-processor checks
+
 2007-01-25  Ted Bullock  <tbullock@canada.com>
 
 	* wsesslog.c changed a sprintf call to the more secure snprintf
