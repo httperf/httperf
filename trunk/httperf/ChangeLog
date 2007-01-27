@@ -1,5 +1,11 @@
 2007-01-26  Ted Bullock  <tbullock@canada.com>
 
+	* Re-Added the getopt.c and getopt1.c to the build process
+	httperf now compiles on Linux, OpenBSD, FreeBSD,  Solaris
+	(with cc and gcc) and HP-UX 11i (with cc and gcc)
+
+2007-01-26  Ted Bullock  <tbullock@canada.com>
+
 	* Revised Makefile.am for src directories to explicitly include the
 	.h files to allow make distcheck to pass
 
