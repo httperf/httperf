@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT(httperf, 0.9, httperf@linux.hpl.hp.com)
+AC_INIT(httperf, 0.9.0, httperf@linux.hpl.hp.com)
 AC_CONFIG_SRCDIR([src/httperf.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -19,13 +19,14 @@ if test "$enable_debug" = yes; then
 fi
 
 # Checks for programs.
-AC_PROG_CC
 AC_GNU_SOURCE
+AC_PROG_CC([cc gcc])
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AC_PROG_GCC_TRADITIONAL
 
 # Checks for libraries.
+AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(crypto, main)
 AC_CHECK_LIB(ssl, SSL_version)
 # The following checks are for solaris and its ilk
@@ -71,6 +72,6 @@ AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
 AC_FUNC_STRTOD
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([gethostbyname gettimeofday memset munmap select socket strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol strtoul inet_aton])
+AC_CHECK_FUNCS([gethostbyname gettimeofday memset munmap select socket strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol strtoul inet_aton getopt_long])
 
 AC_OUTPUT(Makefile man/Makefile src/stat/Makefile src/lib/Makefile src/gen/Makefile src/Makefile)
