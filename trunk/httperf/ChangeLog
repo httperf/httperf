@@ -1,5 +1,9 @@
 2007-02-07  Ted Bullock  <tbullock@canada.com>
 
+	* AUTHORS: wsseslog crash fix was actually written by David Mosberger
+
+2007-02-07  Ted Bullock  <tbullock@canada.com>
+
 	* AUTHORS: Removed Durval Menezes from AUTHORS file since his fix
 	has been re-written by Theodore Bullock
 
