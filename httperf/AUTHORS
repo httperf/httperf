@@ -1,5 +1,4 @@
 Ted Bullock		(compiler fixes, alloca include)
-Durval Menezes		(configuration fix)
 Tai Jin			(zero-length content fix)
 David Mosberger		(main sources)
 Martin Arlitt		(SSL support, timer reset fix, wsesslog crash fix)
