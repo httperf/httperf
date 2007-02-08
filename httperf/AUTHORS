@@ -1,6 +1,6 @@
 Ted Bullock		(compiler fixes, alloca include)
 Tai Jin			(zero-length content fix)
-David Mosberger		(main sources)
-Martin Arlitt		(SSL support, timer reset fix, wsesslog crash fix)
+David Mosberger		(main sources, wsesslog crash fix)
+Martin Arlitt		(SSL support, timer reset fix)
 Stephane Eranian	(wlog URI generator)
 Richard Carter		(wsesslog workload generator)
