@@ -1,40 +1,40 @@
 2007-02-07  Ted Bullock  <tbullock@canada.com>
 
-	* httperf.1 Added correction to man page to include a missing
+	* httperf.1: Added correction to man page to include a missing
 	--wsess identification
 
 2007-01-26  Ted Bullock  <tbullock@canada.com>
 
-	* Re-Added the getopt.c and getopt1.c to the build process
-	httperf now compiles on Linux, OpenBSD, FreeBSD,  Solaris
-	(with cc and gcc) and HP-UX 11i (with cc and gcc)
+	* getopt.c and getopt1.c: Re-Added the to the build process
+	httperf now compiles on Linux, OpenBSD, FreeBSD, Solaris, HP-UX 11i
+	with cc and gcc and (with cc and gcc)
 
 2007-01-26  Ted Bullock  <tbullock@canada.com>
 
-	* Revised Makefile.am for src directories to explicitly include the
+	* Makefile.am: Revised Makefile.am for src directories to explicitly include the
 	.h files to allow make distcheck to pass
 
 2007-01-26  Ted Bullock  <tbullock@canada.com>
 
-	* Removed getopt.c and getopt1.c from build process
+	* getopt.c and getopt1.c: Removed from build process
 
-	* httperf.c Wrapped call to getopt.h in pre-processor checks
+	* httperf.c: Wrapped call to getopt.h in pre-processor checks
 
 2007-01-25  Ted Bullock  <tbullock@canada.com>
 
-	* wsesslog.c changed a sprintf call to the more secure snprintf
+	* wsesslog.c: changed a sprintf call to the more secure snprintf
 
-	*getopt.c changed a sprintf call to the more secure snprintf
+	* getopt.c: changed a sprintf call to the more secure snprintf
 
 2007-01-20  Ted Bullock  <tbullock@canada.com>
 
-	* Included the shell script autogen.sh to compile the necessary 
+	* autogen.sh: Included the shell script autogen.sh to compile the necessary 
 	autotool components.
 	
-	* Removed redundant configuration files from CVS, regenerate these
+	* autogen.sh: Removed redundant configuration files from CVS, regenerate these
 	with the autogen.sh script (recommend autoconf 2.60 and above)
 
-	* Removed the ttest.c file from CVS
+	* ttest.c: Removed the ttest.c file from CVS
 
 2007-01-16  Ted Bullock <tbullock@canada.com>
 	* Build System: Updated build system to a more typical directory
