@@ -1,7 +1,7 @@
 /*
     httperf -- a tool for measuring web server performance
-    Copyright (C) 2007  Hewlett-Packard Company and Contributors
-    Contributed by David Mosberger-Tang
+    Copyright (C) 2007  Hewlett-Packard Company and Contributors listed in
+    AUTHORS file. Originally contributed by David Mosberger-Tang
 
     This file is part of httperf, a web server performance measurment
     tool.
@@ -31,7 +31,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
     02111-1307 USA
 */
-
 #include <httperf.h>
 #include <event.h>
 #include <sess.h>
