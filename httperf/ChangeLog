@@ -1,3 +1,8 @@
+2007-03-31  Ted Bullock <tbullock@canada.com>
+
+	* *.c and *.h: Adjusted license to explicitly list HP copyright as
+	Copyright 2000-2007 Hewlett-Packard Company
+
 2007-02-07  Ted Bullock  <tbullock@canada.com>
 
 	* AUTHORS: wsseslog crash fix was actually written by David Mosberger
