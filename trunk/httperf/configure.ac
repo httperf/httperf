@@ -2,13 +2,13 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT(httperf, 0.9.0, httperf@linux.hpl.hp.com)
+AC_INIT(httperf, 0.9.99, httperf@linux.hpl.hp.com)
 AC_CONFIG_SRCDIR([src/httperf.c])
 AC_CONFIG_HEADER([config.h])
 
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(httperf, 0.9.0)
+AM_INIT_AUTOMAKE(httperf, 0.9.99)
 
 # Turn on Debug if necessary
 AC_ARG_ENABLE(debug,
