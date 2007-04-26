@@ -57,10 +57,17 @@ environment variables.
 	that SSL data transferred when using httperf is (well)
 	encrypted!
 
-This release of httperf has been tested under HP-UX 10.20 and 11.0,
-various versions of Red Hat Linux, both on the x86 and IA-64
-architectures.  It should be straight-forward to build httperf on
-other platforms, but your mileage may vary.
+This release of httperf has been tested under the following operating systems:
+HP-UX 11i (64-bit PA-RISC and IA-64)
+Red Hat Enterprise Linux AS (AMD64 and IA-64)
+SUSE Linux 10.1 (i386)
+openSUSE 10.2 (i386)
+OpenBSD 4.0 (i386)
+FreeBSD 6.0 (AMD64)
+Solaris 8 (UltraSparc 64-bit)
+
+It should be straight-forward to build httperf on other platforms, please report
+any build problems to the mailing list along with the platform specifications.
 
 * Mailing list
 
