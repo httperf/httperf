@@ -1,3 +1,7 @@
+2007-05-27  Ted Bullock <tbullock@canada.com>
+
+	* man/httperf.1: Fixed man page typo for --wset option (needed --uri, not --wset)
+
 2007-05-27  Andrew Hateley <andrew.hateley@gmail.com>
 
 	* man/httperf.1: New documentation regarding the variable periodic rates

@@ -9,6 +9,7 @@ Martin Arlitt
 Ted Bullock
   compiler warning fixes
   gnu auto tool build system
+  man page --wset typo fix regarding --uri
 
 Tai Jin
   zero-length content fix
