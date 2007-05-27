@@ -42,6 +42,9 @@
 #include <rate.h>
 #include <timer.h>
 
+int current_rate = 0;
+Time duration_in_current_rate = 0;
+
 /* By pushing the random number generator state into the caller via
    the xsubi array below, we gain some test repeatability.  For
    example, let us say one generator was starting sessions, and a
@@ -73,6 +76,24 @@ next_arrival_time_exp (Rate_Generator *rg)
   Time mean = rg->rate->mean_iat;
 
   return -mean*log (1.0 - erand48 (rg->xsubi));
+}
+
+static Time
+next_arrival_time_variable (Rate_Generator *rg)
+{
+  Time next;
+
+  next = rg->rate->iat[current_rate];
+  duration_in_current_rate += next;
+
+  if (duration_in_current_rate >= rg->rate->duration[current_rate])
+    {
+      current_rate++;
+      if (current_rate >= rg->rate->numRates)
+	current_rate = 0;
+      duration_in_current_rate = 0;
+    }
+  return (next);
 }
 
 static void
@@ -133,6 +154,7 @@ rate_generator_start (Rate_Generator *rg, Event_Type completion_event)
 	case DETERMINISTIC: func = next_arrival_time_det; break;
 	case UNIFORM:	    func = next_arrival_time_uniform; break;
 	case EXPONENTIAL:   func = next_arrival_time_exp; break;
+	case VARIABLE:      func = next_arrival_time_variable; break;
 	default:
 	  fprintf (stderr, "%s: unrecognized interarrival distribution %d\n",
 		   prog_name, rg->rate->dist);

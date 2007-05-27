@@ -1,3 +1,10 @@
+2007-05-27  Andrew Hateley <andrew.hateley@gmail.com>
+
+	* man/httperf.1: New documentation regarding the variable periodic rates
+	* src/httperf.c: New functionality for variable periodic rates
+	* src/httperf.h: ditto
+	* src/timer.c: ditto
+
 2007-03-31  Ted Bullock <tbullock@canada.com>
 
 	* *.c and *.h: Adjusted license to explicitly list HP copyright as

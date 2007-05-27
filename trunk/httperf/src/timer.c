@@ -75,7 +75,10 @@ timer_now_forced (void)
 Time
 timer_now (void)
 {
-  return now;
+  if(param.use_timer_cache)
+    return now;
+  else
+    return timer_now_forced ();
 }
 
 void

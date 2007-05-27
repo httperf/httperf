@@ -1,72 +1,72 @@
-.TH httperf 1 "30 Oct 2000"
-.IX httperf
-.SH NAME
+.\" .IX httperf
+.TH "httperf" "1" "27 May 2007" "" ""
+.SH "NAME"
 httperf \- HTTP performance measurement tool
-.SH SYNOPSIS
+.SH "SYNOPSIS"
 .B httperf
-.RB [ --add-header
-.IR S ]
-.RB [ --burst-length
-.IR N ]
-.RB [ --client
-.IR I / N ]
-.RB [ --close-with-reset ]
-.RB [ -d | --debug
-.IR N ]
-.RB [ --failure-status
-.IR N ]
-.RB [ -h | --help ]
-.RB [ --hog ]
-.RB [ --http-version
-.IR S ]
-.RB [ --max-connections
-.IR N ]
-.RB [ --max-piped-calls
-.IR N ]
-.RB [ --method
-.IR S ]
-.RB [ --no-host-hdr ]
-.RB [ --num-calls 
-.IR N ]
-.RB [ --num-conns
-.IR N ]
-.RB [ --period " [" d | u | e ] \fIT1\fR [ ,\fIT2\fR ]]
-.RB [ --port
-.IR N ]
-.RB [ --print-reply " [" header | body ] ]
-.RB [ --print-request " [" header | body ] ]
-.RB [ --rate
-.IR X ]
-.RB [ --recv-buffer
-.IR N ]
-.RB [ --retry-on-failure ]
-.RB [ --send-buffer
-.IR N ]
-.RB [ --server
-.IR S ]
-.RB [ --server-name
-.IR S ]
-.RB [ --session-cookie ]
-.RB [ --ssl ]
-.RB [ --ssl-ciphers
-.IR L ]
-.RB [ --ssl-no-reuse ]
-.RB [ --think-timeout
-.IR X ]
-.RB [ --timeout
-.IR X ]
-.RB [ --uri
-.IR S ]
-.RB [ -v | --verbose ]
-.RB [ -V | --version ]
-.RB [ "--wlog y" | n, \fIF\fR]
-.RB [ --wsess
-.IR N , N , X ]
-.RB [ --wsesslog
-.IR N , X , F ]
-.RB [ --wset
-.IR N , X ]
-.SH DESCRIPTION
+.RB [ \-\-add\-header
+.I R S ]
+.RB [ \-\-burst\-length
+.I R N ]
+.RB [ \-\-client
+.I R I / N ]
+.RB [ \-\-close\-with\-reset ]
+.RB [ \-d | \-\-debug
+.I R N ]
+.RB [ \-\-failure\-status
+.I R N ]
+.RB [ \-h | \-\-help ]
+.RB [ \-\-hog ]
+.RB [ \-\-http\-version
+.I R S ]
+.RB [ \-\-max\-connections
+.I R N ]
+.RB [ \-\-max\-piped\-calls
+.I R N ]
+.RB [ \-\-method
+.I R S ]
+.RB [ \-\-no\-host\-hdr ]
+.RB [ \-\-num\-calls 
+.I R N ]
+.RB [ \-\-num\-conns
+.I R N ]
+.RB [ \-\-period " [" d | u | e ] \fIT1\fR [ ,\fIT2\fR ]]
+.RB [ \-\-port
+.I R N ]
+.RB [ \-\-print\-reply " [" header | body ] ]
+.RB [ \-\-print\-request " [" header | body ] ]
+.RB [ \-\-rate
+.I R X ]
+.RB [ \-\-recv\-buffer
+.I R N ]
+.RB [ \-\-retry\-on\-failure ]
+.RB [ \-\-send\-buffer
+.I R N ]
+.RB [ \-\-server
+.I R S ]
+.RB [ \-\-server\-name
+.I R S ]
+.RB [ \-\-session\-cookie ]
+.RB [ \-\-ssl ]
+.RB [ \-\-ssl\-ciphers
+.I R L ]
+.RB [ \-\-ssl\-no\-reuse ]
+.RB [ \-\-think\-timeout
+.I R X ]
+.RB [ \-\-timeout
+.I R X ]
+.RB [ \-\-uri
+.I R S ]
+.RB [ \-v | \-\-verbose ]
+.RB [ \-V | \-\-version ]
+.RB [ "\-\-wlog y" | n, \fIF\fR]
+.RB [ \-\-wsess
+.I R N , N , X ]
+.RB [ \-\-wsesslog
+.I R N , X , F ]
+.RB [ \-\-wset
+.I R N , X ]
+.SH "DESCRIPTION"
 .B httperf
 is a tool to measure web server performance.  It speaks the HTTP
 protocol both in its HTTP/1.0 and HTTP/1.1 flavors and offers a
@@ -85,90 +85,90 @@ To obtain correct results, it is necessary to run at most one
 process per client machine.  Also, there should be as few background
 processes as possible both on the client and server machines.
 
-.SH EXAMPLES
-.TP
-httperf --hog --server www
+.SH "EXAMPLES"
+.TP 
+httperf \-\-hog \-\-server www
 This command causes
 .B httperf
 to create a connection to host www, send a request for the root
 document (http://www/), receive the reply, close the connection, and
 then print some performance statistics.
-.TP
-httperf --hog --server www --num-conn 100 --ra 10 --timeout 5
+.TP 
+httperf \-\-hog \-\-server www \-\-num\-conn 100 \-\-ra 10 \-\-timeout 5
 Like above, except that a total of 100 connections are created and
 that connections are created at a fixed rate of 10 per second.  Note
-that option ``--rate'' has been abbreviated to ``--ra''.
-.TP
-httperf --hog --server=www --wsess=10,5,2 --rate 1 --timeout 5
+that option ``\-\-rate'' has been abbreviated to ``\-\-ra''.
+.TP 
+httperf \-\-hog \-\-server=www \-\-wsess=10,5,2 \-\-rate 1 \-\-timeout 5
 Causes
 .B httperf
 to generate a total of 10 sessions at a rate of 1 session per second.
 Each session consists of 5 calls that are spaced out by 2 seconds.
-.TP
-httperf --hog --server=www --wsess=10,5,2 --rate=1 --timeout=5 --ssl
+.TP 
+httperf \-\-hog \-\-server=www \-\-wsess=10,5,2 \-\-rate=1 \-\-timeout=5 \-\-ssl
 Like above, except that
 .B httperf
 contacts server www via SSL at port 443 (the default port for SSL
 connections).
-.TP
-httperf --hog --server www --wsess=10,5,2 --rate=1 --timeout=5 --ssl --ssl-ciphers=EXP-RC4-MD5:EXP-RC2-CBC-MD5 --ssl-no-reuse --http-version=1.0
+.TP 
+httperf \-\-hog \-\-server www \-\-wsess=10,5,2 \-\-rate=1 \-\-timeout=5 \-\-ssl \-\-ssl\-ciphers=EXP\-RC4\-MD5:EXP\-RC2\-CBC\-MD5 \-\-ssl\-no\-reuse \-\-http\-version=1.0
 Like above, except that
 .B httperf
 will inform the server that it can only select from two cipher suites
-(EXP-RC4-MD5 or EXP-RC2-CBC-MD5); furthermore,
+(EXP\-RC4\-MD5 or EXP\-RC2\-CBC\-MD5); furthermore,
 .B httperf
 will use HTTP version 1.0 which requires a new TCP connection for each
 request.  Also, SSL session ids are not reused, so the entire SSL
 connection establishment process (known as the SSL handshake) occurs
 for each connection.
-.SH OPTIONS
+.SH "OPTIONS"
 The operation of
 .B httperf
 can be controlled through a number of options.  The tool supports both
-short (one-character) and long (arbitrary-length) option names.  Short
-options are prefixed with a single leading dash (-), long
-options with a double-dash (--).  Multiple short options can be
+short (one\-character) and long (arbitrary\-length) option names.  Short
+options are prefixed with a single leading dash (\-), long
+options with a double\-dash (\-\-).  Multiple short options can be
 grouped together (e.g.,
-.RB `` -vV ''
+.RB `` \-vV ''
 is equivalent to
-.RB `` "-v -V" '')
+.RB `` "\-v \-V" '')
 and long options can be abbreviated so long as they remain unique.
 Parameters to options can be specified either by following the long
 option name with an equal sign and the parameter value (e.g.,
-.BR --burst=10 )
+.BR \-\-burst=10 )
 or by separating the option name and value with whitespace (e.g.,
-.BR "--burst 10" ).
-.TP
-.BI --add-header= S
+.BR "\-\-burst 10" ).
+.TP 
+.BI \-\-add\-header= S
 Specifies to include string
 .I S
 as an additional request header.  It is necessary to specify the
-terminating carriage-return/line-feed sequence explicitly.  This can
+terminating carriage\-return/line\-feed sequence explicitly.  This can
 be done by using the escape sequence ``\\n''.  This makes it possible
-to include multiple request headers.  For example, ``--add-header
+to include multiple request headers.  For example, ``\-\-add\-header
 "Referer: foo\\nAuth: secret\\n"'' would add two request headers
 (``Referer'' and ``Auth'') to each request.  Other supported escape
-sequences are ``\\r'' (carriage-return), ``\\a'' (line-feed), ``\\\\''
+sequences are ``\\r'' (carriage\-return), ``\\a'' (line\-feed), ``\\\\''
 (backslash), and ``\\N'' where N is the code the character to be
 inserted (in octal).
-.TP
-.BI --burst-length= N
+.TP 
+.BI \-\-burst\-length= N
 Specifies the length of bursts.  Each burst consists of
 .I N
 calls to the server.  The exact meaning of this parameter depends on
-the workload generator.  For regular request-oriented workloads, see the
+the workload generator.  For regular request\-oriented workloads, see the
 description of option
-.BR --wsess .
-.TP
-.BR --no-host-hdr
+.BR \-\-wsess .
+.TP 
+.BR \-\-no\-host\-hdr
 Specifies that the "Host:" header should not be included when issuing
 an HTTP request.
-.TP
-.BR --num-calls .
-For session-oriented workloads, see the description of option
-.BR --wsess .
-.TP
-.BI --client= I / N
+.TP 
+.BR \-\-num\-calls .
+For session\-oriented workloads, see the description of option
+.BR \-\-wsess .
+.TP 
+.BI \-\-client= I / N
 Specifies that the machine
 .B httperf
 is running on is client
@@ -178,15 +178,15 @@ out of a total of
 clients.
 .I I
 should be in the range from 0 to
-.IR N "-1."
+.I R N "\-1."
 Some of the workload generators (e.g.,
-.BR --wset)
+.BR \-\-wset)
 use the client identity as a bias value to ensure that not all clients
 generate perfectly identical workloads.  When performing a test that
 involves several client machines, it is generally a good idea to
 specify this option.
-.TP
-.BI --close-with-reset
+.TP 
+.BI \-\-close\-with\-reset
 Requests that
 .B httperf
 closes TCP connections by sending a RESET instead of going through the
@@ -195,36 +195,36 @@ have ill effects such as data corruption, stuck TCP control blocks, or
 wrong results.  For this reason, the option should not be used unless
 absolutely necessary and even then it should not be used unless its
 implications are fully understood.
-.TP
-.BI -d= N
-.TP
-.BI --debug= N
+.TP 
+.BI \-d= N
+.TP 
+.BI \-\-debug= N
 Set debug level to
-.IR N .
+.I R N .
 Larger values of
 .I N
 will result in more output.
-.TP
-.BI --failure-status= N
+.TP 
+.BI \-\-failure\-status= N
 Specifies that an HTTP response status code of
 .I N
 should be treated as a failure (i.e., treated as if the request had
 timed out, for example).  For example, with
-.RB `` --failure-status=504 ''
-responses with an HTTP status of ``504 Gateway Time-out'' would be
+.RB `` \-\-failure\-status=504 ''
+responses with an HTTP status of ``504 Gateway Time\-out'' would be
 considered failures.  Caveat: this option is currently supported
 for session workloads only (see the
-.B --wsess
+.B \-\-wsess
 and
-.B --wsesslog
+.B \-\-wsesslog
 options).
-.TP
-.B -h
-.TP
-.B --help
+.TP 
+.B \-h
+.TP 
+.B \-\-help
 Prints a summary of available options and their parameters.
-.TP
-.BI --hog
+.TP 
+.BI \-\-hog
 This option requests to use up as many TCP ports as necessary.
 Without this option,
 .B httperf
@@ -234,51 +234,51 @@ it is generally a good idea to specify this option for serious
 testing.  Also, this option must be specified when measuring NT
 servers since it avoids a TCP incompatibility between NT and UNIX
 machines.
-.TP
-.BI --http-version= S
+.TP 
+.BI \-\-http\-version= S
 Specifies the version string that should be included in the requests
 sent to the server.  By default, version string ``1.1'' is used.  This
 option can be set to ``1.0'' to force the generation of HTTP/1.0
 requests.  Setting this option to any value other than ``1.0'' or ``1.1''
 may result in undefined behavior.
-.TP
-.BI --max-connections= N
+.TP 
+.BI \-\-max\-connections= N
 Specifies that at most
 .I N
 connections are opened for each session.  This option is meaningful in
 conjunction with options
-.B --wsess
+.B \-\-wsess
 and
-.B --wsesslog
+.B \-\-wsesslog
 only.
-.TP
-.BI --max-piped-calls= N
+.TP 
+.BI \-\-max\-piped\-calls= N
 Specifies that at most
 .I N
 pipelined calls are issued on each connection.  This option is
 meaningful in conjunction with options
-.B --wsess
+.B \-\-wsess
 and
-.B --wsesslog
+.B \-\-wsesslog
 only.
-.TP
-.BI --method= S
+.TP 
+.BI \-\-method= S
 Specifies the method that should be used when issuing an HTTP request.
 If this option is not specified, the GET method is used.  The method
 .I S
 can be an arbitrary string but is usually one of GET, HEAD, PUT, POST,
 etc.
-.TP
-.BI --num-calls= N
-This option is meaningful for request-oriented workloads only.  It
+.TP 
+.BI \-\-num\-calls= N
+This option is meaningful for request\-oriented workloads only.  It
 specifies the total number of calls to issue on each connection before
 closing it.  If
 .I N
 is greater than 1, the server must support persistent connections.
 The default value for this option is 1.  If
-.BR --burst-length
+.BR \-\-burst\-length
 is set to
-.IR B ,
+.I R B ,
 then the
 .I N
 calls are issued in bursts of
@@ -287,37 +287,37 @@ pipelined calls each.  Thus, the total number of such bursts will
 be
 .I N/B
 (per connection).
-.TP
-.BI --num-conns= N
-This option is meaningful for request-oriented workloads only.  It
+.TP 
+.BI \-\-num\-conns= N
+This option is meaningful for request\-oriented workloads only.  It
 specifies the total number of connections to create.  On each
 connection, calls are issued as specified by options
-.B --num-calls
+.B \-\-num\-calls
 and
-.BR --burst-length .
+.BR \-\-burst\-length .
 A test stops as soon as the
 .I N
 connections have either completed or failed.  A connection is
 considered to have failed if any activity on the connection fails to
 make forward progress for more than the time specified by the timeout
 options
-.B --timeout
+.B \-\-timeout
 and
-.BR --think-timeout .
+.BR \-\-think\-timeout .
 The default value for this option is 1.
-.TP
-.BI --period= [D]T1[,T2]
+.TP 
+.BI \-\-period= [D]T1[,T2]
 Specifies the time interval between the creation of connections or sessions.
 Connections are created by default, sessions if option
-.B --wsess
+.B \-\-wsess
 or
-.B --wsesslog
+.B \-\-wsesslog
 has been specified.
 This connection/session ``interarrival time'' can alternatively be specified by
 the 
-.B --rate
+.B \-\-rate
 option, although more flexibility is available with
-.B --period.
+.B \-\-period.
 The
 .I D
 parameter specifies the interarrival time distribution.
@@ -325,7 +325,7 @@ If omitted or set to
 .RB `` d '',
 a deterministic (i.e., fixed) period is used as specified
 by parameter
-.IR T1
+.I R T1
 in units of seconds.
 If
 .I D
@@ -333,47 +333,60 @@ is set to
 .RB `` e '',
 an exponential (i.e., Poisson) distribution is used with
 a mean interarrival time of
-.IR T1 .
-Finally, if
+.I R T1 .
+If
 .I D
 is set to 
 .RB `` u '',
 a uniform distribution over the interval
 .RI [ T1 , T2 )
 is used for the interarrival time.
+Finally, if
+.I D
+is set to
+.RB ``v'',
+a number of rates can be specified as follows:
+.B \-\-period=vT1,D1,T2,D2...Tn,Dn 
+Where n <= NUM_RATES in httperf.h and
+.I Ti,Di
+represent the period time (i.e., 1/rate) and duration to
+maintain that rate (i.e.,
+.B \-\-period=v1,2,0.5,4 
+will generate 1 request/seconds for 2 seconds then
+2 requests/seconds for 4 seconds).  
 In all cases, a period of 0 results in connections
 or sessions being generated sequentially (a new connection/session is
 initiated as soon as the previous one completes).  The default value
 for this option is 0.  Note that specifying, for example,
-.B --rate=5
+.B \-\-rate=5
 is equivalent to specifying
-.B --period=d0.2
+.B \-\-period=d0.2
 or
-.BR --period=0.2 .
+.BR \-\-period=0.2 .
 By specifying
-.BR --period=u1,3 ,
+.BR \-\-period=u1,3 ,
 the interarrival times will be randomly chosen from the interval
-between 1 and 3 seconds.  The specific sequence of (pseudo-)random
+between 1 and 3 seconds.  The specific sequence of (pseudo\-)random
 interarrival times are identical from one
 .B httperf
 run to another as long as the values for the
-.B --period
+.B \-\-period
 and
-.B --client
+.B \-\-client
 options are identical.
-.TP
-.BI --port= N
+.TP 
+.BI \-\-port= N
 This option specifies the port number
 .I N
 on which the web server is listening for HTTP requests.  By default,
 .B httperf
 uses port number 80.
-.TP
-.BR --print-reply [ = [ header | body ]]
+.TP 
+.BR \-\-print\-reply [ = [ header | body ]]
 Requests the printing of the reply headers, body, and summary.  The
 output is directed to standard output.  Reply header lines are
 prefixed by "RH", reply body lines are prefixed by "RB", and the
-reply-size summary is prefixed by "RS".  The prefix is followed by a
+reply\-size summary is prefixed by "RS".  The prefix is followed by a
 serial number that uniquely identifies the call that the reply line is
 for and a colon (":") character that marks the beginning of the actual
 reply line.  To print only reply headers, pass argument
@@ -381,8 +394,8 @@ reply line.  To print only reply headers, pass argument
 to this option.  To print only the reply body, pass argument
 .B body
 to this option.
-.TP
-.BR --print-request [ = [ header | body ]]
+.TP 
+.BR \-\-print\-request [ = [ header | body ]]
 Requests the printing of the request headers, body (if one is
 present), and summary.  The output is directed to standard output.
 Request header lines are prefixed by "SH", request body lines are
@@ -394,80 +407,80 @@ only request headers, pass argument
 to this option.  To print only the request body, pass argument
 .B body
 to this option.
-.TP
-.BI --rate= X
+.TP 
+.BI \-\-rate= X
 Specifies the fixed rate at which connections or sessions are created.
 Connections are created by default, sessions if option
-.B --wsess
+.B \-\-wsess
 or
-.B --wsesslog
+.B \-\-wsesslog
 has been specified.  In both cases a rate of 0 results in connections
 or sessions being generated sequentially (a new session/connection is
 initiated as soon as the previous one completes).  The default value
 for this option is 0.
-.TP
-.BI --recv-buffer= N
+.TP 
+.BI \-\-recv\-buffer= N
 Specifies the maximum size of the socket receive buffers used to
 receive HTTP replies.  By default, the limit is 16KB.  A smaller value
-may help memory-constrained clients whereas a larger value may be
-necessary when communicating with a server over a high-bandwidth,
-high-latency connection.
-.TP
-.BI --retry-on-failure
+may help memory\-constrained clients whereas a larger value may be
+necessary when communicating with a server over a high\-bandwidth,
+high\-latency connection.
+.TP 
+.BI \-\-retry\-on\-failure
 This option is meaningful for session workloads only (see the
-.B --wsess
+.B \-\-wsess
 and
-.B --wsesslog
+.B \-\-wsesslog
 options).  If specified, a call that results in a failure response (as
 defined by the
-.B --failure-status
+.B \-\-failure\-status
 option) is retried immediately instead of causing the session to fail.
-.TP
-.BI --send-buffer= N
+.TP 
+.BI \-\-send\-buffer= N
 Specifies the maximum size of the socket send buffers used to send
 HTTP requests.  By default, the limit is 4KB.  A smaller value may
-help memory-constrained clients whereas a larger value may be
+help memory\-constrained clients whereas a larger value may be
 necessary when generating large requests to a server connected via a
-high-bandwidth, high-latency connection.
-.TP
-.BI --server= S
+high\-bandwidth, high\-latency connection.
+.TP 
+.BI \-\-server= S
 Specifies the IP hostname of the server.  By default, the hostname
 ``localhost'' is used.  This option should always be specified as it
 is generally not a good idea to run the client and the server on the
 same machine.
-.TP
-.BI --server-name= S
+.TP 
+.BI \-\-server\-name= S
 Specifies the (default) server name that appears in the "Host:" header
 of every request sent by
 .BR httperf .
 Without this option, the host name (or IP address) specified by option
-.B --server
+.B \-\-server
 is used instead.
-.TP
-.B --session-cookie
+.TP 
+.B \-\-session\-cookie
 When this option is turned on, cookie managment is enabled on a
-per-session basis.  What this means is that if a reply to a request
+per\-session basis.  What this means is that if a reply to a request
 that was generated by session
-.IR X 
+.I R X 
 contains a cookie, then all future requests sent by session
 .I X
 will include this cookie as well.  At present, the cookie manager in
 .B httperf
 supports only one cookie per session.  If a second cookie is received,
 the new cookie overwrites the existing one and a warning message is
-printed if ``--debug 1'' is on.
-.TP
-.B --ssl
+printed if ``\-\-debug 1'' is on.
+.TP 
+.B \-\-ssl
 Specifies that all communication between
 .B httperf
 and the server should utilize the Secure Sockets Layer (SSL) protocol.
 This option is available only if
 .B httperf
 was compiled with SSL support enabled.
-.TP
-.BI --ssl-ciphers= L
+.TP 
+.BI \-\-ssl\-ciphers= L
 This option is only meaningful if SSL is in use (see
-.B --ssl
+.B \-\-ssl
 option).  This option specifies the list
 .I L
 of cipher suites that
@@ -478,52 +491,52 @@ separated by a colon.  If the server does not accept any of the listed
 cipher suites, the connection establishment will fail and
 .B httperf
 will exit immediately.  If this option is not specified when the
-.B --ssl
+.B \-\-ssl
 option is present then
 .B httperf
 will use all of the SSLv3 cipher suites provided by the underlying SSL
 library.
-.TP
-.B --ssl-no-reuse
+.TP 
+.B \-\-ssl\-no\-reuse
 This option is only meaningful if SSL and sessions are in use (see
-.BR --ssl ,
-.BR --wsess ,
-.BR --wsesslog ).
+.BR \-\-ssl ,
+.BR \-\-wsess ,
+.BR \-\-wsesslog ).
 When an SSL connection is established the client receives a session
 identifier (session id) from the server.  On subsequent SSL
 connections, the client normally reuses this session id in order to
 avoid the expense of repeating the (slow) SSL handshake to establish a
 new SSL session and obtain another session id (even if the client
-attempts to re-use a session id, the server may force the client to
+attempts to re\-use a session id, the server may force the client to
 renegotiate a session).  By default
 .B httperf
 reuses the session id across all connections in a session.  If the
-.B --ssl-no-reuse
+.B \-\-ssl\-no\-reuse
 option is in effect, then
 .B httperf
 will not reuse the session id, and the entire SSL handshake will be
 performed for each new connection in a session.
-.TP
-.BI --think-timeout= X
+.TP 
+.BI \-\-think\-timeout= X
 Specifies the maximum time that the server may need to initiate
 sending the reply for a given request.  Note that this timeout value
 is added to the normal timeout value (see option
-.BR --timeout ).
+.BR \-\-timeout ).
 When accessing static web content, it is usually not necessary to
-specify this option.  However, when performing tests with long-running
+specify this option.  However, when performing tests with long\-running
 CGI scripts, it may be necessary to use this option to allow for
-larger response-times.  The default value for this option is zero
+larger response\-times.  The default value for this option is zero
 seconds, meaning that the server has to be able to respond within the
 normal timeout value.
-.TP
-.BI --timeout= X
+.TP 
+.BI \-\-timeout= X
 Specifies the amount of time
 .I X
 that
 .B httperf
 is willing to wait for a server reaction.  The timeout is specified in
 seconds and can be a fractional number (e.g.,
-.BR "--timeout 3.5" ).
+.BR "\-\-timeout 3.5" ).
 This timeout value is used when establishing a TCP connection, when
 sending a request, when waiting for a reply, and when receiving a
 reply.  If during any of those activities a request fails to make
@@ -531,36 +544,44 @@ forward progress within the alloted time,
 .B httperf
 considers the request to have died, closes the associated connection
 or session and increases the
-.B client-timo
+.B client\-timo
 error count.  The actual timeout value used when waiting for a reply
-is the sum of this timeout and the think-timeout (see option
-.BR --think-timeout ).
+is the sum of this timeout and the think\-timeout (see option
+.BR \-\-think\-timeout ).
 By default, the timeout value is infinity.
-.TP
-.BI --uri= S
+.TP 
+.BI \-\-uri= S
 Specifies that URI
 .I S
 should be accessed on the server.  For some of the workload generators
 (e.g.,
-.BR --wset ),
+.BR \-\-wset ),
 this option specifies the prefix for the URIs being accessed.
-.TP
-.B -v
-.TP
-.B --verbose
+.TP 
+.BI \-\-use\-timer\-cache
+This feature allows the user to specify whether they want to
+cache timestamps or not.  Timestamps are not cached by default, but
+the user can enable caching if higher performance is more important
+than timing accuracy. For small response sizes, disabling timer 
+caching reduced the performance of httperf by about
+10%; for larger response sizes there was little or no effect.
+.TP 
+.B \-v
+.TP 
+.B \-\-verbose
 Puts
 .B httperf
 into verbose mode.  In this mode, additional output such as the
 individual reply rate samples and connection lifetime histogram are
 printed.
-.TP
-.B -V
-.TP
-.B --version
+.TP 
+.B \-V
+.TP 
+.B \-\-version
 Prints the version of
 .BR httperf .
-.TP
-.BI --wlog= B , F
+.TP 
+.BI \-\-wlog= B , F
 This option can be used to generate a specific sequence of URI
 accesses.  This is useful to replay the accesses recorded in a server
 log file, for example.  Parameter
@@ -578,17 +599,17 @@ set to
 .RB `` n '',
 the test will stop no later than when reaching the end of the URI
 list.
-.TP
-.BI --wsess= N1 , N2 , X
+.TP 
+.BI \-\-wsess= N1 , N2 , X
 Requests the generation and measurement of sessions instead of
 individual requests.  A session consists of a sequence of bursts which
-are spaced out by the user think-time.  Each burst consists of a fixed
+are spaced out by the user think\-time.  Each burst consists of a fixed
 number
 .I L
 of calls to the server
 .RI ( L
 is specified by option
-.BR --burst-length ).
+.BR \-\-burst\-length ).
 The calls in a burst are issued as follows: at first, a single call is
 issued.  Once the reply to this first call has been fully received,
 all remaining calls in the burst are issued concurrently.  The
@@ -605,13 +626,13 @@ is the total number of sessions to generate,
 .I N2
 is the number of calls per session, and
 .I X
-is the user think-time (in seconds) that separates consecutive call
+is the user think\-time (in seconds) that separates consecutive call
 bursts.  For example, the options
-.RB `` "--wsess=100,50,10 --burst-len 5" ''
+.RB `` "\-\-wsess=100,50,10 \-\-burst\-len 5" ''
 would result in 100 sessions with a total of 50 calls each.  Since
 each burst has a length of 5 calls, a total of 10 call bursts would be
-generated per session.  The user think-time between call bursts would
-be 10 seconds.  Note that user think-time
+generated per session.  The user think\-time between call bursts would
+be 10 seconds.  Note that user think\-time
 .I X
 denotes the time between receiving the last reply of the previous
 call burst and the sending of the first request of the next burst.
@@ -621,128 +642,128 @@ A test involving sessions finishes as soon as the requested number
 of sessions have either failed or completed.  A session is considered
 to have failed if any operation in a session takes longer than
 the timeouts specified by options
-.B --timeout
+.B \-\-timeout
 and
-.BR --think-timeout .
+.BR \-\-think\-timeout .
 In addition, a session also fails if the server returns a reply with a
 status code matching the one specified by option
-.BR --failure-status .
-.TP
-.BI --wsesslog= N , X , F
+.BR \-\-failure\-status .
+.TP 
+.BI \-\-wsesslog= N , X , F
 This specifies a session workload generator similar to
-.B --wsess
+.B \-\-wsess
 (please read that description first).  With
-.B --wsesslog
+.B \-\-wsesslog
 though, many aspects of user sessions, including the number and
-sequence of URI's, request method, think-time and burst-length parameters, 
+sequence of URI's, request method, think\-time and burst\-length parameters, 
 can be specified in an input file
 .I F.
 Two other parameters are retained from
-.B --wsess,
+.B \-\-wsess,
 namely
 .I N,
 the number of sessions to initiate, and
 .I X,
-the burst-to-burst user think time (note that this becomes a default
+the burst\-to\-burst user think time (note that this becomes a default
 time since the input file
 .I F
-can also specify user think time on a per-burst basis.
-A small example input file can most-easily show the settable parameters:
-.br
+can also specify user think time on a per\-burst basis.
+A small example input file can most\-easily show the settable parameters:
+.br 
 
-.br
+.br 
 # Comment lines start with a ``#'' as the first
-.br
+.br 
 # character.  Lines with only whitespace delimit
-.br
+.br 
 # sessions (multiple blank lines do not generate
-.br
+.br 
 # ``null'' sessions).  All other lines specify a
-.br
-# uri-sequence (1 uri per line).  If the first
-.br
+.br 
+# uri\-sequence (1 uri per line).  If the first
+.br 
 # character of the line is whitespace (e.g. space
-.br
+.br 
 # or tab), the uri is considered to be part of a
-.br
+.br 
 # burst that is sent out after the previous
-.br
-# non-burst uri.
-.br
+.br 
+# non\-burst uri.
+.br 
 
-.br
+.br 
 # session 1 definition (this is a comment)
-.br
+.br 
 /foo.html think=2.0
-.br
+.br 
 	/pict1.gif
-.br
+.br 
 	/pict2.gif
-.br
+.br 
 /foo2.html method=POST contents='Post data'
-.br
+.br 
 	/pict3.gif
-.br
+.br 
 	/pict4.gif
-.br
+.br 
 	
-.br
+.br 
 # session 2 definition
-.br
+.br 
 /foo3.html method=POST contents="Multiline\\ndata"
-.br
+.br 
 /foo4.html method=HEAD
-.br
+.br 
 
-.br
+.br 
 The above description specifies 2 sessions.  The first session will
 start with a request for /foo.html.  When the /foo.html response comes
 back, a burst of 2 requests will follow (/pict1.gif and /pict2.gif).
 When the last of those responses is received, a two second user think
 time is inserted before the next request of /foo2.html is issued.
 This request is sent as a POST.  The posted data can be contained
-between single- or double-quotes.  Newlines can appear within posted
+between single\- or double\-quotes.  Newlines can appear within posted
 data as ``\\n'' or as a ``\\<CR>''.  The /foo2.html response is
 followed by a burst request of /pict3.gif and /pict4.gif, which
 concludes this session.  The second session is started some time after
 the first, as specified by the
-.B --rate
+.B \-\-rate
 or
-.B --period
+.B \-\-period
 options.
-.br	
+.br 
 
-.br
+.br 
 The second session consists of 2 requests separated by the default user think
 time as specified by the
 .I X
 parameter of the
-.B --wsesslog
+.B \-\-wsesslog
 option.  If the
 .I N
 parameter of
-.B --wsesslog
+.B \-\-wsesslog
 is greater than the number of sessions defined in input file
-.IR F ,
+.I R F ,
 then the defined sessions are used repeatedly until
 .I N
 sessions have been created (i.e., the defined sessions are used in a
-round-robin fashion).
-.br
+round\-robin fashion).
+.br 
 	
-.br
+.br 
 One should avoid using
-.B --wsesslog
+.B \-\-wsesslog
 in conjunction with other
 .B httperf
 options that also control session behavior and workload URI's, namely
-.B --burst-length,
-.B --wsess,
-.B --wlog,
+.B \-\-burst\-length,
+.B \-\-wsess,
+.B \-\-wlog,
 and
-.B --wset.
-.TP
-.BI --wset= N , X
+.B \-\-wset.
+.TP 
+.BI \-\-wset= N , X
 This option can be used to walk through a list of URIs at a given
 rate.  Parameter
 .I N
@@ -757,93 +778,93 @@ amount of traffic in the disk I/O subsystem of the server (assuming
 .I N
 and the accessed files are big enough to exceed the server's buffer
 cache).  The URIs generated are of the form
-.IR	prefix / path .html,
+.I R	prefix / path .html,
 where
 .I prefix
 is the URI prefix specified by option
-.B --wset
+.B \-\-wset
 and
 .I path
 is generated as follows: for the
-.IR i -th
+.I R i \-th
 file in the working set, write down
 .I i
 in decimal, prefixing the number with as many zeroes as necessary
 to get a string that has as many digits as
-.IR N -1.
+.I R N \-1.
 Then insert a slash character between each digit.  For example,
 the 103rd file in a working set consisting of 1024 files would
 result in a path of
 .RB `` 0/1/0/3 ''.
-Thus, if the URI-prefix is
+Thus, if the URI\-prefix is
 .BR /wset1024 ,
 then the URI being accessed would be
 .BR /wset1024/0/1/0/3.html .
 In other words, the files on the server need to be organized as a
 10ary tree.
-.SH OUTPUT
+.SH "OUTPUT"
 This section describes the statistics output at the end of each test
 run.  The basic information shown below is printed independent of the
 selected workload generator.
-.PP
+.PP 
 .RS
-.br
+.br 
 .B Total:
-connections 30000 requests 29997 replies 29997 test-duration 299.992 s
-.PP
+connections 30000 requests 29997 replies 29997 test\-duration 299.992 s
+.PP 
 .B Connection rate:
 100.0 conn/s (10.0 ms/conn, <=14 concurrent connections)
-.br
+.br 
 .B Connection time [ms]:
 min 1.4 avg 3.0 max 163.4 median 1.5 stddev 7.3
-.br
+.br 
 .B Connection time [ms]:
 connect 0.6
-.br
+.br 
 .B Connection length [replies/conn]:
 1.000
-.PP
+.PP 
 .B Request rate:
 100.0 req/s (10.0 ms/req)
-.br
+.br 
 .B Request size [B]:
 75.0
-.PP
+.PP 
 .B Reply rate [replies/s]:
 min 98.8 avg 100.0 max 101.2 stddev 0.3 (60 samples)
-.br
+.br 
 .B Reply time [ms]:
 response 2.4 transfer 0.0
-.br
+.br 
 .B Reply size [B]:
 header 242.0 content 1010.0 footer 0.0 (total 1252.0)
-.br
+.br 
 .B Reply status:
 1xx=0 2xx=29997 3xx=0 4xx=0 5xx=0
-.PP
+.PP 
 .B CPU time [s]:
 user 94.31 system 205.26 (user 31.4% system 68.4% total 99.9%)
-.br
+.br 
 .B Net I/O:
 129.6 KB/s (1.1*10^6 bps)
-.PP
+.PP 
 .B Errors:
-total 3 client-timo 0 socket-timo 0 connrefused 3 connreset 0
-.br
+total 3 client\-timo 0 socket\-timo 0 connrefused 3 connreset 0
+.br 
 .B Errors:
-fd-unavail 0 addrunavail 0 ftab-full 0 other 0
-.br
+fd\-unavail 0 addrunavail 0 ftab\-full 0 other 0
+.br 
 .RE
-.PP
+.PP 
 There are six groups of statistics: overall results (``Total''),
 connection related results (``Connection''), results relating to the
 issuing of HTTP requests (``Request''), results relating to the replies
 received from the server (``Reply''), miscellaneous results relating to
 the CPU (``CPU'') and network (``Net I/O'') utilization and, last but not
 least, a summary of errors encountered (``Errors'').
-.TP
+.TP 
 Total Section
-.br
+.br 
 This section summarizes how many TCP connections were initiated by
 .BR httperf ,
 how many requests it sent out, how many replies it received, and
@@ -851,9 +872,9 @@ what the total test duration was.  In the example output
 shown above, 30,000 connections were created, 29,997 requests were
 sent out and 29,997 replies were received.  The duration of the
 test was almost exactly 5 minutes (300 seconds).
-.TP
+.TP 
 Connection Section
-.br
+.br 
 This section conveys information related to TCP connections generated
 by the tool.  Specifically, the ``Connection rate'' line shows that new
 connections were initiated at a rate of 100.0 connections per second.
@@ -887,9 +908,9 @@ gives the average number of replies received on each connection that
 received at least one reply (i.e., connections that failed before
 yielding the first reply are not counted).  This number can be bigger
 than 1.0 due to persistent connections.
-.TP
+.TP 
 Request Section
-.br
+.br 
 The line labeled ``Request rate'' gives the rate at which HTTP requests
 were issued and the period that this rate corresponds to.  In the
 example above, the request rate was 100.0 requests per second, which
@@ -903,9 +924,9 @@ different.
 The line labeled ``Request size'' gives the average size of the HTTP
 requests in bytes.  In the example above, the average request size was
 75 bytes.
-.TP
+.TP 
 Reply Section
-.br
+.br 
 For simple measurements, this section is often the most interesting
 one as the line labeled ``Reply rate'' gives various statistics for
 the reply rate.  In the example above, the minimum (``min'') reply
@@ -929,7 +950,7 @@ be measured, so it shows up as zero.  The is typical when the entire
 reply fits into a single TCP segment.
 
 The next line, labeled ``Reply size'' contains statistics on the
-average size of the replies---all numbers are in reported bytes.
+average size of the replies\-\-\-all numbers are in reported bytes.
 Specifically, the line lists the average length of reply headers, the
 content, and footers (HTTP/1.1 uses footers to realize the ``chunked''
 transfer encoding).  For convenience, the average total number of
@@ -941,14 +962,14 @@ average.
 
 The final line in this section is a histogram of the major status
 codes received in the replies from the server.  The major status code
-is the ``hundreds''-digit of the full HTTP status code.  In the
+is the ``hundreds''\-digit of the full HTTP status code.  In the
 example, all 29,997 replies had a major status code of 2.  It's a good
 guess that all status codes were ``200 OK'' but the information in the
 histogram is not detailed enough to allow distinguishing status codes
 with the same major code.
-.TP
+.TP 
 Miscellaneous Section
-.br
+.br 
 This section starts with a summary of the CPU utilization on the
 client machine.  In the example, the line labeled ``CPU time'' shows
 that 94.31 seconds were spent executing in user mode (``user''),
@@ -970,25 +991,25 @@ megabits per second.  This network bandwidth is computed based on the
 number of bytes sent and received on the TCP connections.  In other
 words, it does not account for the network headers or TCP
 retransmissions that may have occurred.
-.TP
+.TP 
 Errors Section
-.br
+.br 
 The last section contains statistics on the errors that were
 encountered during a test.  In the example, the two lines labeled
 ``Errors'' show that there were a total of three errors and that all
 three errors were due to the server refusing to accept a connection
 (``connrefused'').  A description of each error counter follows:
 
-.B client-timo:
+.B client\-timo:
 The number of times a session, connection, or call failed due
 to a client timeout (as specified by the
-.B --timeout
+.B \-\-timeout
 and
-.BR --think-timeout )
+.BR \-\-think\-timeout )
 options.
 
-.B socket-timo:
-The number of times a TCP connection failed with a socket-level
+.B socket\-timo:
+The number of times a TCP connection failed with a socket\-level
 timeout (ETIMEDOUT).
 
 .B connrefused:
@@ -1002,10 +1023,10 @@ send data to the server at a time the server has already closed its
 end of the connection.  NT servers also send RESETs when attempting to
 establish a new connection when the listen queue is full.
 
-.B fd-unavail:
+.B fd\-unavail:
 The number of times the
 .B httperf
-process was out of file descriptors.  Whenever this count is non-zero,
+process was out of file descriptors.  Whenever this count is non\-zero,
 the test results are meaningless because the client was overloaded
 (see section "CHOOSING TIMEOUT VALUES").
 
@@ -1014,47 +1035,47 @@ The number of times the client was out of TCP port numbers
 (EADDRNOTAVAIL).  This error should never occur.  If it does, the
 results should be discarded.
 
-.B ftab-full:
+.B ftab\-full:
 The number of times the system's file descriptor table is full.
 Again, this error should never occur.  If it does, the results should
 be discarded.
 
 .B other:
 The number of times some other type of error occurred.  Whenever this
-counter is non-zero, it is necessary to track down the real cause of
+counter is non\-zero, it is necessary to track down the real cause of
 the error.  To assist in doing this,
 .B httperf
 prints the error code (errno) of the first unknown errors that occurs
 during a test run.
 .RE
-.PP
+.PP 
 When
-.B --wsess
+.B \-\-wsess
 or
-.B --wsesslog
+.B \-\-wsesslog
 is specified,
 .B httperf
 generates and measures sessions instead of individual calls and
 additional statistics are printed at the end of a test.  An example
 output is shown below.
-.PP
+.PP 
 .RS
 .B Session rate [sess/s]:
 min 0.00 avg 0.59 max 2.40 stddev 0.37 (240/450)
-.br
+.br 
 .B Session:
 avg 6.45 connections/session
-.br
+.br 
 .B Session lifetime [s]:
 123.9
-.br
+.br 
 .B Session failtime [s]:
 58.5
-.br
+.br 
 .B Session length histogram:
 4 7 4 ... 3 3 240
 .RE
-.PP
+.PP 
 The line labeled ``Session rate'' shows the minium, average, and
 maximum rate at which sessions completed (based on a 5 second sampling
 interval).  It also shows the standard deviation of the session
@@ -1085,7 +1106,7 @@ additional histogram counts that were omitted from this manual for
 space reasons).  Note that this histogram does not distinguish between
 successful and failed sessions.
 
-.SH CHOOSING TIMEOUT VALUES
+.SH "CHOOSING TIMEOUT VALUES"
 Since the machine that
 .B httperf
 runs on has only a finite set of resource available, it can not
@@ -1099,7 +1120,7 @@ second.
 The actual sustainable rate is often much lower than that because
 before running out of TCP ports, the machine is likely to run out of
 file descriptors (one file descriptor is used up for each open TCP
-connection).  By default, HP-UX 10.20 allows 1,024 open file
+connection).  By default, HP\-UX 10.20 allows 1,024 open file
 descriptors per process.  This means that without extra precautions,
 .B httperf
 could potentially very quickly use up all available file descriptors,
@@ -1107,11 +1128,11 @@ at which point it could not induce any additional load on the server.
 To avoid this problem,
 .B httperf
 provides option
-.B --timeout
+.B \-\-timeout
 to set a timeout for all communication with the server.  If the server
 does not respond before the timeout expires, the client considers the
 corresponding session, connection, or call to be ``dead,'' closes the
-associated TCP connection, and increases the ``client-timo'' error
+associated TCP connection, and increases the ``client\-timo'' error
 count.  The only exception to this rule is that after sending an
 entire request to the server,
 .B httperf
@@ -1119,46 +1140,46 @@ allows the server to take some additional time before it starts
 sending the reply.  This is to accommodate HTTP requests that take a
 long time to complete on the server.  This additional time is called
 the ``server think time'' and can be specified by option
-.BR --think-timeout .
+.BR \-\-think\-timeout .
 By default, this additional think time is zero seconds, so the server
 would always have to respond within the time alloted by option
-.BR --timeout .
+.BR \-\-timeout .
 
 Timeouts allow
 .B httperf 
 to sustain high offered loads even when the server is overloaded.  For
 example, with a timeout of 2 seconds and assuming that 1,000
-file-descriptors are available, the offered load could be up to 500
+file\-descriptors are available, the offered load could be up to 500
 requests per second (in practice, the sustainable load is often
 somewhat smaller than the theoretical value).  On the downside,
 timeouts artificially truncate the connection lifetime distribution.
 Thus, it is recommended to pick a timeout value that is as large as
 possible yet small enough to allow sustaining the desired offered
 rate.  A timeout as short as one second may be acceptable, but larger
-timeouts (5-10 seconds) are preferable.
+timeouts (5\-10 seconds) are preferable.
 
 It is important to keep in mind that timeouts do not guarantee that a
-client can sustain a particular offered load---there are many other
+client can sustain a particular offered load\-\-\-there are many other
 potential resource bottlenecks.  For example, in some cases the client
 machine may simply run out of CPU time.  To ensure that a given test
 really measured the server's capabilities and not the client's, it is
 a good idea to vary the number of machines participating in a test.
 If observed performance remains the same as the number of client
 machines is varied, the test results are likely to be valid.
-.SH AUTHOR
+.SH "AUTHOR"
 .BR httperf
 was developed by David Mosberger and was heavily influenced by an
 earlier tool written by Tai Jin.  Stephane Eranian contributed the
-log-file based URI generator.  Dick Carter contributed the
-.B --wsesslog
+log\-file based URI generator.  Dick Carter contributed the
+.B \-\-wsesslog
 workload generator, the support behind the
-.B --period
-option, and bug fixes.  All four authors are with Hewlett-Packard
+.B \-\-period
+option, and bug fixes.  All four authors are with Hewlett\-Packard
 Research Laboratories.
-.SH BUGS
-Probably many.  Always be sure to double-check results and don't fall
-prey to measuring client-performance instead of server performance!
-.PP
-The user-interface definitely could be improved.  A simple workload
+.SH "BUGS"
+Probably many.  Always be sure to double\-check results and don't fall
+prey to measuring client\-performance instead of server performance!
+.PP 
+The user\-interface definitely could be improved.  A simple workload
 description language might be more suitable than the dozens of little
-command-line options the tool has right now.
+command\-line options the tool has right now.

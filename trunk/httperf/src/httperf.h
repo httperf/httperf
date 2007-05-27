@@ -46,6 +46,8 @@ typedef double Time;
 #define NELEMS(a)	((sizeof (a)) / sizeof ((a)[0]))
 #define TV_TO_SEC(tv)	((tv).tv_sec + 1e-6*(tv).tv_usec)
 
+#define NUM_RATES 16
+
 typedef union
   {
     char c;
@@ -65,6 +67,7 @@ typedef enum Dist_Type
   {
     DETERMINISTIC,	/* also called fixed-rate */
     UNIFORM,		/* over interval [min_iat,max_iat) */
+    VARIABLE,           /* allows varying input load */
     EXPONENTIAL		/* with mean mean_iat */
   }
 Dist_Type;
@@ -98,6 +101,9 @@ typedef struct Rate_Info
     Time mean_iat;		/* mean interarrival time */
     Time min_iat;		/* min interarrival time (for UNIFORM) */
     Time max_iat;	        /* max interarrival time (for UNIFORM) */
+    int numRates;               /* number of rates we want to use */
+    Time iat[NUM_RATES];
+    Time duration[NUM_RATES];
   }
 Rate_Info;
 
@@ -134,6 +140,7 @@ typedef struct Cmdline_Params
     int ssl_reuse;	/* reuse SSL Session ID */
     const char *ssl_cipher_list; /* client's list of SSL cipher suites */
 #endif
+    int use_timer_cache;
     const char *additional_header;	/* additional request header(s) */
     const char *method;	/* default call method */
     struct
