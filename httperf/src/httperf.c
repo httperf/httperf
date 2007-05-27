@@ -139,6 +139,7 @@ static struct option longopts[] =
     {"think-timeout",required_argument, (int *) &param.think_timeout,	0},
     {"timeout",      required_argument,	(int *) &param.timeout,		0},
     {"uri",	     required_argument, (int *) &param.uri,		0},
+    {"use-timer-cache", no_argument,    &param.use_timer_cache,         1},
     {"verbose",	     no_argument,	0,				'v'},
     {"version",	     no_argument,	0,				'V'},
     {"wlog",	     required_argument, (int *) &param.wlog,            0},
@@ -169,7 +170,9 @@ usage (void)
 	  "\t[--think-timeout X] [--timeout X] [--uri S] [--verbose] "
 	  "[--version]\n"
 	  "\t[--wlog y|n,file] [--wsess N,N,X] [--wsesslog N,X,file]\n"
-	  "\t[--wset N,X]\n",
+	  "\t[--wset N,X]\n"
+	  "\t[--period [v]T1,D1[,T2,D2]\n"
+	  "\t[--use-timer-cache]\n",
 	  prog_name);
 }
 
@@ -229,6 +232,8 @@ main (int argc, char **argv)
   Any_Type arg;
   void *flag;
   Time t;
+
+  int numRates = 0;
 
 #ifdef __FreeBSD__
   /* This works around a bug in earlier versions of FreeBSD that cause
@@ -409,6 +414,7 @@ main (int argc, char **argv)
 		  case 'd': param.rate.dist = DETERMINISTIC; break;
 		  case 'u': param.rate.dist = UNIFORM; break;
 		  case 'e': param.rate.dist = EXPONENTIAL; break;
+		  case 'v': param.rate.dist = VARIABLE; break;
 		  default:
 		    fprintf (stderr, "%s: illegal interarrival distribution "
 			     "'%c' in %s\n",
@@ -459,6 +465,62 @@ main (int argc, char **argv)
 		    }
 		  param.rate.mean_iat = 0.5*(param.rate.min_iat
 					     + param.rate.max_iat);
+		  break;
+
+		case VARIABLE:
+		  while(1)
+		    {
+		      if (numRates >= NUM_RATES)
+			{
+			  fprintf (stderr, "%s: too many rates\n",
+				   prog_name);
+			  exit (1);
+			}
+
+		      param.rate.iat[numRates] = strtod (optarg, &end);
+		      if (errno == ERANGE || end == optarg ||
+			  param.rate.iat[numRates] < 0)
+			{
+			  fprintf (stderr, "%s: illegal minimum interarrival"
+				   " time %s\n", prog_name, optarg);
+			  exit (1);
+			}
+
+		      if (*end != ',')
+			{
+			  fprintf (stderr, "%s: interarrival time not "
+				   "followed by `,duration' (rest: `%s')\n",
+				   prog_name, end);
+			  exit (1);
+			}
+
+		      optarg = end + 1;
+		      param.rate.duration[numRates] = strtod (optarg, &end);
+		      if (errno == ERANGE || end == optarg ||
+			  param.rate.duration[numRates] < 0)
+			{
+			  fprintf (stderr, "%s: illegal duration %s\n",
+				   prog_name, optarg);
+			  exit (1);
+			}
+
+		      if (numRates == 0)
+			param.rate.mean_iat = param.rate.iat[numRates];
+		      else
+			param.rate.mean_iat += param.rate.iat[numRates];
+
+		      numRates++;
+
+		      if (*end != ',')
+			{
+			  param.rate.numRates = numRates;
+			  break;
+			}
+		      else
+			optarg = end + 1;
+		    }
+
+		  param.rate.mean_iat /= numRates;
 		  break;
 
 		default:
@@ -893,6 +955,20 @@ main (int argc, char **argv)
 	  printf (" --period=e%g", param.rate.mean_iat);
 	  break;
 
+	case VARIABLE:
+	  {
+	    int m;
+	    printf (" --period=v");
+	    for(m=0; m<param.rate.numRates; m++)
+	      {
+		if (m != 0)
+		  printf (",");
+		printf ("%g,%g", param.rate.iat[m],
+			param.rate.duration[m]);
+	      }
+	  }
+	  break;
+
 	default:
 	  printf("--period=??");
 	  break;
@@ -911,6 +987,7 @@ main (int argc, char **argv)
   if (param.additional_header)
     printf (" --add-header='%s'", param.additional_header);
   if (param.method) printf (" --method=%s", param.method);
+  if (param.use_timer_cache) printf (" --use-timer-cache");
   if (param.wsesslog.num_sessions)
     {
       /* This overrides any --wsess, --num-conns, --num-calls,
