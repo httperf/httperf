@@ -1,5 +1,8 @@
 Some ideas (contributions/patches welcome):
 
+- port to libevent to improve scalability and deal with the file descriptor cap
+- Add option to output results as rdf (xml), cvs or default
+- Add ability to read entire POST and GET messages from logs and send them
 - wsesspage: don't fetch same object more than once (assume the existence
   of a cache)---this avoids trouble with recursive pages
 - make httperf easier to use; some ideas:
