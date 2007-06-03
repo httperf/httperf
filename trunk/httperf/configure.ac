@@ -21,11 +21,13 @@ fi
 # Checks for programs.
 AC_GNU_SOURCE
 AC_PROG_CC([cc gcc])
+AC_PROG_CC_C99
+
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
-AC_PROG_GCC_TRADITIONAL
 
 # Checks for libraries.
+AC_CHECK_LIB(event, event_init) 
 AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(crypto, main)
 AC_CHECK_LIB(ssl, SSL_version)
@@ -36,7 +38,7 @@ AC_CHECK_LIB(resolv, inet_aton)
 
 # Checks for header files.
 AC_FUNC_ALLOCA
-AC_HEADER_STDC
+AC_HEADER_TIME
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h libintl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h openssl/ssl.h getopt.h])
 
 if test "$ac_cv_header_openssl_ssl_h" = "yes" \
@@ -50,7 +52,6 @@ fi
 AC_C_CONST
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
-AC_HEADER_TIME
 AC_CHECK_TYPE(u_char, unsigned char)
 AC_CHECK_TYPE(u_short, unsigned short)
 AC_CHECK_TYPE(u_int, unsigned int)
