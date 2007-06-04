@@ -1,6 +1,10 @@
 2007-06-03  Ted Bullock <tbullock@canada.com>
 
-	* configure.ac: Remove uneccessary configuration cruft and configure httperf
+	* configure.ac: Add configuration to use libevent
+
+2007-06-03  Ted Bullock <tbullock@canada.com>
+
+	* configure.ac: Remove unnecessary  configuration cruft and configure httperf
 	to be built in c99 mode
 
 2007-05-27  Ted Bullock <tbullock@canada.com>
