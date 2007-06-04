@@ -51,7 +51,7 @@
 #include <call.h>
 #include <conn.h>
 #include <core.h>
-#include <event.h>
+#include <localevent.h>
 #include <session.h>
 
 #define MAX_COOKIE_LEN	256

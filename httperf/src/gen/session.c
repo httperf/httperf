@@ -69,7 +69,7 @@
 #include <call.h>
 #include <conn.h>
 #include <core.h>
-#include <event.h>
+#include <localevent.h>
 #include <sess.h>
 #include <session.h>
 

@@ -50,7 +50,7 @@
 
 #include <httperf.h>
 #include <call.h>
-#include <event.h>
+#include <localevent.h>
 
 static const char *extra;
 static size_t extra_len;

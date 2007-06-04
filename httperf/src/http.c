@@ -44,7 +44,7 @@
 #include <httperf.h>
 #include <http.h>
 #include <call.h>
-#include <event.h>
+#include <localevent.h>
 #include <conn.h>
 
 /* Read a CRLF terminated line of characters into c->reply.line.
