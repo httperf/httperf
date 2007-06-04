@@ -30,7 +30,7 @@ AC_PROG_LIBTOOL
 AC_CHECK_LIB(event, event_init, , AC_MSG_ERROR([libevent is required to build httperf]) ) 
 AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(crypto, main)
-AC_CHECK_LIB(ssl, SSL_version, , AC_MSG_WARN([SSL Disabled]), [-lcrypto -ldl -lz] )
+AC_CHECK_LIB(ssl, SSL_version, , AC_MSG_WARN([SSL Disabled]) )
 # The following checks are for solaris and its ilk
 AC_SEARCH_LIBS([getsockopt], [socket])
 AC_SEARCH_LIBS([socket], [socket nsl])
