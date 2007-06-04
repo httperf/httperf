@@ -42,7 +42,7 @@
 
 #include <httperf.h>
 #include <call.h>
-#include <event.h>
+#include <localevent.h>
 #include <session.h>
 #include <stats.h>
 

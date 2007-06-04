@@ -37,7 +37,7 @@
 #include <stdlib.h>
 
 #include <httperf.h>
-#include <event.h>
+#include <localevent.h>
 #include <object.h>
 #include <rate.h>
 #include <timer.h>

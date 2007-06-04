@@ -73,7 +73,7 @@
 #include <sys/resource.h>
 
 #include <core.h>
-#include <event.h>
+#include <localevent.h>
 #include <httperf.h>
 #include <conn.h>
 #include <timer.h>

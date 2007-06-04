@@ -43,7 +43,7 @@
 
 #include <httperf.h>
 #include <call.h>
-#include <event.h>
+#include <localevent.h>
 #include <stats.h>
 
 /* Increase this if it does not cover at least 50% of all response

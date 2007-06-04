@@ -50,7 +50,7 @@
 #include <call.h>
 #include <conn.h>
 #include <core.h>
-#include <event.h>
+#include <localevent.h>
 #include <rate.h>
 #include <session.h>
 #include <timer.h>

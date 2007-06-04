@@ -40,7 +40,7 @@
 
 #include <httperf.h>
 #include <core.h>
-#include <event.h>
+#include <localevent.h>
 #include <rate.h>
 #include <conn.h>
 #include <timer.h>

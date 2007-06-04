@@ -42,7 +42,7 @@
 
 #include <httperf.h>
 #include <call.h>
-#include <event.h>
+#include <localevent.h>
 
 #define MAX_URI_LEN		128
 #define CALL_PRIVATE_DATA(c) \

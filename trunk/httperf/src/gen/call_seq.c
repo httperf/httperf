@@ -39,7 +39,7 @@
 #include <httperf.h>
 #include <call.h>
 #include <core.h>
-#include <event.h>
+#include <localevent.h>
 #include <conn.h>
 
 #define CONN_PRIVATE_DATA(c) \

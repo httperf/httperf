@@ -61,7 +61,7 @@
 #include <httperf.h>
 #include <call.h>
 #include <core.h>
-#include <event.h>
+#include <localevent.h>
 #include <http.h>
 #include <conn.h>
 

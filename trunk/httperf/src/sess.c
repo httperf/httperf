@@ -32,7 +32,7 @@
     02110-1301, USA
 */
 #include <httperf.h>
-#include <event.h>
+#include <localevent.h>
 #include <sess.h>
 
 void

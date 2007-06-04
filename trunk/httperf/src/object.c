@@ -41,7 +41,7 @@
 #include <httperf.h>
 #include <call.h>
 #include <conn.h>
-#include <event.h>
+#include <localevent.h>
 #include <object.h>
 #include <sess.h>
 

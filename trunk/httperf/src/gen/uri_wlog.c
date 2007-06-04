@@ -80,7 +80,7 @@
 #include <httperf.h>
 #include <call.h>
 #include <core.h>
-#include <event.h>
+#include <localevent.h>
 
 static char *fbase, *fend, *fcurrent;
 

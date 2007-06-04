@@ -41,7 +41,7 @@
 
 #include <httperf.h>
 #include <call.h>
-#include <event.h>
+#include <localevent.h>
 
 static size_t uri_len;
 

@@ -43,7 +43,7 @@
 #include <httperf.h>
 #include <call.h>
 #include <conn.h>
-#include <event.h>
+#include <localevent.h>
 
 typedef struct Call_Private_Data
   {
