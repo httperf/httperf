@@ -10,14 +10,6 @@ AC_CANONICAL_TARGET
 
 AM_INIT_AUTOMAKE(httperf, 0.9.99)
 
-# Turn on Debug if necessary
-AC_ARG_ENABLE(debug,
- [  --enable-debug          enable debug support])
-
-if test "$enable_debug" = yes; then
-      CFLAGS="${CFLAGS} -DDEBUG"
-fi
-
 # Checks for programs.
 AC_GNU_SOURCE
 AC_PROG_CC([cc gcc])
@@ -75,5 +67,13 @@ AC_TYPE_SIGNAL
 AC_FUNC_STRTOD
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([gethostbyname gettimeofday memset munmap select socket strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol strtoul inet_aton getopt_long])
+
+# Turn on Debug if necessary
+AC_ARG_ENABLE(debug,
+ [  --enable-debug          enable debug support])
+
+if test "$enable_debug" = yes; then
+      CFLAGS="${CFLAGS} -DDEBUG"
+fi
 
 AC_OUTPUT(Makefile man/Makefile src/stat/Makefile src/lib/Makefile src/gen/Makefile src/Makefile)
