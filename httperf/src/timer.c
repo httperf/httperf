@@ -43,12 +43,16 @@
 
 #define WHEEL_SIZE	4096
 
-#if 1
 static Time     now;
-#endif
 static Time     next_tick;
 static Timer   *timer_free_list = 0;
 static Timer   *t_curr = 0;
+
+static struct Timer_List {
+	struct Timer_List *next;
+	struct Timer   *this_timer;
+
+}              *timer_list_head = NULL;
 
 /*
  * What a wheel is made of, no? 
@@ -90,6 +94,50 @@ timer_init(void)
 	curr = wheel;
 }
 
+static void
+timer_free_memory(struct Timer_List *node)
+{
+
+	if (node) {
+		if (node->next)
+			timer_free_memory(node->next);
+
+		memset(node->this_timer, 0, sizeof(struct Timer));
+		free(node->this_timer);
+
+		memset(node, 0, sizeof(struct Timer_List));
+		free(node);
+	}
+}
+
+void
+timer_reset_all(void)
+{
+	Timer          *t, *t_next;
+
+	for (t = curr->next; t; t = t_next) {
+		(*t->func) (t, t->arg);
+		t_next = t->q.next;
+
+		/*
+		 * Push timer into timer_free_list for later re-use 
+		 */
+		done(t);
+	}
+
+	timer_init();
+}
+
+void
+timer_free_all(void)
+{
+	timer_free_memory(timer_list_head);
+	timer_free_list = NULL;
+	timer_list_head = NULL;
+
+	timer_init();
+}
+
 void
 timer_tick(void)
 {
@@ -100,10 +148,17 @@ timer_tick(void)
 	now = timer_now_forced();
 
 	while (timer_now() >= next_tick) {
+		/*
+		 * Check for timers that have timed out and expire them 
+		 */
 		for (t = curr->next; t && t->delta == 0; t = t_next) {
 			t_curr = t;
 			(*t->func) (t, t->arg);
 			t_next = t->q.next;
+
+			/*
+			 * Push timer into timer_free_list for later re-use 
+			 */
 			done(t);
 		}
 		t_curr = 0;
@@ -131,12 +186,23 @@ timer_schedule(Timer_Callback timeout, Any_Type arg, Time delay)
 		t = timer_free_list;
 		timer_free_list = t->q.next;
 	} else {
+		struct Timer_List *node = malloc(sizeof(struct Timer_List));
+		if (!node) {
+			fprintf(stderr, "%s.timer_schedule: %s\n",
+				prog_name, strerror(errno));
+			return 0;
+		}
+
 		t = malloc(sizeof(*t));
 		if (!t) {
 			fprintf(stderr, "%s.timer_schedule: %s\n",
 				prog_name, strerror(errno));
 			return 0;
 		}
+
+		node->this_timer = t;
+		node->next = timer_list_head;
+		timer_list_head = node;
 	}
 	memset(t, 0, sizeof(*t));
 	t->func = timeout;

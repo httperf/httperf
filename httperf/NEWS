@@ -1,3 +1,6 @@
+* New in version 1.0:
+** timer memory leak fix (Ted Bullock)
+
 * New in version 0.9:
 ** Re-Factored build system now builds on the following platforms
    HP-UX 11i (64-bit PA-RISC and IA-64)

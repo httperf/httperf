@@ -64,6 +64,8 @@ extern Time timer_now_forced (void);
 extern Time timer_now (void);
 
 extern void timer_init (void);
+extern void timer_reset_all(void);
+extern void timer_free_all(void);
 /* Needs to be called at least once every TIMER_INTERVAL:  */
 extern void timer_tick (void);
 
