@@ -32,10 +32,13 @@
     02110-1301, USA
 */
 
+#include "config.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <localevent.h>
 #include <object.h>

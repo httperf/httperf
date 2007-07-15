@@ -1,5 +1,13 @@
 2007-07-15  Ted Bullock <tbullock@canada.com>
 
+	* lib/generic_types.h: New File - Migrate various generic types
+	out of httperf.h in preparation for a generic queue data structure
+	* httperf.h: Removed unneccessary #include commands to minimize
+	header inclusion blocks and duplicates
+	* *.c: Added #include statements to use new generic_types.h
+
+2007-07-15  Ted Bullock <tbullock@canada.com>
+
 	* timer.c, timer.h, httperf.c: Fixed memory leak associated with timers not being
 	freed
 

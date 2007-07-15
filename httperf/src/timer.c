@@ -30,6 +30,8 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA 
  */
 
+#include "config.h"
+
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
@@ -38,6 +40,7 @@
 
 #include <sys/time.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <timer.h>
 

@@ -40,7 +40,9 @@
 #include <errno.h>
 #include <float.h>
 #include <stdio.h>
+#include <sys/resource.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <call.h>
 #include <localevent.h>

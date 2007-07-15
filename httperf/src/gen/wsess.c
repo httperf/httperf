@@ -34,6 +34,8 @@
 
 /* Creates sessions at the fixed rate PARAM.RATE.  */
 
+#include "config.h"
+
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -41,6 +43,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <call.h>
 #include <conn.h>

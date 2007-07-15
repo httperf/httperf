@@ -40,6 +40,8 @@
 	   that may be present in the set-cookie header
 */
 
+#include "config.h"
+
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -47,6 +49,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <call.h>
 #include <conn.h>

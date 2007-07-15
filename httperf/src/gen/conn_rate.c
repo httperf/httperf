@@ -35,9 +35,12 @@
 /* Creates connections at the fixed rate PARAM.RATE or sequentially if
    PARAM.RATE is zero.  */
 
+#include "config.h"
+
 #include <assert.h>
 #include <stdio.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <core.h>
 #include <localevent.h>

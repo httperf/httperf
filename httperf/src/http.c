@@ -32,6 +32,8 @@
     02110-1301, USA
 */
 
+#include "config.h"
+
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -39,8 +41,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <sys/types.h>
-
+#include <generic_types.h>
 #include <httperf.h>
 #include <http.h>
 #include <call.h>

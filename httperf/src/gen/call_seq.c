@@ -34,8 +34,11 @@
 
 /* Issue a sequence of calls on a connection.  */
 
+#include "config.h"
+
 #include <assert.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <call.h>
 #include <core.h>
