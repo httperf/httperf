@@ -1,3 +1,8 @@
+2007-07-15  Ted Bullock <tbullock@canada.com>
+
+	* timer.c, timer.h, httperf.c: Fixed memory leak associated with timers not being
+	freed
+
 2007-06-03  Ted Bullock <tbullock@canada.com>
 
 	* event.c and event.h: Moved to localevent.c and localevent.h for integration with

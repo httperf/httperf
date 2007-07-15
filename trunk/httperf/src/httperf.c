@@ -1056,5 +1056,8 @@ main (int argc, char **argv)
   for (i = 0; i < num_stats; ++i)
     (*stat[i]->dump)();
 
+  timer_reset_all();
+  timer_free_all();
+  
   return 0;
 }

@@ -10,6 +10,7 @@ Ted Bullock
   compiler warning fixes
   gnu auto tool build system
   man page --wset typo fix regarding --uri
+  unallocated timer memory leak fix
 
 Tai Jin
   zero-length content fix
