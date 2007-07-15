@@ -35,11 +35,14 @@
 /* Causes accesses to a fixed set of files (working set) in such a way
    that is likely to cause disk I/O with a certain probability.  */
 
+#include "config.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <call.h>
 #include <localevent.h>

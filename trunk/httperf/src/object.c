@@ -32,12 +32,15 @@
     02110-1301, USA
 */
 
+#include "config.h"
+
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <call.h>
 #include <conn.h>

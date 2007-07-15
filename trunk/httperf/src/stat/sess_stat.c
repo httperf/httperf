@@ -34,12 +34,15 @@
 
 /* Session statistics collector.  */
 
+#include "config.h"
+
 #include <assert.h>
 #include <float.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <call.h>
 #include <localevent.h>

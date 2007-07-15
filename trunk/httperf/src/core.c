@@ -58,6 +58,7 @@
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <call.h>
 #include <core.h>

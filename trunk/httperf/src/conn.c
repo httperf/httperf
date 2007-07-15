@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <conn.h>
 

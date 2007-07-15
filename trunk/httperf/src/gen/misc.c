@@ -41,6 +41,8 @@
 	--method	Sets the method to be used when performing a
 			call.  */
 
+#include "config.h"
+
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -48,6 +50,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <call.h>
 #include <localevent.h>

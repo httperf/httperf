@@ -37,31 +37,10 @@
 
 #include "config.h"
 
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/resource.h>
-
-typedef double Time;
-
 #define NELEMS(a)	((sizeof (a)) / sizeof ((a)[0]))
 #define TV_TO_SEC(tv)	((tv).tv_sec + 1e-6*(tv).tv_usec)
 
 #define NUM_RATES 16
-
-typedef union
-  {
-    char c;
-    int i;
-    long l;
-    u_char uc;
-    u_int ui;
-    u_long ul;
-    float f;
-    double d;
-    void *vp;
-    const void *cvp;
-  }
-Any_Type;
 
 typedef enum Dist_Type
   {

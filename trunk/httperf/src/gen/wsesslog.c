@@ -73,6 +73,8 @@
 
    Any comment on this module contact carter@hpl.hp.com.  */
 
+#include "config.h"
+
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -80,6 +82,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <generic_types.h>
 #include <httperf.h>
 #include <conn.h>
 #include <core.h>

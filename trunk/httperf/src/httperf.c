@@ -72,6 +72,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
+#include <generic_types.h>
 #include <core.h>
 #include <localevent.h>
 #include <httperf.h>
