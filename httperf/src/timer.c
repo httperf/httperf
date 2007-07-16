@@ -36,6 +36,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include <generic_types.h>
 #include <httperf.h>
