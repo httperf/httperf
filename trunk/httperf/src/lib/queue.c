@@ -99,6 +99,7 @@ void
 free_queue(struct Queue *q)
 {
 	if (q != NULL) {
+		empty_queue(q);
 		free(q);
 	}
 }
