@@ -39,9 +39,9 @@
 #include <stdlib.h>
 
 #include <generic_types.h>
+#include <object.h>
 #include <httperf.h>
 #include <localevent.h>
-#include <object.h>
 #include <rate.h>
 #include <timer.h>
 

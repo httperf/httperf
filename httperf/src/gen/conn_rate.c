@@ -41,12 +41,14 @@
 #include <stdio.h>
 
 #include <generic_types.h>
+#include <object.h>
+#include <timer.h>
 #include <httperf.h>
-#include <core.h>
 #include <localevent.h>
 #include <rate.h>
 #include <conn.h>
-#include <timer.h>
+#include <call.h>
+#include <core.h>
 
 static int num_conns_generated;
 static int num_conns_destroyed;

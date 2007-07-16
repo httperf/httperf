@@ -39,11 +39,13 @@
 #include <assert.h>
 
 #include <generic_types.h>
+#include <object.h>
+#include <timer.h>
 #include <httperf.h>
 #include <call.h>
+#include <conn.h>
 #include <core.h>
 #include <localevent.h>
-#include <conn.h>
 
 #define CONN_PRIVATE_DATA(c) \
   ((Conn_Private_Data *) ((char *)(c) + conn_private_data_offset))

@@ -35,13 +35,11 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include <generic_types.h>
-#include <httperf.h>
+#include <object.h>
 #include <call.h>
-#include <conn.h>
+#include <httperf.h>
 
 static u_long next_id = 0;
 

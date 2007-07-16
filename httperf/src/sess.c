@@ -35,6 +35,7 @@
 #include "config.h"
 
 #include <generic_types.h>
+#include <object.h>
 #include <httperf.h>
 #include <localevent.h>
 #include <sess.h>

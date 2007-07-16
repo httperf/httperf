@@ -36,9 +36,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-
-#include <sys/time.h>
 
 #include <generic_types.h>
 #include <httperf.h>
@@ -51,11 +48,13 @@ static Time     next_tick;
 static Timer   *timer_free_list = 0;
 static Timer   *t_curr = 0;
 
-static struct Timer_List {
+typedef struct Timer_List {
 	struct Timer_List *next;
 	struct Timer   *this_timer;
 
-}              *timer_list_head = NULL;
+} Timer_List;
+
+static Timer_List *timer_list_head = NULL;
 
 /*
  * What a wheel is made of, no? 

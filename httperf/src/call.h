@@ -34,12 +34,7 @@
 #ifndef call_h
 #define call_h
 
-#include <sys/types.h>
 #include <sys/uio.h>
-
-#include <httperf.h>
-#include <conn.h>
-#include <object.h>
 
 /* Max. # of additional request header lines we allow: */
 #define MAX_EXTRA_HEADERS	4

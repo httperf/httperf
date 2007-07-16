@@ -73,11 +73,14 @@
 #include <sys/resource.h>
 
 #include <generic_types.h>
+#include <object.h>
+#include <timer.h>
+#include <conn.h>
+#include <call.h>
 #include <core.h>
 #include <localevent.h>
 #include <httperf.h>
-#include <conn.h>
-#include <timer.h>
+
 
 #ifdef HAVE_SSL
 #  include <openssl/rand.h>
