@@ -37,6 +37,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <generic_types.h>
 #include <object.h>
