@@ -1,5 +1,9 @@
 2007-07-15  Ted Bullock <tbullock@canada.com>
 
+	* lib/queue.c, lib/queue.h: New generic queue data structure
+
+2007-07-15  Ted Bullock <tbullock@canada.com>
+
 	* lib/generic_types.h: New File - Migrate various generic types
 	out of httperf.h in preparation for a generic queue data structure
 	* httperf.h: Removed unneccessary #include commands to minimize
