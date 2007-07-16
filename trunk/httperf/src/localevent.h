@@ -35,9 +35,6 @@
 #ifndef localevent_h
 #define localevent_h
 
-#include <httperf.h>
-#include <object.h>
-
 typedef enum Event_Type
   {
     EV_PERF_SAMPLE,

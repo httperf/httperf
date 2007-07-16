@@ -49,6 +49,8 @@
 #include <string.h>
 
 #include <generic_types.h>
+#include <object.h>
+#include <timer.h>
 #include <httperf.h>
 #include <call.h>
 #include <conn.h>
@@ -56,7 +58,6 @@
 #include <localevent.h>
 #include <rate.h>
 #include <session.h>
-#include <timer.h>
 
 #define CALL_PRIVATE_DATA(c) \
   ((Call_Private_Data *) ((char *)(c) + call_private_data_offset))

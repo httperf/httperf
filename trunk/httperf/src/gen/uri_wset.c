@@ -43,6 +43,7 @@
 #include <string.h>
 
 #include <generic_types.h>
+#include <object.h>
 #include <httperf.h>
 #include <call.h>
 #include <localevent.h>

@@ -35,11 +35,6 @@
 #ifndef http_h
 #define http_h
 
-#include <sys/types.h>
-
-#include <httperf.h>
-#include <call.h>
-
 extern void http_process_reply_bytes (Call *c, char **buf, size_t *buf_len);
 
 #endif /* http_h */

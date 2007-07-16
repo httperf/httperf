@@ -83,13 +83,15 @@
 #include <string.h>
 
 #include <generic_types.h>
+#include <object.h>
+#include <timer.h>
 #include <httperf.h>
 #include <conn.h>
+#include <call.h>
 #include <core.h>
 #include <localevent.h>
 #include <rate.h>
 #include <session.h>
-#include <timer.h>
 
 /* Maximum number of sessions that can be defined in the configuration
    file.  */

@@ -41,11 +41,12 @@
 #include <string.h>
 
 #include <generic_types.h>
+#include <object.h>
+#include <timer.h>
 #include <httperf.h>
 #include <call.h>
 #include <conn.h>
 #include <localevent.h>
-#include <object.h>
 #include <sess.h>
 
 #define ALIGN(s)	(((s) + sizeof (double) - 1) & ~(sizeof (double) - 1))

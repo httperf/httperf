@@ -42,11 +42,13 @@
 #include <string.h>
 
 #include <generic_types.h>
+#include <object.h>
+#include <timer.h>
+#include <call.h>
+#include <conn.h>
+#include <localevent.h>
 #include <httperf.h>
 #include <http.h>
-#include <call.h>
-#include <localevent.h>
-#include <conn.h>
 
 /* Read a CRLF terminated line of characters into c->reply.line.
    Returns 1 when the line is complete, 0 when the line is incomplete

@@ -43,8 +43,11 @@
 #include <string.h>
 
 #include <generic_types.h>
+#include <object.h>
+#include <timer.h>
 #include <httperf.h>
 #include <call.h>
+#include <conn.h>
 #include <localevent.h>
 #include <session.h>
 #include <stats.h>

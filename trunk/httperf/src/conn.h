@@ -38,10 +38,6 @@
 
 #include <sys/uio.h>
 
-#include <httperf.h>
-#include <object.h>
-#include <timer.h>
-
 #ifdef HAVE_SSL
 # include <openssl/ssl.h>
 # include <openssl/err.h>
