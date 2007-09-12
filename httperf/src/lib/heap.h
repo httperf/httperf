@@ -28,19 +28,24 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA 
  */
 
-#ifndef queue_h
-#define queue_h
+#ifndef heap_h
+#define heap_h
 
-struct Queue;
+struct Heap;
 
-struct Queue   *create_queue(u_long);
-int             is_queue_empty(struct Queue *);
-int             is_queue_full(struct Queue *);
-void            free_queue(struct Queue *);
-int             enqueue(Any_Type, struct Queue *);
-Any_Type        get_front(struct Queue *);
-void            dequeue(struct Queue *);
-Any_Type        get_front_and_dequeue(struct Queue *);
-void			print_vp(struct Queue *);
+typedef _Bool    (*heap_compare) (Any_Type, Any_Type);
+typedef void    (*heap_for_each_action) (Any_Type);
 
-#endif /* queue_h */
+struct Heap    *create_heap(u_long, heap_compare);
+_Bool           is_heap_empty(struct Heap *);
+_Bool           is_heap_full(struct Heap *);
+u_long          num_heap_elements(struct Heap *);
+void            free_heap(struct Heap *);
+
+_Bool           insert(Any_Type, struct Heap *);
+Any_Type         remove_min(struct Heap *);
+Any_Type         poll_min(struct Heap *);
+
+void            heap_for_each(struct Heap *, heap_for_each_action);
+
+#endif /* Heap_h */

@@ -1,3 +1,7 @@
+2007-09-11  Ted Bullock <tbullock@canada.com>
+
+	* lib/heap.c, lib/heap.h: New generic priority queue data structure
+
 2007-07-15  Ted Bullock <tbullock@canada.com>
 
 	* lib/queue.c, lib/queue.h: New generic queue data structure

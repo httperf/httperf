@@ -31,12 +31,9 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
 
 #include <generic_types.h>
 #include <queue.h>
-#include <httperf.h>
 
 #define Minimum_Wheel_Size 10
 
@@ -71,12 +68,9 @@ create_queue(u_long size)
 	 * Again, we are using c99 Flexible Array Members so we can do this :) 
 	 */
 	q = malloc(sizeof(struct Queue) + sizeof(Any_Type) * size);
-	if (!q) {
-		fprintf(stderr, "%s.create_queue: %s\n", prog_name,
-			strerror(errno));
-		return 0;
-	}
-
+	if (q == NULL)
+		return NULL;
+	
 	q->wheel_size = size;
 	empty_queue(q);
 
@@ -109,16 +103,15 @@ enqueue(Any_Type a, struct Queue *q)
 {
 	if (is_queue_full(q))
 		return 0;
-	else {
-		q->num_elements++;
+	
+	q->num_elements++;
 
-		if (++q->last_element == q->wheel_size) {
-			q->last_element = 0;
-		}
+	if (++q->last_element == q->wheel_size)
+		q->last_element = 0;
 
-		q->wheel[q->last_element] = a;
-	}
+	q->wheel[q->last_element] = a;
 
+	return 1;
 }
 
 void
