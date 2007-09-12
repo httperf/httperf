@@ -100,7 +100,7 @@ next_arrival_time_variable (Rate_Generator *rg)
 }
 
 static void
-tick (Timer *t, Any_Type arg)
+tick (struct Timer *t, Any_Type arg)
 {
   Time delay, now = timer_now ();
   Rate_Generator *rg = arg.vp;

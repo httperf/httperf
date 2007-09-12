@@ -197,7 +197,7 @@ no_op (void)
 }
 
 static void
-perf_sample (Timer *t, Any_Type regarg)
+perf_sample (struct Timer *t, Any_Type regarg)
 {
   Any_Type callarg;
 
@@ -1034,7 +1034,7 @@ main (int argc, char **argv)
 
   /* Update `now'.  This is to keep things accurate even when some of
      the initialization routines take a long time to execute.  */
-  timer_tick ();
+  timer_now_forced ();
 
   /* ensure that clients sample rates at different times: */
   t = (param.client.id + 1.0)*RATE_INTERVAL/param.client.num_clients;
@@ -1060,7 +1060,6 @@ main (int argc, char **argv)
   for (i = 0; i < num_stats; ++i)
     (*stat[i]->dump)();
 
-  timer_reset_all();
   timer_free_all();
   
   return 0;

@@ -62,7 +62,7 @@ typedef struct Sess_Private_Data
     u_int num_calls_in_this_burst; /* # of calls created for this burst */
     u_int num_calls_target;	/* total # of calls desired */
     u_int num_calls_destroyed;	/* # of calls destroyed so far */
-    Timer *timer;		/* timer for session think time */
+    struct Timer *timer;		/* timer for session think time */
   }
 Sess_Private_Data;
 
@@ -106,7 +106,7 @@ issue_calls (Sess *sess, Sess_Private_Data *priv)
 }
 
 static void
-user_think_time_expired (Timer *t, Any_Type arg)
+user_think_time_expired (struct Timer *t, Any_Type arg)
 {
   Sess *sess = arg.vp;
   Sess_Private_Data *priv;

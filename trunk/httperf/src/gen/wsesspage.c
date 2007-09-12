@@ -92,7 +92,7 @@ typedef struct Sess_Private_Data
     u_int num_created;		/* # of calls created in this burst */
     u_int num_destroyed;	/* # of calls destroyed in this burst */
     u_int num_reqs_completed;	/* # of user reqs completed */
-    Timer *timer;		/* timer for session think time */
+    struct Timer *timer;		/* timer for session think time */
     struct uri_list
       {
 	struct uri_list *next;
@@ -218,7 +218,7 @@ fetch_uri (Sess *sess, Sess_Private_Data *priv, Call_Private_Data *cpriv,
 }
 
 static void
-user_think_time_expired (Timer *t, Any_Type arg)
+user_think_time_expired (struct Timer *t, Any_Type arg)
 {
   Sess *sess = arg.vp;
   Sess_Private_Data *priv;

@@ -45,7 +45,7 @@ typedef struct Rate_Generator
     Time start;
     Time next_time;
     Any_Type arg;
-    Timer *timer;
+    struct Timer *timer;
     int (*tick) (Any_Type arg);
     int done;
     Time (*next_interarrival_time) (struct Rate_Generator *rg);
