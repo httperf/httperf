@@ -37,22 +37,10 @@
 struct Timer;
 typedef void    (*Timer_Callback) (struct Timer * t, Any_Type arg);
 
-typedef struct Timer_Queue {
-	struct Timer   *next;
-	struct Timer   *prev;
-} Timer_Queue;
-
-typedef struct Timer {
-	Timer_Queue     q;	/* must be first member! */
-	u_long          delta;
-	Timer_Callback  func;
-	Any_Type        arg;
-} Timer;
-
 extern Time     timer_now_forced(void);
 extern Time     timer_now(void);
 
-extern void     timer_init(void);
+extern _Bool      timer_init(void);
 extern void     timer_reset_all(void);
 extern void     timer_free_all(void);
 /*
@@ -60,8 +48,8 @@ extern void     timer_free_all(void);
  */
 extern void     timer_tick(void);
 
-extern Timer   *timer_schedule(Timer_Callback timeout, Any_Type arg,
+extern struct Timer   *timer_schedule(Timer_Callback timeout, Any_Type arg,
 			       Time delay);
-extern void     timer_cancel(Timer * t);
+extern void     timer_cancel(struct Timer * t);
 
 #endif /* timer_h */

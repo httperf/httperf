@@ -324,7 +324,7 @@ conn_failure (Conn *s, int err)
 }
 
 static void
-conn_timeout (Timer *t, Any_Type arg)
+conn_timeout (struct Timer *t, Any_Type arg)
 {
   Conn *s = arg.vp;
   Time now;

@@ -1,5 +1,11 @@
 2007-09-11  Ted Bullock <tbullock@canada.com>
 
+	* timer.c and timer.h: Use new heap and queue data 
+	structures to re-implement timers to use memory caching and 
+	try to fix memory leak associated with timers not being freed
+
+2007-09-11  Ted Bullock <tbullock@canada.com>
+
 	* lib/heap.c, lib/heap.h: New generic priority queue data structure
 
 2007-07-15  Ted Bullock <tbullock@canada.com>

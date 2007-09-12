@@ -77,7 +77,7 @@ typedef struct Conn
     struct Call *sendq_tail;
     struct Call *recvq;		/* calls waiting for a reply */
     struct Call *recvq_tail;
-    Timer *watchdog;
+    struct Timer *watchdog;
 
     struct
       {
