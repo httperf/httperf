@@ -32,8 +32,6 @@
 #ifndef timer_h
 #define timer_h
 
-#define TIMER_INTERVAL	(1.0/1000)	/* timer granularity in seconds */
-
 struct Timer;
 typedef void    (*Timer_Callback) (struct Timer * t, Any_Type arg);
 
