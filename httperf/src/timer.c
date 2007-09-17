@@ -41,10 +41,12 @@
 #include <heap.h>
 #include <queue.h>
 #include <httperf.h>
-#include <timer.h>
 
 #define HEAP_SIZE	4096
 #define WHEEL_SIZE	4096
+
+#define TIMER_INTERVAL	(1.0/1000)	/* timer granularity in seconds */
+typedef void    (*Timer_Callback) (struct Timer * t, Any_Type arg);
 
 static Time     now;
 static Time     next_tick;
