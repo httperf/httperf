@@ -46,7 +46,6 @@
 #define WHEEL_SIZE	4096
 
 #define TIMER_INTERVAL	(1.0/1000)	/* timer granularity in seconds */
-typedef void    (*Timer_Callback) (struct Timer * t, Any_Type arg);
 
 static Time     now;
 static Time     next_tick;
@@ -57,7 +56,7 @@ struct Timer {
 	/*
 	 * Callback function called when timer expires (timeout) 
 	 */
-	Timer_Callback  timeout_callback;
+	void            (*timeout_callback) (struct Timer * t, Any_Type arg);
 
 	/*
 	 * Typically used as a void pointer to the data object being timed 
@@ -145,9 +144,9 @@ timer_init(void)
 		goto init_failure;
 
 	while (!is_queue_full(passive_timers)) {
-		Any_Type a;
+		Any_Type        a;
 		a.vp = malloc(sizeof(struct Timer));
-		
+
 		if (a.vp == NULL)
 			goto init_failure;
 
@@ -191,7 +190,7 @@ static void
 expire_complete_timers(Any_Type a)
 {
 	struct Timer   *t = (struct Timer *) a.vp;
-	
+
 	if (t->delta == 0) {
 		(*t->timeout_callback) (t, t->timer_subject);
 
@@ -248,7 +247,8 @@ timer_tick(void)
 }
 
 struct Timer   *
-timer_schedule(Timer_Callback timeout, Any_Type subject, Time delay)
+timer_schedule(void (*timeout) (struct Timer * t, Any_Type arg),
+	       Any_Type subject, Time delay)
 {
 	struct Timer   *t;
 	u_long          ticks;
@@ -284,8 +284,9 @@ timer_schedule(Timer_Callback timeout, Any_Type subject, Time delay)
 	insert((Any_Type) (void *) t, active_timers);
 
 	if (DBG > 2)
-		fprintf(stderr, "timer_schedule: t=%p, delay=%gs, subject=%lx\n",
-			t, delay, subject.l);
+		fprintf(stderr,
+			"timer_schedule: t=%p, delay=%gs, subject=%lx\n", t,
+			delay, subject.l);
 
 	return t;
 }
