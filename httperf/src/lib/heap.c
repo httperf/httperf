@@ -34,19 +34,18 @@
 #include <stdbool.h>
 
 #include <generic_types.h>
-#include <heap.h>
 
 #define Minimum_Heap_Size 10
 
 struct Heap {
 	u_long          array_size;
 	u_long          num_elements;
-	heap_compare    compare;
+	_Bool   (*compare)(Any_Type, Any_Type);
 	Any_Type        storage[];	/* c99 Flexible Array Member */
 };
 
 struct Heap    *
-create_heap(u_long size, heap_compare compare_callback)
+create_heap(u_long size, _Bool (*compare_callback) (Any_Type, Any_Type))
 {
 	struct Heap    *h;
 
@@ -158,7 +157,7 @@ poll_min(struct Heap * h)
 }
 
 void
-heap_for_each(struct Heap *h, heap_for_each_action action)
+heap_for_each(struct Heap *h, void (*action) (Any_Type))
 {
 	for(u_long i = 1; i <= h->num_elements; i++)
 	{
