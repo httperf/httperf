@@ -2,13 +2,13 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT(httperf, 0.9.99, httperf@linux.hpl.hp.com)
+AC_INIT(httperf, 0.9.1, httperf@linux.hpl.hp.com)
 AC_CONFIG_SRCDIR([src/httperf.c])
 AC_CONFIG_HEADER([config.h])
 
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(httperf, 0.9.99)
+AM_INIT_AUTOMAKE(httperf, 0.9.1)
 
 # Checks for programs.
 AC_GNU_SOURCE
@@ -19,7 +19,7 @@ AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
-AC_CHECK_LIB(event, event_init, , AC_MSG_ERROR([libevent is required to build httperf]) ) 
+# AC_CHECK_LIB(event, event_init, , AC_MSG_ERROR([libevent is required to build httperf]) ) 
 AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(crypto, main)
 AC_CHECK_LIB(ssl, SSL_version, , AC_MSG_WARN([SSL Disabled]) )
