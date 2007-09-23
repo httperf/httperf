@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2000-2007 Hewlett-Packard Company
  * Copyright (C) 2007 Ted Bullock <tbullock@canada.com>
+ * Copyright (C) 2000-2007 Hewlett-Packard Company
  * 
  * This file is part of httperf, a web server performance measurment tool.
  * 
@@ -38,20 +38,18 @@
 #include <sys/time.h>
 
 #include <generic_types.h>
-#include <heap.h>
-#include <queue.h>
+#include <list.h>
 #include <httperf.h>
 
-#define HEAP_SIZE	4096
-#define WHEEL_SIZE	4096
-
-#define TIMER_INTERVAL	(1.0/1000)	/* timer granularity in seconds */
+#define NUM_TIMERS 0
 
 static Time     now;
 static Time     next_tick;
 
 struct Timer {
-	u_long          delta;
+	Time            time_started;
+	Time            timeout_delay;
+	bool            has_expired;
 
 	/*
 	 * Callback function called when timer expires (timeout) 
@@ -65,26 +63,17 @@ struct Timer {
 };
 
 /*
- * FIFO Queue of inactive timers 
+ * inactive timers 
  */
-static struct Queue *passive_timers = NULL;
+static struct List *passive_timers = NULL;
 /*
- * Min heap of active timers 
+ * active timers 
  */
-static struct Heap *active_timers = NULL;
-
+static struct List *active_timers = NULL;
 /*
- * Executed once a timer has expired, enqueues the timer back into
- * the passive_timers queue for later use
+ * active timeoutless timers 
  */
-static void
-done(struct Timer *t)
-{
-	/*
-	 * Double cast.  Irritating but does the trick 
-	 */
-	enqueue((Any_Type) (void *) t, passive_timers);
-}
+static struct List *persistent_timers = NULL;
 
 /*
  * Returns the time and calls the syscall gettimeofday.  This is an expensive
@@ -113,21 +102,6 @@ timer_now(void)
 }
 
 /*
- * Comparison callback function used by the heap data structure to correctly
- * insert the timer in the proper order (min order as in this case).
- */
-_Bool
-comparator(Any_Type a, Any_Type b)
-{
-	struct Timer   *timer_a, *timer_b;
-
-	timer_a = (struct Timer *) a.vp;
-	timer_b = (struct Timer *) b.vp;
-
-	return timer_a->delta < timer_b->delta;
-}
-
-/*
  * Initializes a large timer pool cache
  * This is a very expensive function.  Call before beginning measurements.
  * Returns 0 upon a memory allocation error
@@ -135,22 +109,26 @@ comparator(Any_Type a, Any_Type b)
 _Bool
 timer_init(void)
 {
-	passive_timers = create_queue(WHEEL_SIZE);
+	passive_timers = list_create();
 	if (passive_timers == NULL)
 		goto init_failure;
 
-	active_timers = create_heap(HEAP_SIZE, &comparator);
+	active_timers = list_create();
 	if (active_timers == NULL)
 		goto init_failure;
 
-	while (!is_queue_full(passive_timers)) {
+	persistent_timers = list_create();
+	if (persistent_timers == NULL)
+		goto init_failure;
+
+	for (int i = 0; i < NUM_TIMERS; i++) {
 		Any_Type        a;
 		a.vp = malloc(sizeof(struct Timer));
 
 		if (a.vp == NULL)
 			goto init_failure;
 
-		enqueue(a, passive_timers);
+		list_push(passive_timers, a);
 	}
 
 	now = timer_now_forced();
@@ -162,63 +140,78 @@ timer_init(void)
 	return false;
 
 }
+
 /*
  * Frees all allocated timers, and timer queues
  */
 void
 timer_free_all(void)
 {
-	while (!is_queue_empty(passive_timers)) {
-		Any_Type        a = get_front_and_dequeue(passive_timers);
-		free(a.vp);
-	}
-	free_queue(passive_timers);
+	int             count = 0;
 
-	while (!is_heap_empty(active_timers)) {
-		Any_Type        a = remove_min(active_timers);
+	while (!is_list_empty(passive_timers)) {
+		Any_Type        a = list_pop(passive_timers);
+		fprintf(stderr,
+			"passive_timers Freeing counter at address %p\n",
+			a.vp);
 		free(a.vp);
+		count++;
 	}
-	free_heap(active_timers);
+	list_free(passive_timers);
+	passive_timers = NULL;
+
+	while (!is_list_empty(active_timers)) {
+		Any_Type        a = list_pop(active_timers);
+		fprintf(stderr,
+			"active_timers Freeing counter at address %p\n", a.vp);
+		free(a.vp);
+		count++;
+	}
+	list_free(active_timers);
+	active_timers = NULL;
+
+	while (!is_list_empty(persistent_timers)) {
+		Any_Type        a = list_pop(persistent_timers);
+		fprintf(stderr,
+			"persistent_timers Freeing counter at address %p\n",
+			a.vp);
+		free(a.vp);
+		count++;
+	}
+	list_free(persistent_timers);
+	persistent_timers = NULL;
+
+	if (DBG > 2)
+		fprintf(stderr, "Freed a total of %d counters\n", count);
 }
 
-/*
- * Checks for timers which have had their timeout value pass and executes their
- * callback function.  The timer is then removed from the active timer list
- * and then enqueued back into the passive timer queue
- */
-static void
-expire_complete_timers(Any_Type a)
+static int
+timer_has_expired(Any_Type a)
 {
-	struct Timer   *t = (struct Timer *) a.vp;
+	struct Timer   *t = a.vp;
 
-	if (t->delta == 0) {
-		(*t->timeout_callback) (t, t->timer_subject);
-
-		Any_Type        verify = remove_min(active_timers);
-
-		if (verify.vp != t)
-			fprintf(stderr,
-				"Active timer heap is out of min order!\n\t%s.%s(%d): %s\n",
-				__FILE__, __func__, __LINE__, strerror(errno));
-
-		/*
-		 * Double cast.  Irritating but does the trick 
-		 */
-		enqueue((Any_Type) (void *) t, passive_timers);
-	}
+	/*
+	 * Only expire currently processing timers 
+	 */
+	if (t->has_expired == false) {
+		if (t->time_started + t->timeout_delay < timer_now()) {
+			t->has_expired = true;
+			(*t->timeout_callback) (t, t->timer_subject);
+			return 1;
+		}
+	} else
+		return 0;
 }
 
-/*
- * To be used to decrement a single timer delta value with the heap_for_each
- * function via a function pointer
- */
-static void
-decrement_timers(Any_Type a)
+static int
+timer_deactivate(Any_Type a)
 {
-	struct Timer   *t = (struct Timer *) a.vp;
+	struct Timer   *t = a.vp;
 
-	if (t != 0)
-		t->delta--;
+	if (t->has_expired == true)
+		list_push(passive_timers, a);
+
+	return t->has_expired;
 }
 
 /*
@@ -230,20 +223,8 @@ void
 timer_tick(void)
 {
 	now = timer_now_forced();
-
-	while (timer_now() >= next_tick) {
-		/*
-		 * Check for timers that have timed out and expire them 
-		 */
-		heap_for_each(active_timers, &expire_complete_timers);
-
-		/*
-		 * Decrement remaining timers
-		 */
-		heap_for_each(active_timers, &decrement_timers);
-
-		next_tick += TIMER_INTERVAL;
-	}
+	list_for_each(active_timers, &timer_has_expired);
+	list_remove_if_true(active_timers, &timer_deactivate);
 }
 
 struct Timer   *
@@ -251,37 +232,24 @@ timer_schedule(void (*timeout) (struct Timer * t, Any_Type arg),
 	       Any_Type subject, Time delay)
 {
 	struct Timer   *t;
-	u_long          ticks;
-	u_long          delta;
-	Time            behind;
 
-	if (!is_queue_empty(passive_timers)) {
-		Any_Type        a = get_front_and_dequeue(passive_timers);
+	if (!is_list_empty(passive_timers)) {
+		Any_Type        a = list_pop(passive_timers);
 		t = (struct Timer *) a.vp;
-	} else
+	} else if ((t = malloc(sizeof(struct Timer))) == NULL)
 		return NULL;
 
 	memset(t, 0, sizeof(struct Timer));
 	t->timeout_callback = timeout;
+	t->has_expired = false;
 	t->timer_subject = subject;
+	t->time_started = timer_now();
+	t->timeout_delay = delay;
 
-	behind = (timer_now() - next_tick);
-	if (behind > 0.0)
-		delay += behind;
-
-	if (delay < 0.0)
-		ticks = 1;
-	else {
-		ticks =
-		    (delay + TIMER_INTERVAL / 2.0) * (1.0 / TIMER_INTERVAL);
-		if (!ticks)
-			ticks = 1;	/* minimum delay is a tick */
-	}
-
-	delta = ticks / WHEEL_SIZE;
-	t->delta = delta;
-
-	insert((Any_Type) (void *) t, active_timers);
+	if (delay > 0)
+		list_push(active_timers, (Any_Type) (void *) t);
+	else
+		list_push(persistent_timers, (Any_Type) (void *) t);
 
 	if (DBG > 2)
 		fprintf(stderr,
@@ -302,5 +270,5 @@ timer_cancel(struct Timer *t)
 	 * being processed (whose timeout has expired).  
 	 */
 
-	done(t);
+	t->has_expired = true;
 }

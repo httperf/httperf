@@ -1,3 +1,15 @@
+2007-09-23  Ted Bullock <tbullock@canada.com>
+
+	* httperf.c: Add a check to return value of timer_schedule
+	* timer.c: Fix a crash associated with rescheduling a timer
+	* lib/list.c: NEW Generic linked list data structure implementation
+	* lib/list.h: NEW Generic linked list data structure API
+
+2007-09-18  Ted Bullock <tbullock@canada.com>
+
+	* timer.c: Remove the last of the old timer logic code and replace it
+	with simpler functionality
+
 2007-09-11  Ted Bullock <tbullock@canada.com>
 
 	* timer.c and timer.h: Use new heap and queue data 

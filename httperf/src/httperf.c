@@ -206,7 +206,8 @@ perf_sample (struct Timer *t, Any_Type regarg)
 
   /* prepare for next sample interval: */
   perf_sample_start = timer_now ();
-  timer_schedule (perf_sample, regarg, RATE_INTERVAL);
+  if( timer_schedule (perf_sample, regarg, RATE_INTERVAL) == NULL)
+	panic("%s(%d): Received NULL from timer_schedule\n", __func__, __LINE__);
 }
 
 int
