@@ -41,7 +41,7 @@
 #include <list.h>
 #include <httperf.h>
 
-#define NUM_TIMERS 0
+#define NUM_TIMERS 25
 
 static Time     now;
 static Time     next_tick;
@@ -151,9 +151,6 @@ timer_free_all(void)
 
 	while (!is_list_empty(passive_timers)) {
 		Any_Type        a = list_pop(passive_timers);
-		fprintf(stderr,
-			"passive_timers Freeing counter at address %p\n",
-			a.vp);
 		free(a.vp);
 		count++;
 	}
@@ -162,8 +159,6 @@ timer_free_all(void)
 
 	while (!is_list_empty(active_timers)) {
 		Any_Type        a = list_pop(active_timers);
-		fprintf(stderr,
-			"active_timers Freeing counter at address %p\n", a.vp);
 		free(a.vp);
 		count++;
 	}
@@ -172,9 +167,6 @@ timer_free_all(void)
 
 	while (!is_list_empty(persistent_timers)) {
 		Any_Type        a = list_pop(persistent_timers);
-		fprintf(stderr,
-			"persistent_timers Freeing counter at address %p\n",
-			a.vp);
 		free(a.vp);
 		count++;
 	}
@@ -182,7 +174,7 @@ timer_free_all(void)
 	persistent_timers = NULL;
 
 	if (DBG > 2)
-		fprintf(stderr, "Freed a total of %d counters\n", count);
+		fprintf(stderr, "Experiment used a total of %d counters\n", count);
 }
 
 static int
