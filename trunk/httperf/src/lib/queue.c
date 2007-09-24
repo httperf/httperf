@@ -33,7 +33,6 @@
 #include <stdlib.h>
 
 #include <generic_types.h>
-#include <queue.h>
 
 #define Minimum_Wheel_Size 10
 
