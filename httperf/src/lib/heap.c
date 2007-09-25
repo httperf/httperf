@@ -31,7 +31,6 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <stdbool.h>
 
 #include <generic_types.h>
 
@@ -40,12 +39,12 @@
 struct Heap {
 	u_long          array_size;
 	u_long          num_elements;
-	_Bool   (*compare)(Any_Type, Any_Type);
+	bool            (*compare) (Any_Type, Any_Type);
 	Any_Type        storage[];	/* c99 Flexible Array Member */
 };
 
 struct Heap    *
-create_heap(u_long size, _Bool (*compare_callback) (Any_Type, Any_Type))
+create_heap(u_long size, bool(*compare_callback) (Any_Type, Any_Type))
 {
 	struct Heap    *h;
 
@@ -66,13 +65,13 @@ create_heap(u_long size, _Bool (*compare_callback) (Any_Type, Any_Type))
 	return h;
 }
 
-_Bool
+bool
 is_heap_empty(struct Heap * h)
 {
 	return h->num_elements == 0;
 }
 
-_Bool
+bool
 is_heap_full(struct Heap * h)
 {
 	return h->array_size == h->num_elements;
@@ -92,7 +91,7 @@ free_heap(struct Heap *h)
 }
 
 #define PARENT(i)	(i/2)
-_Bool
+bool
 insert(Any_Type a, struct Heap *h)
 {
 	u_long          i, parent;
@@ -134,15 +133,15 @@ percolate(struct Heap *h, u_long hole)
 }
 
 Any_Type
-remove_min(struct Heap * h)
+remove_min(struct Heap *h)
 {
-	if(is_heap_empty(h))
+	if (is_heap_empty(h))
 		return (Any_Type) 0;
 	else {
 		Any_Type        min = h->storage[1];
 		h->storage[1] = h->storage[h->num_elements--];
 		percolate(h, 1);
-		
+
 		return min;
 	}
 }
@@ -150,7 +149,7 @@ remove_min(struct Heap * h)
 Any_Type
 poll_min(struct Heap * h)
 {
-	if(is_heap_empty(h))
+	if (is_heap_empty(h))
 		return (Any_Type) 0;
 	else
 		return h->storage[1];
@@ -159,8 +158,7 @@ poll_min(struct Heap * h)
 void
 heap_for_each(struct Heap *h, void (*action) (Any_Type))
 {
-	for(u_long i = 1; i <= h->num_elements; i++)
-	{
-		(*action)(h->storage[i]);
+	for (u_long i = 1; i <= h->num_elements; i++) {
+		(*action) (h->storage[i]);
 	}
 }

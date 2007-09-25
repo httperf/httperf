@@ -33,18 +33,18 @@
 
 struct Heap;
 
-typedef _Bool    (*heap_compare) (Any_Type, Any_Type);
+typedef         bool(*heap_compare) (Any_Type, Any_Type);
 typedef void    (*heap_for_each_action) (Any_Type);
 
 struct Heap    *create_heap(u_long, heap_compare);
-_Bool           is_heap_empty(struct Heap *);
-_Bool           is_heap_full(struct Heap *);
+bool            is_heap_empty(struct Heap *);
+bool            is_heap_full(struct Heap *);
 u_long          num_heap_elements(struct Heap *);
 void            free_heap(struct Heap *);
 
-_Bool           insert(Any_Type, struct Heap *);
-Any_Type         remove_min(struct Heap *);
-Any_Type         poll_min(struct Heap *);
+bool            insert(Any_Type, struct Heap *);
+Any_Type        remove_min(struct Heap *);
+Any_Type        poll_min(struct Heap *);
 
 void            heap_for_each(struct Heap *, heap_for_each_action);
 
