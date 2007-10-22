@@ -40,13 +40,13 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
 #include <sys/time.h>
-#include <sys/types.h>
 #include <sys/resource.h>
-#include <sys/socket.h>
 
 const char *prog_name;
 unsigned long num_conn, num_closed;
@@ -161,14 +161,14 @@ main (int argc, char **argv)
 	    }
 
 	  sin = server_addr;
-	  if (connect (sd, &sin, sizeof (sin)) < 0)
+	  if (connect (sd, (struct sockaddr *) &sin, sizeof (sin)) < 0)
 	    {
 	      printf("connect: %s\n", strerror (errno));
 	      switch (errno)
 		{
 		case ECONNREFUSED:
 		  /* wait for server to start up... */
-		  usleep (1000000);
+		  sleep (1);
 		case ETIMEDOUT:
 		  close (sd);
 		  continue;
