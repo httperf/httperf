@@ -68,33 +68,6 @@
 #include <localevent.h>
 #include <http.h>
 
-
-/*if we don't have GNU compatible realloc, fake it*/
-#if HAVE_REALLOC == 0
-void *rpl_realloc(void *ptr, size_t size)
-  {
-    if (ptr == NULL && size == 0)
-      {
-        return NULL;
-      }
-
-    if (size == 0)
-      {
-        free(ptr);
-	return NULL;
-      }
-
-    if (ptr == NULL)
-      {
-        return malloc(size);
-      }
-
-#undef realloc
-    return realloc(ptr, size);
-#define realloc rpl_realloc
-  }
-#endif
-
 #define HASH_TABLE_SIZE	1024	/* can't have more than this many servers */
 #define MIN_IP_PORT	IPPORT_RESERVED
 #define MAX_IP_PORT	65535
