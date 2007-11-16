@@ -70,7 +70,7 @@ object_destroy (Object *obj)
 {
   Object_Type type = obj->type;
   struct free_list_el *el;
-  Event_Type event = 0;
+  Event_Type event = EV_NULL;
   Any_Type arg;
 
   switch (type)
@@ -117,7 +117,7 @@ Object *
 object_new (Object_Type type)
 {
   struct free_list_el *el;
-  Event_Type event = 0;
+  Event_Type event = EV_NULL;
   size_t obj_size;
   Any_Type arg;
   Object *obj;

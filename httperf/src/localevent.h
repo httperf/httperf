@@ -37,6 +37,7 @@
 
 typedef enum Event_Type
   {
+    EV_NULL = 0,
     EV_PERF_SAMPLE,
 
     EV_HOSTNAME_LOOKUP_START,
