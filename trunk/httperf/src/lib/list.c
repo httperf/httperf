@@ -43,7 +43,7 @@ struct List {
 	struct Node    *dummy_head;
 };
 
-int
+bool
 is_list_empty(struct List *l)
 {
 
@@ -80,7 +80,7 @@ list_free(struct List *l)
 	free(l);
 }
 
-int
+bool
 list_push(struct List *l, Any_Type data)
 {
 	struct Node    *n;
@@ -90,14 +90,14 @@ list_push(struct List *l, Any_Type data)
 	 * malloc every time we push a new node onto the list
 	 */
 	if ((n = malloc(sizeof(struct Node))) == NULL) {
-		return 0;
+		return false;
 	}
 
 	n->data = data;
 	n->next = l->dummy_head->next;
 	l->dummy_head->next = n;
 
-	return 1;
+	return true;
 }
 
 Any_Type
@@ -151,3 +151,4 @@ list_for_each(struct List *l, int (*action) (Any_Type))
 		n = n->next;
 	}
 }
+

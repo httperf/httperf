@@ -37,8 +37,8 @@ struct List;
 
 struct List    *list_create();
 void            list_free(struct List *);
-void            list_push(struct List *, Any_Type);
-int             is_list_empty(struct List *);
+bool            list_push(struct List *, Any_Type);
+bool            is_list_empty(struct List *);
 Any_Type        list_top(struct List *);
 Any_Type        list_pop(struct List *);
 void            list_remove_if_true(struct List *, list_action);

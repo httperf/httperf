@@ -106,7 +106,7 @@ timer_now(void)
  * This is a very expensive function.  Call before beginning measurements.
  * Returns 0 upon a memory allocation error
  */
-_Bool
+bool
 timer_init(void)
 {
 	passive_timers = list_create();
@@ -128,7 +128,8 @@ timer_init(void)
 		if (a.vp == NULL)
 			goto init_failure;
 
-		list_push(passive_timers, a);
+		if (list_push(passive_timers, a) == false)
+			goto init_failure;
 	}
 
 	now = timer_now_forced();
@@ -138,7 +139,6 @@ timer_init(void)
       init_failure:
 	fprintf(stderr, "%s.%s: %s\n", __FILE__, __func__, strerror(errno));
 	return false;
-
 }
 
 /*
@@ -147,12 +147,9 @@ timer_init(void)
 void
 timer_free_all(void)
 {
-	int             count = 0;
-
 	while (!is_list_empty(passive_timers)) {
 		Any_Type        a = list_pop(passive_timers);
 		free(a.vp);
-		count++;
 	}
 	list_free(passive_timers);
 	passive_timers = NULL;
@@ -160,7 +157,6 @@ timer_free_all(void)
 	while (!is_list_empty(active_timers)) {
 		Any_Type        a = list_pop(active_timers);
 		free(a.vp);
-		count++;
 	}
 	list_free(active_timers);
 	active_timers = NULL;
@@ -168,13 +164,9 @@ timer_free_all(void)
 	while (!is_list_empty(persistent_timers)) {
 		Any_Type        a = list_pop(persistent_timers);
 		free(a.vp);
-		count++;
 	}
 	list_free(persistent_timers);
 	persistent_timers = NULL;
-
-	if (DBG > 2)
-		fprintf(stderr, "Experiment used a total of %d counters\n", count);
 }
 
 static int
@@ -200,6 +192,7 @@ timer_deactivate(Any_Type a)
 {
 	struct Timer   *t = a.vp;
 
+	/* TODO: Error check list_push */
 	if (t->has_expired == true)
 		list_push(passive_timers, a);
 
@@ -239,9 +232,11 @@ timer_schedule(void (*timeout) (struct Timer * t, Any_Type arg),
 	t->timeout_delay = delay;
 
 	if (delay > 0)
-		list_push(active_timers, (Any_Type) (void *) t);
+		if (list_push(active_timers, (Any_Type) (void *) t) == false)
+			return false;
 	else
-		list_push(persistent_timers, (Any_Type) (void *) t);
+		if (list_push(persistent_timers, (Any_Type) (void *) t) == false)
+			return false;
 
 	if (DBG > 2)
 		fprintf(stderr,

@@ -1023,7 +1023,11 @@ main (int argc, char **argv)
     }
   printf ("\n");
 
-  timer_init ();
+  if(timer_init() == false)
+  {
+    fprintf(stderr, "%s: timer_init(): failed initialization (%d)\n", prog_name, __LINE__);
+    exit(1);
+  } 
   core_init ();
 
   signal (SIGINT, (void (*)()) core_exit);
