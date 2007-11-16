@@ -32,7 +32,7 @@
 #ifndef list_h
 #define list_h
 
-typedef int     (*list_action) (Any_Type);
+typedef bool    (*list_action) (Any_Type);
 struct List;
 
 struct List    *list_create();
