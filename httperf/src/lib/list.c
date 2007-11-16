@@ -126,7 +126,7 @@ list_pop(struct List * l)
 }
 
 void
-list_remove_if_true(struct List *l, int (*action) (Any_Type))
+list_remove_if_true(struct List *l, bool (*action) (Any_Type))
 {
 	struct Node    *n = l->dummy_head;
 
