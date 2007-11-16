@@ -169,7 +169,10 @@ timer_free_all(void)
 	persistent_timers = NULL;
 }
 
-static int
+/*
+ * Checks whether a timer has expired
+ */
+static bool
 timer_has_expired(Any_Type a)
 {
 	struct Timer   *t = a.vp;
@@ -181,13 +184,14 @@ timer_has_expired(Any_Type a)
 		if (t->time_started + t->timeout_delay < timer_now()) {
 			t->has_expired = true;
 			(*t->timeout_callback) (t, t->timer_subject);
-			return 1;
+			return true;
 		}
-	} else
-		return 0;
+	}
+
+	return false;
 }
 
-static int
+static bool
 timer_deactivate(Any_Type a)
 {
 	struct Timer   *t = a.vp;
@@ -212,6 +216,12 @@ timer_tick(void)
 	list_remove_if_true(active_timers, &timer_deactivate);
 }
 
+/*
+ * Schedules a timer into the active_timer list.  Usually the timer is 
+ * requisitioned from the passive_timer list to avoid making extra calls
+ * to malloc, but will allocate memory for a new counter if there are no
+ * inactive timers available
+ */
 struct Timer   *
 timer_schedule(void (*timeout) (struct Timer * t, Any_Type arg),
 	       Any_Type subject, Time delay)
