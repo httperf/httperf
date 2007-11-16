@@ -1,5 +1,5 @@
 * New in version 0.9.1:
-** timer re-write to reduce memory and fix memory leaks (Ted Bullock)
+** timer re-write to reduce memory and fix memory leaks 
 ** Generic data structures and implementations (heap, queue, linked list)
 ** New options (see man-page for details):
 	--period=vT1,D1,T2,D2...Tn,Dn
