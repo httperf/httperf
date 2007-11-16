@@ -32,7 +32,7 @@ AC_SEARCH_LIBS([inet_aton], [resolv])
 # Checks for header files.
 AC_FUNC_ALLOCA
 AC_HEADER_TIME
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h libintl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h openssl/ssl.h getopt.h])
+AC_CHECK_HEADERS([openssl/ssl.h getopt.h])
 
 if test "$ac_cv_header_openssl_ssl_h" = "yes" \
 	-a "$ac_cv_lib_ssl_SSL_version" = "yes" \
@@ -64,7 +64,7 @@ AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
 AC_FUNC_STRTOD
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([gethostbyname gettimeofday memset munmap select socket strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol strtoul inet_aton getopt_long])
+AC_CHECK_FUNCS([getopt_long])
 
 # Turn on Debug if necessary
 AC_ARG_ENABLE(debug,
