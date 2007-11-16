@@ -141,7 +141,7 @@ init_wlog (void)
 
   /* mmap anywhere in address space: */
   fbase = (char *) mmap (0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-  if (fbase == (char *) 0 - 1)
+  if (fbase == (char *) -1)
     panic ("%s: can't mmap the file: %s\n", prog_name, strerror (errno));
 
   close (fd);
