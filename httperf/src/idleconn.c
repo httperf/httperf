@@ -32,6 +32,8 @@
     02110-1301, USA
 */
 
+#define _BSD_SOURCE
+
 #include <errno.h>
 #include <netdb.h>
 #include <signal.h>
