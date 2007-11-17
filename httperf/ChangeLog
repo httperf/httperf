@@ -1,6 +1,7 @@
 2007-11-16  Ted Bullock <tbullock@canada.com>
 
 	* configure.ac: Enable libevent dependancy
+	* src/httperf.c: Print libevent version event notification mechanism
 
 2007-11-15  Ted Bullock <tbullock@canada.com>
 
