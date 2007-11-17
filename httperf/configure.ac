@@ -19,7 +19,7 @@ AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
-# AC_CHECK_LIB(event, event_init, , AC_MSG_ERROR([libevent is required to build httperf]) ) 
+AC_CHECK_LIB(event, event_init, , AC_MSG_ERROR([libevent is required to build httperf]) ) 
 AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(crypto, main)
 AC_CHECK_LIB(ssl, SSL_version, , AC_MSG_WARN([SSL Disabled]) )
