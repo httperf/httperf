@@ -1,3 +1,7 @@
+2007-11-16  Ted Bullock <tbullock@canada.com>
+
+	* configure.ac: Enable libevent dependancy
+
 2007-11-15  Ted Bullock <tbullock@canada.com>
 
 	* autogen.sh: Remove in lieu of autoreconf -i
