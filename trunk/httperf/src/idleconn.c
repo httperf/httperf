@@ -1,214 +1,184 @@
 /*
-    httperf -- a tool for measuring web server performance
-    Copyright 2000-2007 Hewlett-Packard Company and Contributors listed in
-    AUTHORS file. Originally contributed by David Mosberger-Tang
+ * Copyright (C) 2007 Ted Bullock <tbullock@canada.com>
+ * 
+ * This file is part of httperf, a web server performance measurment tool.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ * 
+ * In addition, as a special exception, the copyright holders give permission
+ * to link the code of this work with the OpenSSL project's "OpenSSL" library
+ * (or with modified versions of it that use the same license as the "OpenSSL" 
+ * library), and distribute linked combinations including the two.  You must
+ * obey the GNU General Public License in all respects for all of the code
+ * used other than "OpenSSL".  If you modify this file, you may extend this
+ * exception to your version of the file, but you are not obligated to do so.
+ * If you do not wish to do so, delete this exception statement from your
+ * version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT 
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA 
+ */
 
-    This file is part of httperf, a web server performance measurment
-    tool.
+#include "config.h"
 
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License as
-    published by the Free Software Foundation; either version 2 of the
-    License, or (at your option) any later version.
-    
-    In addition, as a special exception, the copyright holders give
-    permission to link the code of this work with the OpenSSL project's
-    "OpenSSL" library (or with modified versions of it that use the same
-    license as the "OpenSSL" library), and distribute linked combinations
-    including the two.  You must obey the GNU General Public License in
-    all respects for all of the code used other than "OpenSSL".  If you
-    modify this file, you may extend this exception to your version of the
-    file, but you are not obligated to do so.  If you do not wish to do
-    so, delete this exception statement from your version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  
-    02110-1301, USA
-*/
-
-#define _BSD_SOURCE
-
-#include <errno.h>
-#include <netdb.h>
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string.h>		/* For strrchr() */
+#include <signal.h>
+#include <sys/types.h>
 #include <unistd.h>
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
 #include <sys/time.h>
-#include <sys/resource.h>
+#include <event.h>
+#include <evdns.h>
 
-const char *prog_name;
-unsigned long num_conn, num_closed;
-struct timeval start_time;
+#include <generic_types.h>
+#include <list.h>
 
-void
-sigint_handler (int signal)
+/*
+ * Events allocated onto the heap
+ */
+static struct List *active_events = NULL;
+static struct List *inactive_events = NULL;
+
+static const char *prog_name = NULL;
+static unsigned long num_conn = 0, num_closed = 0;
+static struct timeval start_time;
+
+static char    *server = NULL;
+static int      desired = 0;
+static int      port = 0;
+
+static void
+cleanup()
 {
-  struct timeval stop_time;
-  double delta_t;
-
-  gettimeofday (&stop_time, NULL);
-
-  delta_t = ((stop_time.tv_sec - start_time.tv_sec)
-	     + 1e-6*(stop_time.tv_usec - start_time.tv_usec));
-
-  printf ("%s: total # conn. created = %lu, close() rate = %g conn/sec\n",
-	  prog_name, num_conn, num_closed / delta_t);
-  exit (0);
+	if (active_events != NULL) {
+		while (!is_list_empty(active_events)) {
+			Any_Type        a = list_pop(active_events);
+			free(a.vp);
+		}
+		list_free(active_events);
+	}
 }
 
-int
-main (int argc, char **argv)
+void
+sigint_exit(int fd, short event, void *arg)
 {
-  int desired, current = 0, port, sd, max_sd = 0, n, i;
-  struct sockaddr_in sin, server_addr;
-  fd_set readable, rdfds;
-  struct rlimit rlimit;
-  struct hostent *he;
-  char *server;
+	struct event   *signal_int = arg;
+	struct timeval  stop_time;
+	double          delta_t = 0;
 
-  signal (SIGINT, sigint_handler);
+	gettimeofday(&stop_time, NULL);
 
-  prog_name = strrchr (argv[0], '/');
-  if (prog_name)
-    ++prog_name;
-  else
-    prog_name = argv[0];
+	delta_t = ((stop_time.tv_sec - start_time.tv_sec)
+		   + 1e-6 * (stop_time.tv_usec - start_time.tv_usec));
 
-  memset (&rdfds, 0, sizeof (rdfds));
+	printf("%s: total # conn. created = %lu, close() rate = %g conn/sec\n",
+	       prog_name, num_conn, num_closed / delta_t);
 
-  if (argc != 4)
-    {
-      fprintf (stderr, "Usage: %s server port numidle\n", prog_name);
-      exit (-1);
-    }
+	printf("%s: caught SIGINT... Exiting.\n", __func__);
 
-  server = argv[1];
-  port = atoi (argv[2]);
-  desired = atoi (argv[3]);
+	evdns_shutdown(0);
+	event_del(signal_int);
 
-  /* boost open file limit to the max: */
-  if (getrlimit (RLIMIT_NOFILE, &rlimit) < 0)
-    {
-      fprintf (stderr, "%s: failed to get number of open file limit: %s",
-	       prog_name, strerror (errno));
-      exit (1);
-    }
+	cleanup();
+}
 
-  if (rlimit.rlim_max > FD_SETSIZE)
-    {
-      fprintf (stderr, "%s: warning: open file limit > FD_SETSIZE; "
-	       "limiting max. # of open files to FD_SETSIZE\n", prog_name);
-      rlimit.rlim_max = FD_SETSIZE;
-    }
+void
+dns_lookup_callback(int result, char type, int count, int ttl, void *addresses,
+		    void *arg)
+{
+	uint8_t         i;
 
-  rlimit.rlim_cur = rlimit.rlim_max;
-  if (setrlimit (RLIMIT_NOFILE, &rlimit) < 0)
-    {
-      fprintf (stderr, "%s: failed to increase number of open file limit: %s",
-	       prog_name, strerror (errno));
-      exit (1);
-    }
-
-  printf ("%s: creating and maintaining %d idle connections\n",
-	  prog_name, desired);
-
-  memset (&server_addr, 0, sizeof (server_addr));
-  server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons (port);
-
-  he = gethostbyname (server);
-  if (he)
-    {
-      if (he->h_addrtype != AF_INET || he->h_length != sizeof (sin.sin_addr))
-	{
-	  perror (server);
-	  exit (-1);
-	}
-      memcpy (&server_addr.sin_addr, he->h_addr_list[0],
-	      sizeof (server_addr.sin_addr));
-    }
-  else
-    if (!inet_aton (server, &server_addr.sin_addr))
-      {
-	fprintf (stderr, "%s: invalid server address %s\n", prog_name, server);
-	exit (-1);
-      }
-
-  gettimeofday (&start_time, NULL);
-
-  while (1)
-    {
-      while (current < desired)
-	{
-	  /* create more idle connections */
-	  sd = socket (AF_INET, SOCK_STREAM, 0);
-	  if (sd < 0)
-	    {
-	      perror ("socket");
-	      exit (-1);
-	    }
-
-	  sin = server_addr;
-	  if (connect (sd, (struct sockaddr *) &sin, sizeof (sin)) < 0)
-	    {
-	      printf("connect: %s\n", strerror (errno));
-	      switch (errno)
-		{
-		case ECONNREFUSED:
-		  /* wait for server to start up... */
-		  sleep (1);
-		case ETIMEDOUT:
-		  close (sd);
-		  continue;
-
-		default:
-		  perror ("connect");
-		  exit (-1);
-		}
-	    }
-
-	  if (sd > max_sd)
-	    max_sd = sd;
-
-#if DEBUG > 1
-	  printf ("created %d\n", sd);
-#endif
-	  ++num_conn;
-	  ++current;
-	  FD_SET(sd, &rdfds);
+	if (result != DNS_ERR_NONE) {
+		printf("DNS Lookup: result(%d)\n",
+		       evdns_err_to_string(result));
+		exit(EXIT_FAILURE);
 	}
 
-      readable = rdfds;
-      n = select (max_sd + 1, &readable, NULL, NULL, NULL);
-      for (i = 0; i <= max_sd; ++i)
-	{
-	  if (FD_ISSET (i, &readable))
-	    {
-#if DEBUG > 1
-	      printf ("closed %d\n", i);
-#endif
-	      close (i);
-	      --current;
-	      --n;
-	      ++num_closed;
-	      FD_CLR(i, &rdfds);
-	    }
-	  if (n <= 0)
-	    break;
+	printf("Resolved %s\n", server);
+
+	for (i = 0; i < count; ++i) {
+		uint32_t       *address_list = (uint32_t *) addresses;
+		uint8_t         oct[4];
+		oct[0] = (uint8_t) (address_list[i] & 0x000000ff);
+		oct[1] = (uint8_t) ((address_list[i] & 0x0000ff00) >> 8);
+		oct[2] = (uint8_t) ((address_list[i] & 0x00ff0000) >> 16);
+		oct[3] = (uint8_t) ((address_list[i] & 0xff000000) >> 24);
+		printf("\t(%u.%u.%u.%u)\n", oct[0], oct[1], oct[2], oct[3]);
 	}
-    }
+
+
+}
+
+void
+main(int argc, char *argv[])
+{
+	struct event    signal_int;
+
+	active_events = list_create();
+	if (active_events == NULL)
+		goto init_failure;
+
+	inactive_events = list_create();
+	if (inactive_events == NULL)
+		goto init_failure;
+
+	event_init();
+	evdns_init();
+
+	/*
+	 * Initalize one event 
+	 */
+	event_set(&signal_int, SIGINT, EV_SIGNAL, sigint_exit, &signal_int);
+
+	event_add(&signal_int, NULL);
+
+	prog_name = strrchr(argv[0], '/');
+	if (prog_name)
+		++prog_name;
+	else
+		prog_name = argv[0];
+
+	if (argc != 4) {
+		fprintf(stderr, "Usage: `%s server port numidle'\n",
+			prog_name);
+		goto init_failure;
+	}
+
+	server = argv[1];
+	port = atoi(argv[2]);
+	desired = atoi(argv[3]);
+
+	printf("%s: Using libevent-%s for %s event notification system.\n"
+	       "Control-c to exit\n\n", prog_name, event_get_version(),
+	       event_get_method());
+
+	gettimeofday(&start_time, NULL);
+
+	evdns_resolve_ipv4(server, 0, dns_lookup_callback, NULL);
+
+	event_dispatch();
+
+	/*
+	 * Event loop will only exit upon receiving SIGINT.  Make sure we pass
+	 * this on to the parent process 
+	 */
+	if (signal(SIGINT, SIG_DFL) < 0)
+		perror("signal");
+	else
+		kill(getpid(), SIGINT);
+
+      init_failure:
+	cleanup();
+	exit(EXIT_FAILURE);
 }
