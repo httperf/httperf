@@ -1,4 +1,5 @@
 * New in version 1.0.0
+** Complete re-write of idleconn.c to use libevent notification system
 
 * New in version 0.9.1:
 ** timer re-write to reduce memory and fix memory leaks 

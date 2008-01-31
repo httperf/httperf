@@ -35,7 +35,11 @@
 #include <string.h>		/* For strrchr() */
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 #include <sys/time.h>
 #include <event.h>
@@ -48,14 +52,14 @@
  * Events allocated onto the heap
  */
 static struct List *active_events = NULL;
-static struct List *inactive_events = NULL;
 
 static const char *prog_name = NULL;
 static unsigned long num_conn = 0, num_closed = 0;
 static struct timeval start_time;
+static struct sockaddr_in server_addr;
 
 static char    *server = NULL;
-static int      desired = 0;
+static int      desired = 0;	/* Number of desired connections */
 static int      port = 0;
 
 static void
@@ -64,6 +68,8 @@ cleanup()
 	if (active_events != NULL) {
 		while (!is_list_empty(active_events)) {
 			Any_Type        a = list_pop(active_events);
+			struct event   *evsock = (struct event *) a.vp;
+			event_del(evsock);
 			free(a.vp);
 		}
 		list_free(active_events);
@@ -85,7 +91,9 @@ sigint_exit(int fd, short event, void *arg)
 	printf("%s: total # conn. created = %lu, close() rate = %g conn/sec\n",
 	       prog_name, num_conn, num_closed / delta_t);
 
+#ifdef DEBUG
 	printf("%s: caught SIGINT... Exiting.\n", __func__);
+#endif /* DEBUG */
 
 	evdns_shutdown(0);
 	event_del(signal_int);
@@ -94,10 +102,44 @@ sigint_exit(int fd, short event, void *arg)
 }
 
 void
+reconnect(int sd, short event, void *arg)
+{
+	struct sockaddr_in sin = server_addr;
+	struct event   *evsock = (struct event *) arg;
+
+	close(sd);
+	num_closed++;
+
+	sd = socket(AF_INET, SOCK_STREAM, 0);
+
+	if (sd == -1) {
+		perror("socket");
+		exit(EXIT_FAILURE);
+	}
+
+	if (connect(sd, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+		perror("connect");
+		cleanup();
+		exit(EXIT_FAILURE);
+	}
+
+	event_set(evsock, sd, EV_READ, reconnect, evsock);
+	event_add(evsock, NULL);
+	num_conn++;
+
+}
+
+/*
+ * For the explanation of these parameters, please refer to the libevent evdns
+ * callback API
+ */
+void
 dns_lookup_callback(int result, char type, int count, int ttl, void *addresses,
 		    void *arg)
 {
-	uint8_t         i;
+	uint32_t        i;
+	uint8_t         oct[4];
+	struct in_addr *address_list = (struct in_addr *) addresses;
 
 	if (result != DNS_ERR_NONE) {
 		printf("DNS Lookup: result(%d)\n",
@@ -105,32 +147,61 @@ dns_lookup_callback(int result, char type, int count, int ttl, void *addresses,
 		exit(EXIT_FAILURE);
 	}
 
-	printf("Resolved %s\n", server);
+	memset(&server_addr, 0, sizeof(server_addr));
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_port = htons(port);
+	server_addr.sin_addr = address_list[0];
 
-	for (i = 0; i < count; ++i) {
-		uint32_t       *address_list = (uint32_t *) addresses;
-		uint8_t         oct[4];
-		oct[0] = (uint8_t) (address_list[i] & 0x000000ff);
-		oct[1] = (uint8_t) ((address_list[i] & 0x0000ff00) >> 8);
-		oct[2] = (uint8_t) ((address_list[i] & 0x00ff0000) >> 16);
-		oct[3] = (uint8_t) ((address_list[i] & 0xff000000) >> 24);
-		printf("\t(%u.%u.%u.%u)\n", oct[0], oct[1], oct[2], oct[3]);
+	/*
+	 * Echo the resolved address 
+	 */
+	printf("Resolved %s\n\t(%s)\n", server, inet_ntoa(address_list[0]));
+
+	/*
+	 * Open the number of `desired` connections 
+	 */
+	for (i = 0; i < desired; i++) {
+		struct sockaddr_in sin;
+		int             sd = socket(AF_INET, SOCK_STREAM, 0);
+
+		struct event   *evsock = NULL;
+
+		if (sd == -1) {
+			perror("socket");
+			continue;
+		}
+
+		sin = server_addr;
+
+		if (connect(sd, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+			perror("connect");
+			cleanup();
+			exit(EXIT_FAILURE);
+		}
+
+		evsock = (struct event *) malloc(sizeof(struct event));
+
+		if (evsock == NULL) {
+			cleanup();
+			exit(EXIT_FAILURE);
+		}
+
+		event_set(evsock, sd, EV_READ, reconnect, evsock);
+		list_push(active_events, (Any_Type) (void *) evsock);
+		num_conn++;
+
+		event_add(evsock, NULL);
+
 	}
-
-
 }
 
-void
+int
 main(int argc, char *argv[])
 {
 	struct event    signal_int;
 
 	active_events = list_create();
 	if (active_events == NULL)
-		goto init_failure;
-
-	inactive_events = list_create();
-	if (inactive_events == NULL)
 		goto init_failure;
 
 	event_init();
@@ -181,4 +252,9 @@ main(int argc, char *argv[])
       init_failure:
 	cleanup();
 	exit(EXIT_FAILURE);
+
+	/*
+	 * Should never reach here 
+	 */
+	return 0;
 }
