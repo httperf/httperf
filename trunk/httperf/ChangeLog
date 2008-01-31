@@ -1,3 +1,8 @@
+2008-01-31  Ted Bullock <tbullock@canada.com>
+
+	* src/idleconn.c: Complete rewrite to use libevent backend; slight
+	performance improvement thanks to use of libevent notification system
+
 2007-11-16  Ted Bullock <tbullock@canada.com>
 
 	* configure.ac: Enable libevent dependancy
