@@ -88,7 +88,7 @@ sigint_exit(int fd, short event, void *arg)
 	delta_t = ((stop_time.tv_sec - start_time.tv_sec)
 		   + 1e-6 * (stop_time.tv_usec - start_time.tv_usec));
 
-	printf("%s: total # conn. created = %lu, close() rate = %g conn/sec\n",
+	printf("%s: Total conns created = %lu; close() rate = %g conn/sec\n",
 	       prog_name, num_conn, num_closed / delta_t);
 
 #ifdef DEBUG
