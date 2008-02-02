@@ -71,6 +71,7 @@
  * libevent api 
  */
 #include <event.h>
+#include <evdns.h>
 
 #include <generic_types.h>
 #include <object.h>
@@ -244,6 +245,7 @@ main(int argc, char **argv)
 	 * Initialize libevent 
 	 */
 	event_init();
+	evdns_init();
 
 #ifdef __FreeBSD__
 	/*
