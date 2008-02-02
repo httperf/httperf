@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Ted Bullock <tbullock@canada.com>
+ * Copyright (C) 2007-2008 Ted Bullock <tbullock@canada.com>
  * 
  * This file is part of httperf, a web server performance measurment tool.
  * 
