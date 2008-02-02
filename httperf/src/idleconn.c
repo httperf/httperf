@@ -142,7 +142,7 @@ dns_lookup_callback(int result, char type, int count, int ttl, void *addresses,
 	struct in_addr *address_list = (struct in_addr *) addresses;
 
 	if (result != DNS_ERR_NONE) {
-		printf("DNS Lookup: result(%d)\n",
+		printf("DNS Lookup: result(%s)\n",
 		       evdns_err_to_string(result));
 		exit(EXIT_FAILURE);
 	}
