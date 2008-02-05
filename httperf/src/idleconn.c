@@ -62,6 +62,9 @@ static char    *server = NULL;
 static int      desired = 0;	/* Number of desired connections */
 static int      port = 0;
 
+/*
+ * Frees the linked list of active event structures
+ */
 static void
 cleanup()
 {
@@ -76,6 +79,10 @@ cleanup()
 	}
 }
 
+/*
+ * Signal handler callback to be executed by event_dispatch upon receipt of
+ * SIGINT (usually Control-C
+ */
 void
 sigint_exit(int fd, short event, void *arg)
 {
@@ -101,6 +108,13 @@ sigint_exit(int fd, short event, void *arg)
 	cleanup();
 }
 
+/*
+ * Connection disconnect handler.  Once a connection is dropped by the remote
+ * host, this function is executed and a new connection is established.
+ *
+ * Note, that this re-uses the event structure originally allocated in 
+ * dns_lookup_callback
+ */
 void
 reconnect(int sd, short event, void *arg)
 {
@@ -132,6 +146,9 @@ reconnect(int sd, short event, void *arg)
 /*
  * For the explanation of these parameters, please refer to the libevent evdns
  * callback API
+ *
+ * Upon receipt of a valid dns lookup result, attempts to open `desired`
+ * connections and allocates memory for the associated event structures
  */
 void
 dns_lookup_callback(int result, char type, int count, int ttl, void *addresses,
