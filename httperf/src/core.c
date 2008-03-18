@@ -87,9 +87,9 @@ static char     http11req[] =
 
 static char     http10req_nohost[] =
     " HTTP/1.0\r\nUser-Agent: httperf/" VERSION
-    "\r\nConnection: keep-alive\r\n";
+    "\r\nConnection: keep-alive";
 static char     http11req_nohost[] =
-    " HTTP/1.1\r\nUser-Agent: httperf/" VERSION "\r\n";
+    " HTTP/1.1\r\nUser-Agent: httperf/" VERSION;
 
 #ifndef SOL_TCP
 # define SOL_TCP 6		/* probably ought to do getprotlbyname () */
