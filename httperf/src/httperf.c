@@ -241,12 +241,6 @@ main(int argc, char **argv)
 
 	int             numRates = 0;
 
-	/*
-	 * Initialize libevent 
-	 */
-	event_init();
-	evdns_init();
-
 #ifdef __FreeBSD__
 	/*
 	 * This works around a bug in earlier versions of FreeBSD that cause
