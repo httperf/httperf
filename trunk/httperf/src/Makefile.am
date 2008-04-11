@@ -7,7 +7,7 @@ bin_PROGRAMS = httperf idleconn
 httperf_SOURCES = httperf.c httperf.h object.c object.h call.c call.h conn.c \
   conn.h sess.c sess.h core.c core.h localevent.c localevent.h http.c http.h \
   timer.c timer.h
-idleconn_SOURCEtS = idleconn.c
+idleconn_SOURCES = idleconn.c
 
 idleconn_LDADD = lib/libutil.a
 httperf_LDADD = gen/libgen.a lib/libutil.a stat/libstat.a
