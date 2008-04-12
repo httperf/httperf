@@ -67,12 +67,6 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-/*
- * libevent api 
- */
-#include <event.h>
-#include <evdns.h>
-
 #include <generic_types.h>
 #include <object.h>
 #include <timer.h>
@@ -880,10 +874,6 @@ main(int argc, char **argv)
 			       "out"
 #endif
 			       " TIME_SYSCALLS.\n", prog_name);
-			printf
-			    ("Using libevent-%s for %s event notification system.\n",
-			     event_get_version(), event_get_method());
-
 			exit(0);
 
 		case 'h':
