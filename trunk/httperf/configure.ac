@@ -18,8 +18,24 @@ AC_PROG_CC_C99
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 
+# Are we building the idleconn program?
+AC_ARG_ENABLE([idleconn],
+	AS_HELP_STRING([--enable-idleconn],
+		[Build the idleconn program (default=no), requires libevent]),
+	[enable_idleconn=$enableval],
+	[enable_idleconn=no])
+
+AM_CONDITIONAL(IDLECONN, 
+	[test "x$enable_idleconn" = xyes])
+
+if test "x$enable_idleconn" = xyes; then
+	AC_CHECK_LIB([event],
+		[event_init],
+		,
+		AC_MSG_ERROR([libevent is required to build idleconn]) )
+fi
+
 # Checks for libraries.
-AC_CHECK_LIB(event, event_init, , AC_MSG_ERROR([libevent is required to build httperf]) ) 
 AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(crypto, main)
 AC_CHECK_LIB(ssl, SSL_version, , AC_MSG_WARN([SSL Disabled]) )
