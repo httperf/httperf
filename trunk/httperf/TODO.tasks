@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<gtodo>
+  <category title="Release 1.0" place="0">
+    <item>
+      <attribute id="1215549569" priority="2" done="0" start_date="733231" enddate="99999999" notify="0" endtime="-60" last_edited="1215549569"/>
+      <summary>Port to libevent</summary>
+      <comment>Port to libevent 1.4 for data communications</comment>
+    </item>
+  </category>
+  <category title="Bug Fixes" place="1"/>
+</gtodo>
