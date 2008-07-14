@@ -64,6 +64,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifdef __FreeBSD__
+/* Required for fpsetmask() under FreeBSD */
+#include <ieeefp.h>
+#endif
+
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/types.h>
