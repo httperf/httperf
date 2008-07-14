@@ -44,7 +44,6 @@
 #define NUM_TIMERS 25
 
 static Time     now;
-static Time     next_tick;
 
 struct Timer {
 	Time            time_started;
