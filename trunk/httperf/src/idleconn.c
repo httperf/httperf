@@ -42,6 +42,7 @@
 #include <inttypes.h>
 
 #include <sys/time.h>
+#include <sys/types.h>
 #include <event.h>
 #include <evdns.h>
 

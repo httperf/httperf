@@ -66,6 +66,10 @@
 
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/types.h>
+
+/* LIBEVENT */
+#include <event.h>
 
 #include <generic_types.h>
 #include <object.h>
@@ -266,6 +270,9 @@ main(int argc, char **argv)
 #ifdef HAVE_SSL
 	param.ssl_reuse = 1;
 #endif
+
+	/* setup event stuff early */
+	event_init();
 
 	/*
 	 * get program name: 
