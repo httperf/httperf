@@ -105,6 +105,7 @@ typedef struct Conn
 #ifdef HAVE_SSL
     SSL *ssl;			/* SSL connection info */
 #endif
+    struct event ev_read, ev_write;
   }
 Conn;
 
