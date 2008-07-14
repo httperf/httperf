@@ -94,7 +94,7 @@ free_heap(struct Heap *h)
 bool
 insert(Any_Type a, struct Heap *h)
 {
-	u_long          i, parent;
+	u_long          i;
 
 	if (is_heap_full(h))
 		return false;
