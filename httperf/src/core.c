@@ -1212,14 +1212,9 @@ conn_handle_write_event(int sd, short ev, void *a)
 void
 core_loop(void)
 {
-	int             is_readable, is_writable, n, sd, bit, min_i, max_i, i =
-	    0;
-	fd_set          readable, writable;
-	fd_mask         mask;
-
 	while (running) {
 		timer_tick();
-		n = event_loop(EVLOOP_ONCE);
+		(void) event_loop(EVLOOP_ONCE);
 	}
 }
 
