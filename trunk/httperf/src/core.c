@@ -349,7 +349,6 @@ conn_timeout(struct Timer *t, Any_Type arg)
 static void
 set_active_shared(Conn * s)
 {
-	int             sd = s->sd;
 	Any_Type        arg;
 	Time            timeout;
 
@@ -1164,7 +1163,6 @@ static void
 conn_handle_read_event(int sd, short ev, void *a)
 {
 	Conn *conn = sd_to_conn[sd];
-	Any_Type arg;
 
 	conn_inc_ref(conn);
 
