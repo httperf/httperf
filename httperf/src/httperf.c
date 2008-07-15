@@ -70,13 +70,11 @@
 #endif
 
 #include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/types.h>
-
-/* LIBEVENT */
-#include <event.h>
 
 #include <generic_types.h>
+#include <sys/resource.h>	/* after sys/types.h for BSD (in generic_types.h) */
+#include <event.h>
+
 #include <object.h>
 #include <timer.h>
 #include <conn.h>

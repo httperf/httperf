@@ -40,11 +40,11 @@
 #include <errno.h>
 #include <float.h>
 #include <stdio.h>
-#include <sys/resource.h>
-#include <sys/types.h>
-#include <event.h>
 
 #include <generic_types.h>
+#include <sys/resource.h>
+#include <event.h>
+
 #include <object.h>
 #include <timer.h>
 #include <httperf.h>

@@ -35,11 +35,6 @@
 #ifndef sess_h
 #define sess_h
 
-#include <sys/types.h>
-
-#include <httperf.h>
-#include <object.h>
-
 #ifdef HAVE_SSL
 # include <openssl/ssl.h>
 #endif

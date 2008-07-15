@@ -44,18 +44,18 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/time.h>
-#include <sys/types.h>
-#include <sys/resource.h>	/* grrr, must come after sys/types.h for BSD */
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
-#include <event.h>
 
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 
 #include <generic_types.h>
+#include <sys/resource.h>	/* after sys/types.h for BSD (in generic_types.h) */
+#include <event.h>
+
 #include <object.h>
 #include <timer.h>
 #include <httperf.h>

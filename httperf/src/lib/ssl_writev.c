@@ -61,7 +61,7 @@ char *alloca ();
 
 #include <string.h>
 
-#include <sys/types.h>
+#include <generic_types.h>
 #include <sys/uio.h>
 
 #include <openssl/rsa.h>

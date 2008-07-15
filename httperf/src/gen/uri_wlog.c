@@ -75,11 +75,11 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
-#include <event.h>
 
 #include <generic_types.h>
+#include <event.h>
+
 #include <object.h>
 #include <timer.h>
 #include <httperf.h>
