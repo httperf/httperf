@@ -7,5 +7,19 @@
       <comment>Port to libevent 1.4 for data communications</comment>
     </item>
   </category>
-  <category title="Bug Fixes" place="1"/>
+  <category title="Bug Fixes" place="1">
+    <item>
+      <attribute id="1216068491" priority="2" done="0" start_date="733237" enddate="99999999" notify="0" endtime="-60" last_edited="1216075803"/>
+      <summary>Segmentation fault when creating large number of request</summary>
+      <comment>Running httperf with the following options results in a segmentation fault.  
+
+--num-conns=10000
+--num-calls=40
+--rate=200
+
+This is a defect has been either created or exposed by Adrian Chadd's libevent port.
+
+</comment>
+    </item>
+  </category>
 </gtodo>
