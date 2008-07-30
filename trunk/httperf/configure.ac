@@ -35,7 +35,7 @@ AC_CHECK_LIB(ssl, SSL_version, , AC_MSG_WARN([SSL Disabled]) )
 AC_CHECK_LIB([event],
 		[event_init],
 		,
-		AC_MSG_ERROR([libevent is required to build idleconn]) )
+		[AC_MSG_ERROR([libevent is required to build idleconn])])
 # The following checks are for solaris and its ilk
 AC_SEARCH_LIBS([getsockopt], [socket])
 AC_SEARCH_LIBS([socket], [socket nsl])
