@@ -1,3 +1,7 @@
+2008-07-14  Adrian Chadd <adrian@creative.net.au>
+
+	* Assorted .c and .h files:  Use libevent for the communications backend
+
 2008-04-11  Ted Bullock <tbullock@canada.com>
 
 	* configure.ac, src/Makefile.am: Make automake compilation optional,
