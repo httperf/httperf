@@ -241,9 +241,17 @@ timer_schedule(void (*timeout) (struct Timer * t, Any_Type arg),
 	t->timeout_delay = delay;
 
 	if (delay > 0)
-		list_push(active_timers, (Any_Type) (void *) t);
+	{
+		Any_Type temp;
+		temp.vp = (void *)t;
+		list_push(active_timers, temp);
+	}
 	else
-		list_push(persistent_timers, (Any_Type) (void *) t);
+	{
+		Any_Type temp;
+		temp.vp = (void *)t;
+		list_push(persistent_timers, temp);
+	}
 
 	if (DBG > 2)
 		fprintf(stderr,
