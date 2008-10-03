@@ -135,8 +135,10 @@ percolate(struct Heap *h, u_long hole)
 Any_Type
 remove_min(struct Heap *h)
 {
-	if (is_heap_empty(h))
-		return (Any_Type) 0;
+	if (is_heap_empty(h)) {
+		Any_Type temp = {0};
+		return temp;
+	}
 	else {
 		Any_Type        min = h->storage[1];
 		h->storage[1] = h->storage[h->num_elements--];
@@ -149,8 +151,10 @@ remove_min(struct Heap *h)
 Any_Type
 poll_min(struct Heap * h)
 {
-	if (is_heap_empty(h))
-		return (Any_Type) 0;
+	if (is_heap_empty(h)) {
+		Any_Type temp = {0};
+		return temp;
+	}
 	else
 		return h->storage[1];
 }

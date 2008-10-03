@@ -1,3 +1,8 @@
+2008-10-03  Ted Bullock <tbullock@canada.com>
+
+	* src/timer.c: Fix build on opensolaris with Sun Studio compiler
+	* src/lib/heap.c: Fix build on opensolaris with Sun Studio compiler
+
 2008-07-14  Adrian Chadd <adrian@creative.net.au>
 
 	* Assorted .c and .h files:  Use libevent for the communications backend
