@@ -5,14 +5,25 @@
 This release of httperf is using the standard GNU configuration
 mechanism.  The following steps can be used to build it:
 
+In this example, SRCDIR refers to the httperf source directory.  The
+last step may have to be executed as "root".
+
 	$ mkdir build
 	$ cd build
 	$ SRCDIR/configure
 	$ make
 	$ make install
 
-In this example, SRCDIR refers to the httperf source directory.  The
-last step may have to be executed as "root".
+NOTE: If building source code exported from CVS Repository rather than
+the official gzipped source tar file, the following commands must be 
+executed before the preceding ones.
+
+	$ cd SRCDIR/
+	$ autoreconf -i
+
+Since httperf 0.9.1, the the idleconn program is no longer built by
+default.  Using the configure option --enable-idleconn will instruct
+the build system to compile the tool.
 
 To build httperf with debug support turned on, invoke configure with
 option "--enable-debug".
