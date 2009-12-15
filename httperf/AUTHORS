@@ -23,3 +23,6 @@ Richard Carter
 
 Andrew Hately
   variable rates of period between sessions/requests
+
+Adrian Chadd
+  port to libevent
