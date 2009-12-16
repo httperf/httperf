@@ -25,6 +25,14 @@ AC_ARG_ENABLE([idleconn],
 	[enable_idleconn=$enableval],
 	[enable_idleconn=no])
 
+if test "$enable_idleconn" = "yes"; then
+AC_CHECK_LIB([event],
+	[event_init],
+	,
+	[AC_MSG_ERROR([libevent is required to build idleconn])])
+fi
+
+
 AM_CONDITIONAL(IDLECONN, 
 	[test "x$enable_idleconn" = xyes])
 
@@ -32,10 +40,6 @@ AM_CONDITIONAL(IDLECONN,
 AC_CHECK_LIB(m, sqrt)
 AC_CHECK_LIB(crypto, main)
 AC_CHECK_LIB(ssl, SSL_version, , AC_MSG_WARN([SSL Disabled]) )
-AC_CHECK_LIB([event],
-		[event_init],
-		,
-		[AC_MSG_ERROR([libevent is required to build idleconn])])
 # The following checks are for solaris and its ilk
 AC_SEARCH_LIBS([getsockopt], [socket])
 AC_SEARCH_LIBS([socket], [socket nsl])

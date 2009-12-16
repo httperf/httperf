@@ -41,7 +41,6 @@
 #include <stdio.h>
 
 #include <generic_types.h>
-#include <event.h>
 
 #include <object.h>
 #include <timer.h>
