@@ -1,3 +1,7 @@
+2009-12-16  Ted Bullock <tbullock@comlore.com>
+
+	* Remove libevent: Remove libevent (for now) from HEAD due to stability
+
 2008-10-03  Ted Bullock <tbullock@canada.com>
 
 	* src/timer.c: Fix build on opensolaris with Sun Studio compiler
