@@ -66,7 +66,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <event.h>
 
 #include <generic_types.h>
 #include <object.h>

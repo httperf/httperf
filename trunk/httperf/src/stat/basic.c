@@ -43,7 +43,6 @@
 
 #include <generic_types.h>
 #include <sys/resource.h>
-#include <event.h>
 
 #include <object.h>
 #include <timer.h>

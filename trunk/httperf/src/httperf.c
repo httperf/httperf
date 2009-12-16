@@ -73,7 +73,6 @@
 
 #include <generic_types.h>
 #include <sys/resource.h>	/* after sys/types.h for BSD (in generic_types.h) */
-#include <event.h>
 
 #include <object.h>
 #include <timer.h>
@@ -273,9 +272,6 @@ main(int argc, char **argv)
 #ifdef HAVE_SSL
 	param.ssl_reuse = 1;
 #endif
-
-	/* setup event stuff early */
-	event_init();
 
 	/*
 	 * get program name: 
