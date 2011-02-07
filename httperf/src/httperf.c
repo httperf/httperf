@@ -134,6 +134,7 @@ static struct option longopts[] = {
 	{"send-buffer", required_argument, (int *) &param.send_buffer_size, 0},
 	{"server", required_argument, (int *) &param.server, 0},
 	{"server-name", required_argument, (int *) &param.server_name, 0},
+	{"uri", required_argument, (int *) &param.uri, 0},
 	{"session-cookies", no_argument, (int *) &param.session_cookies, 1},
 #ifdef HAVE_SSL
 	{"ssl", no_argument, &param.use_ssl, 1},
@@ -142,7 +143,6 @@ static struct option longopts[] = {
 #endif
 	{"think-timeout", required_argument, (int *) &param.think_timeout, 0},
 	{"timeout", required_argument, (int *) &param.timeout, 0},
-	{"uri", required_argument, (int *) &param.uri, 0},
 	{"use-timer-cache", no_argument, &param.use_timer_cache, 1},
 	{"verbose", no_argument, 0, 'v'},
 	{"version", no_argument, 0, 'V'},
@@ -162,20 +162,18 @@ usage(void)
 	       "\t[--close-with-reset] [--debug N] [--failure-status N]\n"
 	       "\t[--help] [--hog] [--http-version S] [--max-connections N]\n"
 	       "\t[--max-piped-calls N] [--method S] [--no-host-hdr]\n"
-	       "\t[--num-calls N] [--num-conns N] [--period [d|u|e]T1[,T2]]\n"
-	       "\t[--port N] "
-	       "[--print-reply [header|body]] [--print-request [header|body]]\n"
+	       "\t[--num-calls N] [--num-conns N] [--session-cookies]\n"
+	       "\t[--period [d|u|e]T1[,T2]|[v]T1,D1[,T2,D2]...[,Tn,Dn]\n"
+	       "\t[--print-reply [header|body]] [--print-request [header|body]]\n"
 	       "\t[--rate X] [--recv-buffer N] [--retry-on-failure] "
 	       "[--send-buffer N]\n"
-	       "\t[--server S] [--server-name S] [--session-cookies]\n"
+	       "\t[--server S] [--server-name S] [--port N] [--uri S] \n"
 #ifdef HAVE_SSL
 	       "\t[--ssl] [--ssl-ciphers L] [--ssl-no-reuse]\n"
 #endif
-	       "\t[--think-timeout X] [--timeout X] [--uri S] [--verbose] "
-	       "[--version]\n"
+	       "\t[--think-timeout X] [--timeout X] [--verbose] [--version]\n"
 	       "\t[--wlog y|n,file] [--wsess N,N,X] [--wsesslog N,X,file]\n"
 	       "\t[--wset N,X]\n"
-	       "\t[--period [v]T1,D1[,T2,D2]\n"
 	       "\t[--use-timer-cache]\n", prog_name);
 }
 
