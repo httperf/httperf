@@ -4,5 +4,5 @@ AM_CFLAGS =
 AM_LDFLAGS =
 
 noinst_LIBRARIES = libutil.a
-libutil_a_SOURCES = getopt.c getopt.h getopt1.c ssl_writev.c generic_types.h \
+libutil_a_SOURCES = getopt.c getopt.h ssl_writev.c generic_types.h \
 	queue.c queue.h heap.c heap.h list.c list.h
