@@ -1,7 +1,6 @@
 /*
     httperf -- a tool for measuring web server performance
-    Copyright 2000-2007 Hewlett-Packard Company and Contributors listed in
-    AUTHORS file. Originally contributed by David Mosberger-Tang
+    Copyright 2000-2007 Hewlett-Packard Company
 
     This file is part of httperf, a web server performance measurment
     tool.

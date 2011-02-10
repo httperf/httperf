@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2000-2007 Hewlett-Packard Company
- * Copyright (C) 2007 Ted Bullock <tbullock@canada.com>
+ * Copyright (C) 2007 Ted Bullock <tbullock@comlore.com>
+ * Copyright (C) 2000 Hewlett-Packard Company
  * 
  * This file is part of httperf, a web server performance measurment tool.
  * 
