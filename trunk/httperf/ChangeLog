@@ -1,3 +1,8 @@
+2011-02-10  Ted Bullock <tbullock@comlore.com>
+
+	* Replaced bundled version of getopt with flavour from openbsd
+	  (smaller code and more liberal redistribution license)
+
 2011-02-07  Ted Bullock <tbullock@comlore.com>
 
 	* Adjusted help text 
