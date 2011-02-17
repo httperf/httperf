@@ -25,7 +25,7 @@
  * by Dieter Baron and Thomas Klausner.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
+ * MODIFICATION, are permitted provided that the following conditions
  * are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
@@ -46,9 +46,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <err.h>
 #include <errno.h>
 #include "getopt.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -195,8 +195,9 @@ parse_long_options(char * const *nargv, const char *options,
 		else {
 			/* ambiguous abbreviation */
 			if (PRINT_ERROR)
-				warnx(ambig, (int)current_argv_len,
-				     current_argv);
+				fprintf(stderr, "ambiguous option -- %.*s\n"
+					, (int)current_argv_len,
+					current_argv);
 			optopt = 0;
 			return (BADCH);
 		}
@@ -205,8 +206,10 @@ parse_long_options(char * const *nargv, const char *options,
 		if (long_options[match].has_arg == no_argument
 		    && has_equal) {
 			if (PRINT_ERROR)
-				warnx(noarg, (int)current_argv_len,
-				     current_argv);
+				fprintf(stderr, "option doesn't take an "
+					"argument -- %.*s\n",
+					(int)current_argv_len,
+					current_argv);
 			/*
 			 * XXX: GNU sets optopt to val regardless of flag
 			 */
@@ -235,8 +238,9 @@ parse_long_options(char * const *nargv, const char *options,
 			 * should be generated.
 			 */
 			if (PRINT_ERROR)
-				warnx(recargstring,
-				    current_argv);
+				fprintf(stderr, "option requires an argument "
+					"-- %s\n",
+					current_argv);
 			/*
 			 * XXX: GNU sets optopt to val regardless of flag
 			 */
@@ -253,7 +257,7 @@ parse_long_options(char * const *nargv, const char *options,
 			return (-1);
 		}
 		if (PRINT_ERROR)
-			warnx(illoptstring, current_argv);
+			fprintf(stderr, "unknown option -- %s\n", current_argv);
 		optopt = 0;
 		return (BADCH);
 	}
@@ -415,7 +419,7 @@ start:
 		if (!*place)
 			++optind;
 		if (PRINT_ERROR)
-			warnx(illoptchar, optchar);
+			fprintf(stderr, "unknown option -- %c\n", optchar);
 		optopt = optchar;
 		return (BADCH);
 	}
@@ -426,7 +430,8 @@ start:
 		else if (++optind >= nargc) {	/* no arg */
 			place = EMSG;
 			if (PRINT_ERROR)
-				warnx(recargchar, optchar);
+				fprintf(stderr, "option requires an argument"
+					" -- %c\n", optchar);
 			optopt = optchar;
 			return (BADARG);
 		} else				/* white space */
@@ -447,7 +452,8 @@ start:
 			if (++optind >= nargc) {	/* no arg */
 				place = EMSG;
 				if (PRINT_ERROR)
-					warnx(recargchar, optchar);
+					fprintf(stderr, "option requires an "
+						"argument -- %c\n", optchar);
 				optopt = optchar;
 				return (BADARG);
 			} else
