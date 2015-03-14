@@ -1,6 +1,5 @@
--*-Mode: outline-*-
 
-* Building httperf
+## Building httperf
 
 This release of httperf is using the standard GNU configuration
 mechanism.  The following steps can be used to build it:
@@ -80,7 +79,7 @@ Solaris 8 (UltraSparc 64-bit)
 It should be straight-forward to build httperf on other platforms, please report
 any build problems to the mailing list along with the platform specifications.
 
-* Mailing list
+## Mailing list
 
 A mailing list has been set up to encourage discussions among the
 httperf user community.  This list is managed by majordomo.  To
@@ -91,7 +90,7 @@ subscribe to the list, send a mail containing the body:
 to majordomo@linux.hpl.hp.com.  To post an article to the list, send
 it directly to httperf@linux.hpl.hp.com.
 
-* Running httperf
+## Running httperf
 
 IMPORTANT: It is crucial to run just one copy of httperf per client
 machine.  httperf sucks up all available CPU time on a machine.  It is
@@ -101,11 +100,11 @@ ensure that it can generate the desired workload with good accuracy,
 so do not try to change this without fully understanding what the
 issues are.
 
-** Examples
+### Examples
 
 The simplest way to invoke httperf is with a command line of the form:
 
- httperf --server wailua --port 6800
+> httperf --server wailua --port 6800
 
 This command results in httperf attempting to make one request for URL
 http://wailua:6800/.  After the reply is received, performance
@@ -124,7 +123,7 @@ value using the --timeout option.  In the example below, a timeout of
 one second is specified (the ramification of this option will be
 explained later):
 
- httperf --server wailua --port 6800 --num-conns 100 --rate 10 --timeout 1
+> httperf --server wailua --port 6800 --num-conns 100 --rate 10 --timeout 1
 
 The performance statistics printed by httperf at the end of the test
 might look like this:
@@ -157,7 +156,7 @@ received from the server ("Reply"), miscellaneous results relating to
 the CPU time and network bandwidth used, and, finally, a summary of
 errors encountered ("Errors").  Let's discuss each in turn:
 
-** "Total" Results
+## "Total" Results
 
 The "Total" line summarizes how many TCP connections were initiated by
 the client, how many requests it sent, how many replies it received,
@@ -169,7 +168,7 @@ replies were received.  It also shows that total test-duration was
 
     Total: connections 100 requests 100 replies 100 test-duration 9.905 s
 
-** "Connection" Results
+## "Connection" Results
 
 These results convey information related to the TCP connections that
 are used to communicate with the web server.
@@ -221,7 +220,7 @@ responses.
 
     Connection length [replies/conn]: 1.000
 
-** "Request" Results
+## "Request" Results
 
 The first line in the "Request"-related results give the rate at which
 HTTP requests were issued and the period-length that the rate
@@ -243,7 +242,7 @@ the line show below, the average request size was 57 bytes.
     Request size [B]: 57.0
 
 
-** "Reply" Results
+## "Reply" Results
 
 For simple measurements, the section with the "Reply" results is
 probably the most interesting one.  The first line gives statistics on
@@ -292,7 +291,7 @@ were "successful" replies as they contained a status code of 200
     Reply status: 1xx=0 2xx=100 3xx=0 4xx=0 5xx=0
 
 
-** Miscellaneous Results
+## Miscellaneous Results
 
 This section starts with a summary of the CPU time the client
 consumed.  The line below shows that 2.71 seconds were spent executing
@@ -322,7 +321,7 @@ network payload only (i.e., it doesn't account for protocol headers)
 and does not take into account retransmissions that may occur at the
 TCP level.
 
-** "Errors"
+## "Errors"
 
 The final section contains statistics on the errors that occurred
 during the test.  The "total" figure shows the total number of errors
@@ -379,7 +378,7 @@ The meaning of each error is described below:
 	debug support and specifying option --debug 1.
 
 
-** Selecting appropriate timeout values
+## Selecting appropriate timeout values
 
 Since the client machine has only a limited set of resource available,
 it cannot sustain arbitrarily high HTTP request rates.  One limit is
