@@ -42,12 +42,17 @@
 
 #include "config.h"
 
+#include <sys/types.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <generic_types.h>
 #include <object.h>
@@ -55,10 +60,10 @@
 #include <call.h>
 #include <localevent.h>
 
-static const char *extra;
+static const char *extra, *extra_file;
 static size_t extra_len;
 
-static size_t method_len;
+static size_t method_len, file_len;
 
 /* A simple module that collects cookies from the server responses and
    includes them in future calls to the server.  */
@@ -125,6 +130,9 @@ call_created (Event_Type et, Object *obj, Any_Type reg_arg, Any_Type arg)
 
   if (extra_len > 0)
     call_append_request_header (c, extra, extra_len);
+
+  if (file_len > 0)
+    call_append_request_header (c, extra_file, file_len);
 }
 
 
@@ -132,9 +140,30 @@ static void
 init (void)
 {
   Any_Type arg;
+  struct stat st;
+  int fd;
 
   if (param.additional_header)
     extra = unescape (param.additional_header, &extra_len);
+
+  if (param.additional_header_file) {
+    fd = open (param.additional_header_file, O_RDONLY);
+    if (fd < 0)
+      fprintf (stderr, "%s: failed to open header file\n", prog_name);
+    else {
+      if (fstat(fd, &st) < 0)
+	fprintf (stderr, "%s: failed to stat header file\n", prog_name);
+      else {
+	extra_file = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+	if (extra_file == (char *)MAP_FAILED) {
+	  fprintf (stderr, "%s: failed to map header file\n", prog_name);
+	  extra_file = NULL;
+	} else
+	  file_len = st.st_size;
+      }
+      close(fd);
+    }
+  }
 
   if (param.method)
     method_len = strlen (param.method);

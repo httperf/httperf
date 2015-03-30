@@ -91,6 +91,7 @@
 
 const char     *prog_name;
 int             verbose;
+int             periodic_stats;
 Cmdline_Params  param;
 Time            test_time_start;
 Time            test_time_stop;
@@ -110,7 +111,8 @@ static Time     perf_sample_start;
 
 static struct option longopts[] = {
 	{"add-header", required_argument, (int *) &param.additional_header, 0},
-	{"burst-length", required_argument, &param.burst_len, 0},
+	{"add-header-file", required_argument, (int *) &param.additional_header_file, 0 },
+	{"burst-length", required_argument, (int *) &param.burst_len, 0},
 	{"client", required_argument, (int *) &param.client, 0},
 	{"close-with-reset", no_argument, &param.close_with_reset, 1},
 	{"debug", required_argument, 0, 'd'},
@@ -118,9 +120,10 @@ static struct option longopts[] = {
 	{"help", no_argument, 0, 'h'},
 	{"hog", no_argument, &param.hog, 1},
 	{"http-version", required_argument, (int *) &param.http_version, 0},
-	{"max-connections", required_argument, &param.max_conns, 0},
-	{"max-piped-calls", required_argument, &param.max_piped, 0},
+	{"max-connections", required_argument, (int *) &param.max_conns, 0},
+	{"max-piped-calls", required_argument, (int *) &param.max_piped, 0},
 	{"method", required_argument, (int *) &param.method, 0},
+	{"myaddr", required_argument, (int *) &param.myaddr, 0},
 	{"no-host-hdr", no_argument, &param.no_host_hdr, 1},
 	{"num-calls", required_argument, (int *) &param.num_calls, 0},
 	{"num-conns", required_argument, (int *) &param.num_conns, 0},
@@ -131,9 +134,9 @@ static struct option longopts[] = {
 	{"rate", required_argument, (int *) &param.rate, 0},
 	{"recv-buffer", required_argument, (int *) &param.recv_buffer_size, 0},
 	{"retry-on-failure", no_argument, &param.retry_on_failure, 1},
+	{"runtime", required_argument, (int *) &param.runtime, 0},
 	{"send-buffer", required_argument, (int *) &param.send_buffer_size, 0},
 	{"server", required_argument, (int *) &param.server, 0},
-	{"server-name", required_argument, (int *) &param.server_name, 0},
 	{"uri", required_argument, (int *) &param.uri, 0},
 	{"session-cookies", no_argument, (int *) &param.session_cookies, 1},
 #ifdef HAVE_SSL
@@ -146,6 +149,7 @@ static struct option longopts[] = {
 	{"use-timer-cache", no_argument, &param.use_timer_cache, 1},
 	{"verbose", no_argument, 0, 'v'},
 	{"version", no_argument, 0, 'V'},
+	{"periodic-stats", no_argument, 0, 'n'},
 	{"wlog", required_argument, (int *) &param.wlog, 0},
 	{"wsess", required_argument, (int *) &param.wsess, 0},
 	{"wsesslog", required_argument, (int *) &param.wsesslog, 0},
@@ -167,14 +171,16 @@ usage(void)
 	       "\t[--print-reply [header|body]] [--print-request [header|body]]\n"
 	       "\t[--rate X] [--recv-buffer N] [--retry-on-failure] "
 	       "[--send-buffer N]\n"
-	       "\t[--server S] [--server-name S] [--port N] [--uri S] \n"
+	       "\t<--server file> [--port N] [--uri S] [--myaddr S]\n"
 #ifdef HAVE_SSL
 	       "\t[--ssl] [--ssl-ciphers L] [--ssl-no-reuse]\n"
 #endif
 	       "\t[--think-timeout X] [--timeout X] [--verbose] [--version]\n"
 	       "\t[--wlog y|n,file] [--wsess N,N,X] [--wsesslog N,X,file]\n"
 	       "\t[--wset N,X]\n"
-	       "\t[--use-timer-cache]\n", prog_name);
+	       "\t[--runtime X]\n"
+	       "\t[--use-timer-cache]\n"
+	       "\t[--periodic-stats]\n", prog_name);
 }
 
 void
@@ -254,7 +260,6 @@ main(int argc, char **argv)
 	param.http_version = 0x10001;	/* default to HTTP/1.1 */
 	param.client.id = 0;
 	param.client.num_clients = 1;
-	param.server = "localhost";
 	param.port = -1;
 	param.uri = "/";
 	param.num_calls = 1;
@@ -284,7 +289,7 @@ main(int argc, char **argv)
 	 * process command line options: 
 	 */
 	while ((ch =
-		getopt_long(argc, argv, "d:hvV", longopts, &longindex)) >= 0) {
+		getopt_long(argc, argv, "d:hvVn", longopts, &longindex)) >= 0) {
 		switch (ch) {
 		case 0:
 			flag = longopts[longindex].flag;
@@ -293,6 +298,8 @@ main(int argc, char **argv)
 				param.method = optarg;
 			else if (flag == &param.additional_header)
 				param.additional_header = optarg;
+			else if (flag == &param.additional_header_file)
+				param.additional_header_file = optarg;
 			else if (flag == &param.num_calls) {
 				errno = 0;
 				param.num_calls = strtoul(optarg, &end, 10);
@@ -312,6 +319,8 @@ main(int argc, char **argv)
 				}
 				param.http_version =
 				    (major << 16) | (minor & 0xffff);
+			} else if (flag == &param.myaddr) {
+				core_add_addresses(optarg);
 			} else if (flag == &param.burst_len) {
 				errno = 0;
 				param.burst_len = strtoul(optarg, &end, 10);
@@ -345,8 +354,7 @@ main(int argc, char **argv)
 			} else if (flag == &param.max_conns) {
 				errno = 0;
 				param.max_conns = strtoul(optarg, &end, 10);
-				if (errno == ERANGE || end == optarg || *end
-				    || param.max_conns < 0) {
+				if (errno == ERANGE || end == optarg || *end) {
 					fprintf(stderr,
 						"%s: illegal max. # of connection %s\n",
 						prog_name, optarg);
@@ -355,8 +363,7 @@ main(int argc, char **argv)
 			} else if (flag == &param.max_piped) {
 				errno = 0;
 				param.max_piped = strtoul(optarg, &end, 10);
-				if (errno == ERANGE || end == optarg || *end
-				    || param.max_piped < 0) {
+				if (errno == ERANGE || end == optarg || *end) {
 					fprintf(stderr,
 						"%s: illegal max. # of piped calls %s\n",
 						prog_name, optarg);
@@ -619,8 +626,6 @@ main(int argc, char **argv)
 				}
 			} else if (flag == &param.server)
 				param.server = optarg;
-			else if (flag == &param.server_name)
-				param.server_name = optarg;
 #ifdef HAVE_SSL
 			else if (flag == &param.ssl_cipher_list)
 				param.ssl_cipher_list = optarg;
@@ -642,6 +647,16 @@ main(int argc, char **argv)
 				if (errno == ERANGE || end == optarg || *end) {
 					fprintf(stderr,
 						"%s: illegal connect timeout %s\n",
+						prog_name, optarg);
+					exit(1);
+				}
+			} else if (flag == &param.runtime) {
+				errno = 0;
+				param.runtime = strtod(optarg, &end);
+				if (errno == ERANGE || end == optarg || *end ||
+				    param.runtime <= 0.0) {
+					fprintf(stderr,
+						"%s: illegal runtime value %s\n",
 						prog_name, optarg);
 					exit(1);
 				}
@@ -880,6 +895,10 @@ main(int argc, char **argv)
 			       " TIME_SYSCALLS.\n", prog_name);
 			exit(0);
 
+		case 'n':
+			++periodic_stats;
+			break;
+
 		case 'h':
 			usage();
 			exit(0);
@@ -905,6 +924,13 @@ main(int argc, char **argv)
 				prog_name, ch);
 			exit(1);
 		}
+	}
+
+	if (param.server == NULL) {
+		fprintf(stderr,
+			"%s: must specify --server\n",
+			prog_name);
+		exit(-1);
 	}
 
 #ifdef HAVE_SSL
@@ -947,7 +973,8 @@ main(int argc, char **argv)
 		gen[num_gen++] = &sess_cookie;
 	}
 
-	if (param.additional_header || param.method)
+	if (param.additional_header || param.additional_header_file ||
+	    param.method)
 		gen[num_gen++] = &misc;
 
 	/*
@@ -990,11 +1017,11 @@ main(int argc, char **argv)
 		printf(" --think-timeout=%g", param.think_timeout);
 	if (param.timeout > 0)
 		printf(" --timeout=%g", param.timeout);
+	if (param.runtime > 0)
+		printf(" --runtime=%g", param.runtime);
 	printf(" --client=%u/%u", param.client.id, param.client.num_clients);
 	if (param.server)
 		printf(" --server=%s", param.server);
-	if (param.server_name)
-		printf(" --server_name=%s", param.server_name);
 	if (param.port)
 		printf(" --port=%d", param.port);
 	if (param.uri)
@@ -1005,9 +1032,9 @@ main(int argc, char **argv)
 		printf(" --http-version=%u.%u", param.http_version >> 16,
 		       param.http_version & 0xffff);
 	if (param.max_conns)
-		printf(" --max-connections=%u", param.max_conns);
+		printf(" --max-connections=%lu", param.max_conns);
 	if (param.max_piped)
-		printf(" --max-piped-calls=%u", param.max_piped);
+		printf(" --max-piped-calls=%lu", param.max_piped);
 	if (param.rate.rate_param > 0.0) {
 		switch (param.rate.dist) {
 		case DETERMINISTIC:
@@ -1045,10 +1072,10 @@ main(int argc, char **argv)
 			break;
 		}
 	}
-	printf(" --send-buffer=%d", param.send_buffer_size);
+	printf(" --send-buffer=%lu", param.send_buffer_size);
 	if (param.retry_on_failure)
 		printf(" --retry-on-failure");
-	printf(" --recv-buffer=%d", param.recv_buffer_size);
+	printf(" --recv-buffer=%lu", param.recv_buffer_size);
 	if (param.session_cookies)
 		printf(" --session-cookies");
 #ifdef HAVE_SSL
@@ -1061,6 +1088,8 @@ main(int argc, char **argv)
 #endif
 	if (param.additional_header)
 		printf(" --add-header='%s'", param.additional_header);
+	if (param.additional_header_file)
+		printf(" --add-header-file='%s'", param.additional_header_file);
 	if (param.method)
 		printf(" --method=%s", param.method);
 	if (param.use_timer_cache)
@@ -1081,17 +1110,19 @@ main(int argc, char **argv)
 			       param.wsess.num_calls, param.wsess.think_time);
 		else {
 			if (param.num_conns)
-				printf(" --num-conns=%d", param.num_conns);
+				printf(" --num-conns=%lu", param.num_conns);
 			if (param.num_calls)
-				printf(" --num-calls=%d", param.num_calls);
+				printf(" --num-calls=%lu", param.num_calls);
 		}
 		if (param.burst_len != 1)
-			printf(" --burst-length=%d", param.burst_len);
+			printf(" --burst-length=%lu", param.burst_len);
 		if (param.wset.num_files)
 			printf(" --wset=%u,%.3f",
 			       param.wset.num_files,
 			       param.wset.target_miss_rate);
 	}
+	if (periodic_stats)
+		printf(" --periodic-stats");
 	printf("\n");
 
 	if (timer_init() == false) {

@@ -240,7 +240,7 @@ timer_schedule(void (*timeout) (struct Timer * t, Any_Type arg),
 	t->time_started = timer_now();
 	t->timeout_delay = delay;
 
-	if (delay > 0)
+	if (delay > 0 || true)
 	{
 		Any_Type temp;
 		temp.vp = (void *)t;

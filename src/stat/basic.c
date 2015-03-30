@@ -59,44 +59,46 @@
 #define NUM_BINS	((u_int) (MAX_LIFETIME / BIN_WIDTH))
 
 static struct {
-	u_int           num_conns_issued;	/* total # of connections * issued */
-	u_int           num_replies[6];	/* completion count per status class */
-	u_int           num_client_timeouts;	/* # of client timeouts */
-	u_int           num_sock_fdunavail;	/* # of times out of *
+	u_long           num_conns_issued;	/* total # of connections * issued */
+	u_long           num_replies[6];	/* completion count per status class */
+	u_long           num_200;		/* total # of 200 responses */
+	u_long           num_302;		/* total # of 302 responses */
+	u_long           num_client_timeouts;	/* # of client timeouts */
+	u_long           num_sock_fdunavail;	/* # of times out of *
 										 * filedescriptors */
-	u_int           num_sock_ftabfull;	/* # of times file table was full */
-	u_int           num_sock_refused;	/* # of ECONNREFUSED */
-	u_int           num_sock_reset;	/* # of ECONNRESET */
-	u_int           num_sock_timeouts;	/* # of ETIMEDOUT */
-	u_int           num_sock_addrunavail;	/* # of EADDRNOTAVAIL */
-	u_int           num_other_errors;	/* # of other errors */
-	u_int           max_conns;	/* max # of concurrent connections */
+	u_long           num_sock_ftabfull;	/* # of times file table was full */
+	u_long           num_sock_refused;	/* # of ECONNREFUSED */
+	u_long           num_sock_reset;	/* # of ECONNRESET */
+	u_long           num_sock_timeouts;	/* # of ETIMEDOUT */
+	u_long           num_sock_addrunavail;	/* # of EADDRNOTAVAIL */
+	u_long           num_other_errors;	/* # of other errors */
+	u_long           max_conns;	/* max # of concurrent connections */
 
-	u_int           num_lifetimes;
+	u_long           num_lifetimes;
 	Time            conn_lifetime_sum;	/* sum of connection lifetimes */
 	Time            conn_lifetime_sum2;	/* sum of connection lifetimes
 										 * squared */
 	Time            conn_lifetime_min;	/* minimum connection lifetime */
 	Time            conn_lifetime_max;	/* maximum connection lifetime */
 
-	u_int           num_reply_rates;
+	u_long           num_reply_rates;
 	Time            reply_rate_sum;
 	Time            reply_rate_sum2;
 	Time            reply_rate_min;
 	Time            reply_rate_max;
 
-	u_int           num_connects;	/* # of completed connect()s */
+	u_long           num_connects;	/* # of completed connect()s */
 	Time            conn_connect_sum;	/* sum of connect times */
 
-	u_int           num_responses;
+	u_long           num_responses;
 	Time            call_response_sum;	/* sum of response times */
 
 	Time            call_xfer_sum;	/* sum of response times */
 
-	u_int           num_sent;	/* # of requests sent */
+	u_long           num_sent;	/* # of requests sent */
 	size_t          req_bytes_sent;
 
-	u_int           num_received;	/* # of replies received */
+	u_long           num_received;	/* # of replies received */
 	u_wide          hdr_bytes_received;	/* sum of all header bytes */
 	u_wide          reply_bytes_received;	/* sum of all data bytes */
 	u_wide          footer_bytes_received;	/* sum of all footer bytes */
@@ -105,8 +107,8 @@ static struct {
 													 * connection lifetimes */
 } basic;
 
-static u_int    num_active_conns;
-static u_int    num_replies;	/* # of replies received in this interval */
+static u_long    num_active_conns;
+static u_long    num_replies;	/* # of replies received in this interval */
 
 static void
 perf_sample(Event_Type et, Object * obj, Any_Type reg_arg, Any_Type call_arg)
@@ -278,6 +280,14 @@ recv_start(Event_Type et, Object * obj, Any_Type reg_arg, Any_Type call_arg)
 	basic.call_response_sum += now - c->basic.time_send_start;
 	c->basic.time_recv_start = now;
 	++basic.num_responses;
+
+	if (periodic_stats) {
+		if (c->reply.status == 200)
+			++basic.num_200;
+
+		if (c->reply.status == 302)
+			++basic.num_302;
+	}
 }
 
 static void
@@ -304,6 +314,23 @@ recv_stop(Event_Type et, Object * obj, Any_Type reg_arg, Any_Type call_arg)
 }
 
 static void
+one_second_timer(struct Timer *t, Any_Type arg)
+{
+	static u_long prev200 = 0;
+	static u_long prev302 = 0;
+
+	printf("[%.6f s] 200=%lu, 302=%lu\n",
+		timer_now() - test_time_start,
+		basic.num_200 - prev200,
+		basic.num_302 - prev302);
+
+	prev200 = basic.num_200;
+	prev302 = basic.num_302;
+
+	timer_schedule(one_second_timer, arg, 1);
+}
+
+static void
 init(void)
 {
 	Any_Type        arg;
@@ -323,6 +350,9 @@ init(void)
 	event_register_handler(EV_CALL_SEND_STOP, send_stop, arg);
 	event_register_handler(EV_CALL_RECV_START, recv_start, arg);
 	event_register_handler(EV_CALL_RECV_STOP, recv_stop, arg);
+
+	if (periodic_stats)
+		timer_schedule(one_second_timer, arg, 1);
 }
 
 static void
@@ -335,7 +365,8 @@ dump(void)
 	Time            lifetime_avg = 0.0, lifetime_stddev =
 		0.0, lifetime_median = 0.0;
 	double          reply_rate_avg = 0.0, reply_rate_stddev = 0.0;
-	int             i, total_replies = 0;
+	int             i;
+	u_long          total_replies = 0;
 	Time            delta, user, sys;
 	u_wide          total_size;
 	Time            time;
@@ -358,7 +389,7 @@ dump(void)
 			}
 	}
 
-	printf("\nTotal: connections %u requests %u replies %u "
+	printf("\nTotal: connections %lu requests %lu replies %lu "
 		   "test-duration %.3f s\n",
 		   basic.num_conns_issued, basic.num_sent, total_replies, delta);
 
@@ -367,7 +398,7 @@ dump(void)
 	if (basic.num_conns_issued)
 		conn_period = delta / basic.num_conns_issued;
 	printf("Connection rate: %.1f conn/s (%.1f ms/conn, "
-		   "<=%u concurrent connections)\n",
+		   "<=%lu concurrent connections)\n",
 		   basic.num_conns_issued / delta, 1e3 * conn_period,
 		   basic.max_conns);
 
@@ -420,7 +451,7 @@ dump(void)
 	}
 	printf
 		("Reply rate [replies/s]: min %.1f avg %.1f max %.1f stddev %.1f "
-		 "(%u samples)\n",
+		 "(%lu samples)\n",
 		 basic.num_reply_rates > 0 ? basic.reply_rate_min : 0.0,
 		 reply_rate_avg, basic.reply_rate_max, reply_rate_stddev,
 		 basic.num_reply_rates);
@@ -441,11 +472,16 @@ dump(void)
 		   "(total %.1f)\n", hdr_size, reply_size, footer_size,
 		   hdr_size + reply_size + footer_size);
 
-	printf("Reply status: 1xx=%u 2xx=%u 3xx=%u 4xx=%u 5xx=%u\n",
+	printf("Reply status: 1xx=%lu 2xx=%lu 3xx=%lu 4xx=%lu 5xx=%lu\n",
 		   basic.num_replies[1], basic.num_replies[2],
 		   basic.num_replies[3], basic.num_replies[4], basic.num_replies[5]);
 
 	putchar('\n');
+
+	if (periodic_stats) {
+		printf("Periodic stats: 200=%lu 302=%lu\n", basic.num_200, basic.num_302);
+		putchar('\n');
+	}
 
 	user = (TV_TO_SEC(test_rusage_stop.ru_utime)
 			- TV_TO_SEC(test_rusage_start.ru_utime));
@@ -463,9 +499,9 @@ dump(void)
 
 	putchar('\n');
 
-	printf("Errors: total %u client-timo %u socket-timo %u "
-		   "connrefused %u connreset %u\n"
-		   "Errors: fd-unavail %u addrunavail %u ftab-full %u other %u\n",
+	printf("Errors: total %lu client-timo %lu socket-timo %lu "
+		   "connrefused %lu connreset %lu\n"
+		   "Errors: fd-unavail %lu addrunavail %lu ftab-full %lu other %lu\n",
 		   (basic.num_client_timeouts + basic.num_sock_timeouts
 			+ basic.num_sock_fdunavail + basic.num_sock_ftabfull
 			+ basic.num_sock_refused + basic.num_sock_reset
