@@ -91,21 +91,22 @@ Rate_Info;
 typedef struct Cmdline_Params
   {
     int http_version;	/* (default) HTTP protocol version */
-    const char *server;	/* (default) hostname */
-    const char *server_name; /* fully qualified server name */
+    const char *server;
     int port;		/* (default) server port */
     const char *uri;	/* (default) uri */
+    const char *myaddr;
     Rate_Info rate;
     Time timeout;	/* watchdog timeout */
     Time think_timeout;	/* timeout for server think time */
-    int num_conns;	/* # of connections to generate */
-    int num_calls;	/* # of calls to generate per connection */
-    int burst_len;	/* # of calls to burst back-to-back */
-    int max_piped;	/* max # of piped calls per connection */
-    int max_conns;	/* max # of connections per session */
+    Time runtime;	/* how long to run the test */
+    u_long num_conns;	/* # of connections to generate */
+    u_long num_calls;	/* # of calls to generate per connection */
+    u_long burst_len;	/* # of calls to burst back-to-back */
+    u_long max_piped;	/* max # of piped calls per connection */
+    u_long max_conns;	/* max # of connections per session */
     int hog;		/* client may hog as much resources as possible */
-    int send_buffer_size;
-    int recv_buffer_size;
+    u_long send_buffer_size;
+    u_long recv_buffer_size;
     int failure_status;	/* status code that should be considered failure */
     int retry_on_failure; /* when a call fails, should we retry? */
     int close_with_reset; /* close connections with TCP RESET? */
@@ -120,6 +121,7 @@ typedef struct Cmdline_Params
 #endif
     int use_timer_cache;
     const char *additional_header;	/* additional request header(s) */
+    const char *additional_header_file;
     const char *method;	/* default call method */
     struct
       {
@@ -146,7 +148,7 @@ typedef struct Cmdline_Params
 	u_int num_reqs;		/* # of user requests per session */
 	Time think_time;	/* user think time between requests */
       }
-    wsesspage;
+    wsesspage;		/* XXX Currently broken */
     struct
       {
 	u_int num_sessions;	/* # of user-sessions */
@@ -165,6 +167,7 @@ Cmdline_Params;
 
 extern const char *prog_name;
 extern int verbose;
+extern int periodic_stats;
 extern Cmdline_Params param;
 extern Time test_time_start;
 extern Time test_time_stop;

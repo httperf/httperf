@@ -34,57 +34,92 @@
 #include "config.h"
 
 #include <assert.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
+#include <sys/mman.h>
+#include <sys/stat.h>
 
 #include <generic_types.h>
 
 #include <object.h>
 #include <timer.h>
 #include <httperf.h>
+#include <call.h>
 #include <conn.h>
+#include <core.h>
+
+static char *srvbase, *srvend, *srvcurrent;
+
+void
+conn_add_servers (void)
+{
+	struct stat st;
+	int fd, len;
+
+	fd = open(param.server, O_RDONLY, 0);
+	if (fd == -1)
+		panic("%s: can't open %s\n", prog_name, param.server);
+
+	fstat(fd, &st);
+	if (st.st_size == 0)
+		panic("%s: file %s is empty\n", prog_name, param.server);
+
+	srvbase = (char *)mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	if (srvbase == (char *)-1)
+		panic("%s: can't mmap the file: %s\n", prog_name, strerror(errno));
+
+	close (fd);
+
+	srvend = srvbase + st.st_size;
+	for (srvcurrent = srvbase; srvcurrent < srvend; srvcurrent += len + 1) {
+		len = strlen(srvcurrent);
+		core_addr_intern(srvcurrent, len, param.port);
+	}
+	srvcurrent = srvbase;
+}
 
 void
 conn_init (Conn *conn)
 {
-  conn->hostname = param.server;
-  conn->hostname_len = strlen (param.server);
-  conn->port = param.port;
-  conn->sd = -1;
-  conn->myport = -1;
-  conn->line.iov_base = conn->line_buf;
-  if (param.server_name)
-    {
-      conn->fqdname = param.server_name;
-      conn->fqdname_len = strlen (param.server_name);
-    }
-  else
-    {
-      conn->fqdname = conn->hostname;
-      conn->fqdname_len = conn->hostname_len;
-    }
+	int len;
+
+	len = strlen(srvcurrent);
+	conn->hostname = srvcurrent;
+	conn->hostname_len = len;
+
+	srvcurrent += len + 1;
+	if (srvcurrent >= srvend)
+		srvcurrent = srvbase;
+
+	conn->port = param.port;
+	conn->sd = -1;
+	conn->myport = -1;
+	conn->line.iov_base = conn->line_buf;
+	conn->fqdname = conn->hostname;
+	conn->fqdname_len = conn->hostname_len;
 
 #ifdef HAVE_SSL
-  if (param.use_ssl)
-    {
-      conn->ssl = SSL_new (ssl_ctx);
-      if (!conn->ssl)
-	{
-	  ERR_print_errors_fp (stderr);
-	  exit (-1);
-	}
+	if (param.use_ssl) {
+		conn->ssl = SSL_new(ssl_ctx);
+		if (!conn->ssl) {
+			ERR_print_errors_fp(stderr);
+			exit(-1);
+		}
 
-      if (param.ssl_cipher_list)
-	{
-	  /* set order of ciphers  */
-	  int ssl_err = SSL_set_cipher_list (conn->ssl, param.ssl_cipher_list);
+		if (param.ssl_cipher_list) {
+			/* set order of ciphers  */
+			int ssl_err = SSL_set_cipher_list(conn->ssl, param.ssl_cipher_list);
 
-	  if (DBG > 2)
-	    fprintf (stderr, "core_ssl_connect: set_cipher_list returned %d\n",
-		     ssl_err);
+			if (DBG > 2)
+				fprintf(stderr,
+					"core_ssl_connect: set_cipher_list returned %d\n",
+					ssl_err);
+		}
 	}
-    }
 #endif
 }
 
