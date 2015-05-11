@@ -143,6 +143,12 @@ static struct option longopts[] = {
 	{"ssl", no_argument, &param.use_ssl, 1},
 	{"ssl-ciphers", required_argument, (int *) &param.ssl_cipher_list, 0},
 	{"ssl-no-reuse", no_argument, &param.ssl_reuse, 0},
+        {"ssl-certificate", required_argument, (int *) &param.ssl_cert,     0},
+        {"ssl-key",      required_argument, (int *) &param.ssl_key,         0},
+        {"ssl-verify",   optional_argument, (int *) &param.ssl_verify,      0},
+        {"ssl-ca-file",  required_argument, (int *) &param.ssl_ca_file,     0},
+        {"ssl-ca-path",  required_argument, (int *) &param.ssl_ca_path,     0},
+        {"ssl-protocol", required_argument, &param.ssl_protocol,            0},
 #endif
 	{"think-timeout", required_argument, (int *) &param.think_timeout, 0},
 	{"timeout", required_argument, (int *) &param.timeout, 0},
@@ -174,6 +180,9 @@ usage(void)
 	       "\t<--server file> [--port N] [--uri S] [--myaddr S]\n"
 #ifdef HAVE_SSL
 	       "\t[--ssl] [--ssl-ciphers L] [--ssl-no-reuse]\n"
+               "\t[--ssl-certificate file] [--ssl-key file]\n"
+               "\t[--ssl-ca-file file] [--ssl-ca-path path]\n"
+               "\t[--ssl-verify [yes|no]] [--ssl-protocol S]\n"
 #endif
 	       "\t[--think-timeout X] [--timeout X] [--verbose] [--version]\n"
 	       "\t[--wlog y|n,file] [--wsess N,N,X] [--wsesslog N,X,file]\n"
@@ -274,6 +283,8 @@ main(int argc, char **argv)
 	param.rate.dist = DETERMINISTIC;
 #ifdef HAVE_SSL
 	param.ssl_reuse = 1;
+        param.ssl_verify = 0;
+        param.ssl_protocol = 0;
 #endif
 
 	/*
@@ -629,6 +640,43 @@ main(int argc, char **argv)
 #ifdef HAVE_SSL
 			else if (flag == &param.ssl_cipher_list)
 				param.ssl_cipher_list = optarg;
+                        else if (flag == &param.ssl_cert)
+                                param.ssl_cert = optarg;
+                        else if (flag == &param.ssl_key)
+                                param.ssl_key = optarg;
+                        else if (flag == &param.ssl_verify)
+                            {
+                                if (!optarg)
+                                    param.ssl_verify = 1;
+                                else
+                                    switch (tolower (optarg[0]))
+                                    {
+                                    case 'y': param.ssl_verify = 1; break;
+                                    case 'n': param.ssl_verify = 0; break;
+                                    default:  param.ssl_verify = 0; break;
+                                    }
+                            }
+                        else if (flag == &param.ssl_ca_file)
+                                param.ssl_ca_file = optarg;
+                        else if (flag == &param.ssl_ca_path)
+                                param.ssl_ca_path = optarg;
+                        else if (flag == &param.ssl_protocol)
+                        {
+                            if (strcasecmp (optarg, "auto") == 0)
+                                param.ssl_protocol = 0;
+                            else if (strcasecmp (optarg, "SSLv2") == 0)
+                                param.ssl_protocol = 2;
+                            else if (strcasecmp (optarg, "SSLv3") == 0)
+                                param.ssl_protocol = 3;
+                            else if (strcasecmp (optarg, "TLSv1") == 0)
+                                param.ssl_protocol = 4;
+                            else
+                            {
+                                fprintf (stderr, "%s: illegal SSL protocol %s\n",
+                                        prog_name, optarg);
+                                exit (1);
+                            }
+                        }
 #endif
 			else if (flag == &param.uri)
 				param.uri = optarg;
@@ -940,14 +988,23 @@ main(int argc, char **argv)
 		if (param.port < 0)
 			param.port = 443;
 
-		SSL_load_error_strings();
-		SSLeay_add_ssl_algorithms();
+                SSL_library_init ();
+		SSL_load_error_strings ();
+                SSLeay_add_all_algorithms ();
+		SSLeay_add_ssl_algorithms ();
 
-		/*
-		 * for some strange reason, SSLv23_client_method () doesn't
-		 * work here 
-		 */
-		ssl_ctx = SSL_CTX_new(SSLv3_client_method());
+		switch (param.ssl_protocol)
+                {
+                    /* 0/auto for SSLv23 */
+                    case 0: ssl_ctx = SSL_CTX_new (SSLv23_client_method ()); break;
+                    /* 2/SSLv2 */
+                    case 2: ssl_ctx = SSL_CTX_new (SSLv2_client_method ()); break;
+                    /* 3/SSLv3 */
+                    case 3: ssl_ctx = SSL_CTX_new (SSLv3_client_method ()); break;
+                    /* 4/TLSv1 */
+                    case 4: ssl_ctx = SSL_CTX_new (TLSv1_client_method ()); break;
+                }
+      
 		if (!ssl_ctx) {
 			ERR_print_errors_fp(stderr);
 			exit(-1);
@@ -955,6 +1012,60 @@ main(int argc, char **argv)
 
 		memset(buf, 0, sizeof(buf));
 		RAND_seed(buf, sizeof(buf));
+                
+                /* set server certificate verification */
+                if (param.ssl_verify == 1)
+                    SSL_CTX_set_verify (ssl_ctx, SSL_VERIFY_PEER, NULL);
+                else
+                    SSL_CTX_set_verify (ssl_ctx, SSL_VERIFY_NONE, NULL);
+
+                /* set default certificate authority verification path */
+                SSL_CTX_set_default_verify_paths (ssl_ctx);
+
+                /* load extra certificate authority files and paths */
+                if (param.ssl_ca_file || param.ssl_ca_path)
+                {
+                    int ssl_err = SSL_CTX_load_verify_locations
+                    (ssl_ctx, param.ssl_ca_file, param.ssl_ca_path);
+                    if (DBG > 2)
+                        fprintf (stderr, "SSL_CTX_load_verify_locations returned %d\n",
+                            ssl_err);
+                }
+
+                /* if using client SSL authentication, load the certificate file */
+                if (param.ssl_cert)
+                {
+                    int ssl_err = SSL_CTX_use_certificate_file
+                        (ssl_ctx, param.ssl_cert, SSL_FILETYPE_PEM);
+                    if (DBG > 2)
+                        fprintf (stderr, "SSL_CTX_use_certificate_file returned %d\n",
+                            ssl_err);
+                }
+
+                /* also load the client key */
+                if (param.ssl_key)
+                {
+                    int ssl_err = SSL_CTX_use_PrivateKey_file
+                        (ssl_ctx, param.ssl_key, SSL_FILETYPE_PEM);
+                    if (DBG > 2)
+                        fprintf (stderr, "SSL_CTX_use_PrivateKey_file returned %d\n",
+                            ssl_err);
+                }
+
+                /* check client certificate and key consistency */
+                if (param.ssl_cert && param.ssl_key)
+                {
+                    int ssl_err = SSL_CTX_check_private_key (ssl_ctx);
+                    if (DBG > 2)
+                        fprintf (stderr, "SSL_CTX_check_private_key returned %d\n",
+                            ssl_err);
+                    if (!ssl_err)
+                    {
+                        fprintf (stderr,
+                            "SSL certificate and key failed consistency check\n");
+                        exit (1);
+                    }
+                }      
 	}
 #endif
 	if (param.port < 0)
@@ -1085,6 +1196,18 @@ main(int argc, char **argv)
 		printf(" --ssl-ciphers=%s", param.ssl_cipher_list);
 	if (!param.ssl_reuse)
 		printf(" --ssl-no-reuse");
+        if (param.ssl_cert) printf (" --ssl-cert=%s", param.ssl_cert);
+        if (param.ssl_key) printf (" --ssl-key=%s", param.ssl_key);
+        if (param.ssl_ca_file) printf (" --ssl-ca-file=%s", param.ssl_ca_file);
+        if (param.ssl_ca_path) printf (" --ssl-ca-path=%s", param.ssl_ca_path);
+        if (param.ssl_verify) printf (" --ssl-verify");
+        switch (param.ssl_protocol)
+        {
+            case 0: printf (" --ssl-protocol=auto");  break;
+            case 2: printf (" --ssl-protocol=SSLv2"); break;
+            case 3: printf (" --ssl-protocol=SSLv3"); break;
+            case 4: printf (" --ssl-protocol=TLSv1"); break;
+        }
 #endif
 	if (param.additional_header)
 		printf(" --add-header='%s'", param.additional_header);
