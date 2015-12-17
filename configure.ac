@@ -6,6 +6,8 @@ AC_INIT(httperf, 0.9.1, httperf@linux.hpl.hp.com)
 AC_CONFIG_SRCDIR([src/httperf.c])
 AC_CONFIG_HEADER([config.h])
 
+AC_CONFIG_MACRO_DIR([m4])
+
 AC_CANONICAL_TARGET
 
 AM_INIT_AUTOMAKE(httperf, 0.9.1)
