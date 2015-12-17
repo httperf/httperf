@@ -388,11 +388,11 @@ parse_config (void)
   FILE *fp;
   int lineno, i, reqnum;
   Sess_Private_Data *sptr;
-  char line[10000];	/* some uri's get pretty long */
-  char uri[10000];	/* some uri's get pretty long */
+  char line[500000];	/* some uri's get pretty long */
+  char uri[500000];	/* some uri's get pretty long */
   char method_str[1000];
-  char this_arg[10000];
-  char contents[10000];
+  char this_arg[500000];
+  char contents[500000];
   double think_time;
   int bytes_read;
   REQ *reqptr;
