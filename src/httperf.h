@@ -117,7 +117,13 @@ typedef struct Cmdline_Params
 #ifdef HAVE_SSL
     int use_ssl;	/* connect via SSL */
     int ssl_reuse;	/* reuse SSL Session ID */
+    int ssl_verify;     /* whether to verify the server certificate */
+    int ssl_protocol;   /* which SSL protocol to use */
     const char *ssl_cipher_list; /* client's list of SSL cipher suites */
+    const char *ssl_cert; /* client certificate file name */
+    const char *ssl_key; /* client key file name */
+    const char *ssl_ca_file; /* certificate authority file */
+    const char *ssl_ca_path; /* certificate authority path */
 #endif
     int use_timer_cache;
     const char *additional_header;	/* additional request header(s) */
