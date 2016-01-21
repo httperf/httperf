@@ -1,35 +1,35 @@
 /*
-    httperf -- a tool for measuring web server performance
-    Copyright 2000-2007 Hewlett-Packard Company
-
-    This file is part of httperf, a web server performance measurment
-    tool.
-
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU General Public License as
-    published by the Free Software Foundation; either version 2 of the
-    License, or (at your option) any later version.
-    
-    In addition, as a special exception, the copyright holders give
-    permission to link the code of this work with the OpenSSL project's
-    "OpenSSL" library (or with modified versions of it that use the same
-    license as the "OpenSSL" library), and distribute linked combinations
-    including the two.  You must obey the GNU General Public License in
-    all respects for all of the code used other than "OpenSSL".  If you
-    modify this file, you may extend this exception to your version of the
-    file, but you are not obligated to do so.  If you do not wish to do
-    so, delete this exception statement from your version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  
-    02110-1301, USA
-*/
+ * httperf -- a tool for measuring web server performance
+ * Copyright 2000-2007 Hewlett-Packard Company
+ *
+ * This file is part of httperf, a web server performance measurment
+ * tool.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * In addition, as a special exception, the copyright holders give
+ * permission to link the code of this work with the OpenSSL project's
+ * "OpenSSL" library (or with modified versions of it that use the same
+ * license as the "OpenSSL" library), and distribute linked combinations
+ * including the two.  You must obey the GNU General Public License in
+ * all respects for all of the code used other than "OpenSSL".  If you
+ * modify this file, you may extend this exception to your version of the
+ * file, but you are not obligated to do so.  If you do not wish to do
+ * so, delete this exception statement from your version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include "config.h"
 
@@ -56,7 +56,7 @@
 static char *srvbase, *srvend, *srvcurrent;
 
 void
-conn_add_servers (void)
+conn_add_servers(void)
 {
 	struct stat st;
 	int fd, len;
@@ -73,7 +73,7 @@ conn_add_servers (void)
 	if (srvbase == (char *)-1)
 		panic("%s: can't mmap the file: %s\n", prog_name, strerror(errno));
 
-	close (fd);
+	close(fd);
 
 	srvend = srvbase + st.st_size;
 	for (srvcurrent = srvbase; srvcurrent < srvend; srvcurrent += len + 1) {
@@ -84,7 +84,7 @@ conn_add_servers (void)
 }
 
 void
-conn_init (Conn *conn)
+conn_init(Conn *conn)
 {
 	int len;
 
@@ -112,7 +112,7 @@ conn_init (Conn *conn)
 		}
 
 		if (param.ssl_cipher_list) {
-			/* set order of ciphers  */
+			/* set order of ciphers */
 			int ssl_err = SSL_set_cipher_list(conn->ssl, param.ssl_cipher_list);
 
 			if (DBG > 2)
@@ -125,16 +125,16 @@ conn_init (Conn *conn)
 }
 
 void
-conn_deinit (Conn *conn)
+conn_deinit(Conn *conn)
 {
-  assert (conn->sd < 0 && conn->state != S_FREE);
-  assert (!conn->sendq);
-  assert (!conn->recvq);
-  assert (!conn->watchdog);
-  conn->state = S_FREE;
+	assert(conn->sd < 0 && conn->state != S_FREE);
+	assert(!conn->sendq);
+	assert(!conn->recvq);
+	assert(!conn->watchdog);
+	conn->state = S_FREE;
 
 #ifdef HAVE_SSL
-  if (param.use_ssl)
-    SSL_free (conn->ssl);
+	if (param.use_ssl)
+		SSL_free(conn->ssl);
 #endif
 }
