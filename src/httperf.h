@@ -91,7 +91,9 @@ Rate_Info;
 typedef struct Cmdline_Params
   {
     int http_version;	/* (default) HTTP protocol version */
-    const char *server;
+    const char *server;	/* (default) hostname */
+    const char *server_name; /* fully qualified server name */
+    const char *servers;
     int port;		/* (default) server port */
     const char *uri;	/* (default) uri */
     const char *myaddr;

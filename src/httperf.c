@@ -136,7 +136,7 @@ static struct option longopts[] = {
 	{"retry-on-failure", no_argument, &param.retry_on_failure, 1},
 	{"runtime", required_argument, (int *) &param.runtime, 0},
 	{"send-buffer", required_argument, (int *) &param.send_buffer_size, 0},
-	{"server", required_argument, (int *) &param.server, 0},
+	{"servers", required_argument, (int *) &param.servers, 0},
 	{"uri", required_argument, (int *) &param.uri, 0},
 	{"session-cookies", no_argument, (int *) &param.session_cookies, 1},
 #ifdef HAVE_SSL
@@ -177,7 +177,7 @@ usage(void)
 	       "\t[--print-reply [header|body]] [--print-request [header|body]]\n"
 	       "\t[--rate X] [--recv-buffer N] [--retry-on-failure] "
 	       "[--send-buffer N]\n"
-	       "\t<--server file> [--port N] [--uri S] [--myaddr S]\n"
+	       "\t<--servers file> [--port N] [--uri S] [--myaddr S]\n"
 #ifdef HAVE_SSL
 	       "\t[--ssl] [--ssl-ciphers L] [--ssl-no-reuse]\n"
                "\t[--ssl-certificate file] [--ssl-key file]\n"
@@ -635,8 +635,8 @@ main(int argc, char **argv)
 						prog_name, optarg);
 					exit(1);
 				}
-			} else if (flag == &param.server)
-				param.server = optarg;
+			} else if (flag == &param.servers)
+				param.servers = optarg;
 #ifdef HAVE_SSL
 			else if (flag == &param.ssl_cipher_list)
 				param.ssl_cipher_list = optarg;
@@ -974,9 +974,9 @@ main(int argc, char **argv)
 		}
 	}
 
-	if (param.server == NULL) {
+	if (param.servers == NULL) {
 		fprintf(stderr,
-			"%s: must specify --server\n",
+			"%s: must specify --servers\n",
 			prog_name);
 		exit(-1);
 	}
@@ -1131,8 +1131,8 @@ main(int argc, char **argv)
 	if (param.runtime > 0)
 		printf(" --runtime=%g", param.runtime);
 	printf(" --client=%u/%u", param.client.id, param.client.num_clients);
-	if (param.server)
-		printf(" --server=%s", param.server);
+	if (param.servers)
+		printf(" --servers=%s", param.servers);
 	if (param.port)
 		printf(" --port=%d", param.port);
 	if (param.uri)

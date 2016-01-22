@@ -61,13 +61,13 @@ conn_add_servers(void)
 	struct stat st;
 	int fd, len;
 
-	fd = open(param.server, O_RDONLY, 0);
+	fd = open(param.servers, O_RDONLY, 0);
 	if (fd == -1)
-		panic("%s: can't open %s\n", prog_name, param.server);
+		panic("%s: can't open %s\n", prog_name, param.servers);
 
 	fstat(fd, &st);
 	if (st.st_size == 0)
-		panic("%s: file %s is empty\n", prog_name, param.server);
+		panic("%s: file %s is empty\n", prog_name, param.servers);
 
 	srvbase = (char *)mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (srvbase == (char *)-1)

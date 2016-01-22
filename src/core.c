@@ -963,7 +963,7 @@ core_init(void)
 		printf("%s: maximum number of open descriptors = %ld\n",
 		       prog_name, rlimit.rlim_max);
 
-	if (param.server)
+	if (param.servers)
 		conn_add_servers();
 	if (param.runtime) {
 		arg.l = 0;
