@@ -156,7 +156,7 @@ typedef struct Cmdline_Params
 	u_int num_reqs;		/* # of user requests per session */
 	Time think_time;	/* user think time between requests */
       }
-    wsesspage;		/* XXX Currently broken */
+    wsesspage;
     struct
       {
 	u_int num_sessions;	/* # of user-sessions */

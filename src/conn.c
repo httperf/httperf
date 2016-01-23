@@ -86,22 +86,32 @@ conn_add_servers(void)
 void
 conn_init(Conn *conn)
 {
-	int len;
+	if (param.servers) {
+		int len = strlen(srvcurrent);
+		conn->hostname = srvcurrent;
+		conn->hostname_len = len;
+		conn->fqdname = conn->hostname;
+		conn->fqdname_len = conn->hostname_len;
 
-	len = strlen(srvcurrent);
-	conn->hostname = srvcurrent;
-	conn->hostname_len = len;
-
-	srvcurrent += len + 1;
-	if (srvcurrent >= srvend)
-		srvcurrent = srvbase;
+		srvcurrent += len + 1;
+		if (srvcurrent >= srvend)
+			srvcurrent = srvbase;
+	} else if (param.server_name) {
+		conn->hostname = param.server;
+		conn->hostname_len = strlen(param.server);
+		conn->fqdname = param.server_name;
+		conn->fqdname_len = strlen(param.server_name);
+	} else {
+		conn->hostname = param.server;
+		conn->hostname_len = strlen(param.server);
+		conn->fqdname = conn->hostname;
+		conn->fqdname_len = conn->hostname_len;
+	}
 
 	conn->port = param.port;
 	conn->sd = -1;
 	conn->myport = -1;
 	conn->line.iov_base = conn->line_buf;
-	conn->fqdname = conn->hostname;
-	conn->fqdname_len = conn->hostname_len;
 
 #ifdef HAVE_SSL
 	if (param.use_ssl) {

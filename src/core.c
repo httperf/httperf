@@ -965,6 +965,9 @@ core_init(void)
 
 	if (param.servers)
 		conn_add_servers();
+	else if (param.server)
+		core_addr_intern(param.server, strlen(param.server), param.port);
+
 	if (param.runtime) {
 		arg.l = 0;
 		timer_schedule(core_runtime_timer, arg, param.runtime);
