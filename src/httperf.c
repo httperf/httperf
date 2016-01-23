@@ -137,6 +137,8 @@ static struct option longopts[] = {
 	{"runtime", required_argument, (int *) &param.runtime, 0},
 	{"send-buffer", required_argument, (int *) &param.send_buffer_size, 0},
 	{"server", required_argument, (int *) &param.server, 0},
+	{"server-name", required_argument, (int *) &param.server_name, 0},
+	{"servers", required_argument, (int *) &param.servers, 0},
 	{"uri", required_argument, (int *) &param.uri, 0},
 	{"session-cookies", no_argument, (int *) &param.session_cookies, 1},
 #ifdef HAVE_SSL
@@ -175,9 +177,9 @@ usage(void)
 	       "\t[--num-calls N] [--num-conns N] [--session-cookies]\n"
 	       "\t[--period [d|u|e]T1[,T2]|[v]T1,D1[,T2,D2]...[,Tn,Dn]\n"
 	       "\t[--print-reply [header|body]] [--print-request [header|body]]\n"
-	       "\t[--rate X] [--recv-buffer N] [--retry-on-failure] "
-	       "[--send-buffer N]\n"
-	       "\t<--server file> [--port N] [--uri S] [--myaddr S]\n"
+	       "\t[--rate X] [--recv-buffer N] [--retry-on-failure] [--send-buffer N]\n"
+	       "\t[--server S|--servers file] [--server-name S] [--port N] [--uri S] "
+	       "[--myaddr S]\n"
 #ifdef HAVE_SSL
 	       "\t[--ssl] [--ssl-ciphers L] [--ssl-no-reuse]\n"
                "\t[--ssl-certificate file] [--ssl-key file]\n"
@@ -637,6 +639,10 @@ main(int argc, char **argv)
 				}
 			} else if (flag == &param.server)
 				param.server = optarg;
+			else if (flag == &param.server_name)
+				param.server_name = optarg;
+			else if (flag == &param.servers)
+				param.servers = optarg;
 #ifdef HAVE_SSL
 			else if (flag == &param.ssl_cipher_list)
 				param.ssl_cipher_list = optarg;
@@ -974,12 +980,15 @@ main(int argc, char **argv)
 		}
 	}
 
-	if (param.server == NULL) {
+	if (param.server != NULL && param.servers != NULL) {
 		fprintf(stderr,
-			"%s: must specify --server\n",
+			"%s: --server S or --servers file\n",
 			prog_name);
 		exit(-1);
 	}
+
+	if (param.server == NULL && param.servers == NULL)
+		param.server = "localhost";
 
 #ifdef HAVE_SSL
 	if (param.use_ssl) {
@@ -1133,6 +1142,10 @@ main(int argc, char **argv)
 	printf(" --client=%u/%u", param.client.id, param.client.num_clients);
 	if (param.server)
 		printf(" --server=%s", param.server);
+	if (param.server_name)
+		printf(" --server_name=%s", param.server_name);
+	if (param.servers)
+		printf(" --servers=%s", param.servers);
 	if (param.port)
 		printf(" --port=%d", param.port);
 	if (param.uri)

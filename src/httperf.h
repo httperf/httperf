@@ -91,7 +91,9 @@ Rate_Info;
 typedef struct Cmdline_Params
   {
     int http_version;	/* (default) HTTP protocol version */
-    const char *server;
+    const char *server;	/* (default) hostname */
+    const char *server_name; /* fully qualified server name */
+    const char *servers;
     int port;		/* (default) server port */
     const char *uri;	/* (default) uri */
     const char *myaddr;
@@ -154,7 +156,7 @@ typedef struct Cmdline_Params
 	u_int num_reqs;		/* # of user requests per session */
 	Time think_time;	/* user think time between requests */
       }
-    wsesspage;		/* XXX Currently broken */
+    wsesspage;
     struct
       {
 	u_int num_sessions;	/* # of user-sessions */
