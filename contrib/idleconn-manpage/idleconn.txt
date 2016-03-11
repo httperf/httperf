@@ -1,0 +1,37 @@
+NAME
+ idleconn - tool for opening any number of idle connections
+
+SYNOPSIS
+ idleconn <server> <port> <numidle>
+
+DESCRIPTION
+ idleconn is part of httperf suite and is useful to simulate a large number
+ of concurrent and idle connections. It can establish a set of persistent
+ connections, each of which generated periodic requests to the server. The
+ effect is that at all times, some of the connections were active while the
+ rest were idle, and these active and idle connection sets kept changing with
+ time. (This paragraph was extracted and adapted from the article "Scalability
+ of Linux Event-Dispatch Mechanisms" (HPL-2000-174), written by Abhishek
+ Chandra and David Mosberger).
+
+OPTIONS
+ server   IP of the server to connect.
+ port     Port used by server.
+ numidle  Number of idle process to be generated.
+
+EXAMPLE
+ This is a simple example how to use idleconn:
+
+    $ ./idleconn 192.168.1.1 80 100
+
+ It would open and maintain 100 idle connections to a web server, listening on
+ port 80, using the IP address 192.168.1.1.
+
+SEE ALSO
+ httperf(1)
+
+AUTHOR
+  The httperf was written by David Mosberger-Tang, Hewlett-Packard Company and Contributors.
+
+  This manual page was written by Joao Eriberto Mota Filho <eriberto@debian.org>
+  for the Debian project (but may be used by others).
