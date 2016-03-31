@@ -1451,7 +1451,6 @@ check_conn(int sd, int is_readable, int is_writable)
 {
 	Conn      *conn;
 	Any_Type   arg;
-	Conn      *conn;
 
 	/* Don't bother doing anything if we're not ready */
 	if ((is_readable || is_writable) == 0) {
