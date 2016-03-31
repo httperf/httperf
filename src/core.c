@@ -1445,14 +1445,58 @@ core_loop(void)
 	}
 }
 #else
+
+static void
+check_conn(int sd, int is_readable, int is_writable)
+{
+	Conn      *conn;
+	Any_Type   arg;
+	Conn      *conn;
+
+	/* Don't bother doing anything if we're not ready */
+	if ((is_readable || is_writable) == 0) {
+		return;
+	}
+
+	/*
+	 * only handle sockets that
+	 * haven't timed out yet
+	 */
+	conn = sd_to_conn[sd];
+	conn_inc_ref(conn);
+
+	if (conn->watchdog) {
+		timer_cancel(conn->watchdog);
+		conn->watchdog = 0;
+	}
+
+	if (conn->state == S_CONNECTING) {
+#ifdef HAVE_SSL
+		if (param.use_ssl)
+			core_ssl_connect(conn);
+		else
+#endif
+		if (is_writable) {
+			clear_active(conn, WRITE);
+			conn->state = S_CONNECTED;
+			arg.l = 0;
+			event_signal(EV_CONN_CONNECTED, (Object*)conn, arg);
+		}
+	} else {
+		if (is_writable && conn->sendq)
+			do_send(conn);
+		if (is_readable && conn->recvq)
+			do_recv(conn);
+	}
+	conn_dec_ref(conn);
+}
+
 void
 core_loop(void)
 {
-	int        is_readable, is_writable, n, sd, bit, min_i, max_i, i = 0;
+	int        is_readable, is_writable, n, sd, i = 0;
 	fd_set     readable, writable;
 	fd_mask    mask;
-	Any_Type   arg;
-	Conn      *conn;
  
 	while (running) {
 	    struct timeval  tv = select_timeout;
@@ -1476,68 +1520,19 @@ core_loop(void)
 	        continue;
 	    }
 
-	    while (n > 0) {
-	        /*
-	         * find the index of the fdmask that has something
-	         * going on: 
-	         */
-	        do {
-	            ++i;
-	            if (i > max_i)
-	                i = min_i;
+		/* XXX totally suboptimal loop, but less potentially problematic */
 
-	            assert(i <= max_i);
-	            mask = readable.fds_bits[i] | writable.fds_bits[i];
-	        } while (!mask);
-	        bit = 0;
-	        sd = i * NFDBITS + bit;
-	        do {
-	            if (mask & 1) {
-	                --n;
-	                is_readable = (FD_ISSET(sd, &readable) && FD_ISSET(sd, &rdfds));
-	                is_writable = (FD_ISSET(sd, &writable) && FD_ISSET(sd, &wrfds));
-	                
-	                if (is_readable || is_writable) {
-	                    /*
-	                     * only handle sockets that
-	                     * haven't timed out yet
-	                     */
-	                    conn = sd_to_conn[sd];
-	                    conn_inc_ref(conn);
+		for (i = 0; i <= max_sd; i++) {
+			is_readable = (FD_ISSET(sd, &readable) && FD_ISSET(sd, &rdfds));
+			is_writable = (FD_ISSET(sd, &writable) && FD_ISSET(sd, &wrfds));
+			if (is_readable || is_writable)
+				check_conn(sd, is_readable, is_writable);
 
-	                    if (conn->watchdog) {
-	                        timer_cancel(conn->watchdog);
-	                        conn->watchdog = 0;
-	                    }
-	                    if (conn->state == S_CONNECTING) {
-#ifdef HAVE_SSL
-	                        if (param.use_ssl)
-	                             core_ssl_connect(conn);
-	                        else
-#endif
-	                        if (is_writable) {
-				    clear_active(conn, WRITE);
-	                            conn->state = S_CONNECTED;
-	                            arg.l = 0;
-	                            event_signal(EV_CONN_CONNECTED, (Object*)conn, arg);
-	                        }
-	                    } else {
-	                        if (is_writable && conn->sendq)
-	                            do_send(conn);
-	                        if (is_readable && conn->recvq)
-	                            do_recv(conn);
-	                    }
-	                    
-	                    conn_dec_ref(conn);
-	                    
-	                    if (n > 0)
-	                         timer_tick();
-	                }
-	            }
-	            mask = ((u_long) mask) >> 1;
-	            ++sd;
-	        } while (mask);
-	    }
+			/* XXX TODO: totally can bail out if we've seen 'n' FDs */
+		}
+
+		/* Do timer tick at the end of the connection check */
+		timer_tick();
 	}
 }
 #endif
