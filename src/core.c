@@ -1493,7 +1493,7 @@ check_conn(int sd, int is_readable, int is_writable)
 void
 core_loop(void)
 {
-	int        is_readable, is_writable, n, sd, i = 0;
+	int        is_readable, is_writable, n, sd;
 	fd_set     readable, writable;
 	fd_mask    mask;
  
@@ -1519,7 +1519,7 @@ core_loop(void)
 
 		/* XXX totally suboptimal loop, but less potentially problematic */
 
-		for (i = 0; i <= max_sd; i++) {
+		for (sd = 0; sd <= max_sd; sd++) {
 			is_readable = (FD_ISSET(sd, &readable) && FD_ISSET(sd, &rdfds));
 			is_writable = (FD_ISSET(sd, &writable) && FD_ISSET(sd, &wrfds));
 			if (is_readable || is_writable)
