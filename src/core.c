@@ -1504,8 +1504,6 @@ core_loop(void)
 
 	    readable = rdfds;
 	    writable = wrfds;
-	    min_i = min_sd / NFDBITS;
-	    max_i = max_sd / NFDBITS;
 
 	    SYSCALL(SELECT,	n = select(max_sd + 1, &readable, &writable, 0, &tv));
 
