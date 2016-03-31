@@ -49,6 +49,10 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #ifdef HAVE_SYS_SELECT_H
+
+// You may need to override this!
+// #define	FD_SETSIZE	2048
+
 #include <sys/select.h>
 #endif
 #ifdef HAVE_KEVENT
@@ -1073,6 +1077,15 @@ core_connect(Conn * s)
 			fprintf(stderr,
 				"%s.core_connect.socket: %s (max_sd=%d)\n",
 				prog_name, strerror(errno), max_sd);
+		goto failure;
+	}
+
+	if (sd > FD_SETSIZE) {
+		fprintf(stderr,
+		    "%s.core_connect.socket: sd > FD_SETSIZE (%d)\n",
+		    prog_name,
+		    FD_SETSIZE);
+		close(sd);
 		goto failure;
 	}
 
