@@ -9,6 +9,7 @@ addons:
     packages:
       - libssl-dev
       - libtool
+      - pkg-config
 
 before_script:
   - libtoolize --force

@@ -40,8 +40,6 @@ AM_CONDITIONAL(IDLECONN,
 
 # Checks for libraries.
 AC_CHECK_LIB(m, sqrt)
-AC_CHECK_LIB(crypto, main)
-AC_CHECK_LIB(ssl, SSL_version, , AC_MSG_WARN([SSL Disabled]) )
 # The following checks are for solaris and its ilk
 AC_SEARCH_LIBS([getsockopt], [socket])
 AC_SEARCH_LIBS([socket], [socket nsl])
@@ -51,13 +49,28 @@ AC_SEARCH_LIBS([inet_aton], [resolv])
 # Checks for header files.
 AC_FUNC_ALLOCA
 AC_HEADER_TIME
-AC_CHECK_HEADERS([openssl/ssl.h getopt.h])
+AC_CHECK_HEADERS([getopt.h])
 
-if test "$ac_cv_header_openssl_ssl_h" = "yes" \
-	-a "$ac_cv_lib_ssl_SSL_version" = "yes" \
-	-a "$ac_cv_lib_crypto_main" = "yes"; then
-  CFLAGS="${CFLAGS} -DHAVE_SSL"
-  LDFLAGS="${LDFLAGS}"  
+AC_CHECK_TOOL([PKG_CONFIG], [pkg-config])
+if test x"$PKG_CONFIG" != x""; then
+  OPENSSL_LDFLAGS=`$PKG_CONFIG openssl --libs-only-L 2>/dev/null`
+  if test $? = 0; then
+    LIBS="${LIBS} "`$PKG_CONFIG openssl --libs-only-l 2>/dev/null`
+    CFLAGS="${CFLAGS} -DHAVE_SSL "`
+        $PKG_CONFIG openssl --cflags-only-I 2>/dev/null`
+    LDFLAGS="${LDFLAGS} ${OPENSSL_LDFLAGS}"
+  fi
+else
+  AC_CHECK_LIB(crypto, main)
+  AC_CHECK_LIB(ssl, SSL_version, , AC_MSG_WARN([SSL Disabled]) )
+  AC_CHECK_HEADERS([openssl/ssl.h getopt.h])
+
+  if test "$ac_cv_header_openssl_ssl_h" = "yes" \
+         -a "$ac_cv_lib_ssl_SSL_version" = "yes" \
+         -a "$ac_cv_lib_crypto_main" = "yes"; then
+    CFLAGS="${CFLAGS} -DHAVE_SSL"
+    LDFLAGS="${LDFLAGS}"
+  fi
 fi
 
 # Checks for typedefs, structures, and compiler characteristics.
