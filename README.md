@@ -5,6 +5,7 @@ httperf is a tool for measuring web server performance. It provides a flexible f
 
 The focus of httperf is not on implementing one particular benchmark but on providing a robust, high-performance tool that facilitates the construction of both micro- and macro-level benchmarks. The three distinguishing characteristics of httperf are its robustness, which includes the ability to generate and sustain server overload, support for the HTTP/1.1 and SSL protocols, and its extensibility to new workload generators and performance measurements.
 
+[![Build Status](https://travis-ci.org/cheako/httperf.svg)](https://travis-ci.org/cheako/httperf)
 
 ## Building httperf
 
