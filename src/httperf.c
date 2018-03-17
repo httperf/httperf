@@ -680,6 +680,10 @@ main(int argc, char **argv)
 #endif
                             else if (strcasecmp (optarg, "TLSv1") == 0)
                                 param.ssl_protocol = 4;
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
+                            else if (strcasecmp (optarg, "TLSv1_3") == 0)
+                                param.ssl_protocol = 5;
+#endif
                             else
                             {
                                 fprintf (stderr, "%s: illegal SSL protocol %s\n",
@@ -1003,23 +1007,60 @@ main(int argc, char **argv)
 
                 SSL_library_init ();
 		SSL_load_error_strings ();
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
+                OpenSSL_add_all_algorithms ();
+#else
                 SSLeay_add_all_algorithms ();
+#endif
 		SSLeay_add_ssl_algorithms ();
 
 		switch (param.ssl_protocol)
                 {
-                    /* 0/auto for SSLv23 */
-                    case 0: ssl_ctx = SSL_CTX_new (SSLv23_client_method ()); break;
+                    /* 0/auto for highest available */
+                    case 0: 
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
+                    ssl_ctx = SSL_CTX_new (TLS_client_method ()); break;
+#else
+                    ssl_ctx = SSL_CTX_new (SSLv23_client_method ()); break;
+#endif
+
 #ifndef OPENSSL_NO_SSL2
                     /* 2/SSLv2 */
-                    case 2: ssl_ctx = SSL_CTX_new (SSLv2_client_method ()); break;
+                    case 2: 
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
+                    ssl_ctx = SSL_CTX_new (TLS_client_method ());
+                    SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2 | SSL_OP_NO_TLSv1_3);
+break;
+#else
+                    ssl_ctx = SSL_CTX_new (SSLv2_client_method ()); break;
 #endif
+#endif
+
 #ifndef OPENSSL_NO_SSL3
                     /* 3/SSLv3 */
-                    case 3: ssl_ctx = SSL_CTX_new (SSLv3_client_method ()); break;
+                    case 3: 
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
+                    ssl_ctx = SSL_CTX_new (TLS_client_method ());
+                    SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2 | SSL_OP_NO_TLSv1_3);
+break;
+#else
+                    ssl_ctx = SSL_CTX_new (SSLv3_client_method ()); break;
+#endif
 #endif
                     /* 4/TLSv1 */
-                    case 4: ssl_ctx = SSL_CTX_new (TLSv1_client_method ()); break;
+                    case 4: 
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
+                    ssl_ctx = SSL_CTX_new (TLS_client_method ()); 
+                    SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3); break;
+#else
+                    ssl_ctx = SSL_CTX_new (TLSv1_client_method ()); break;
+#endif
+
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
+                    /* 5/TLSv1_3 */
+                    case 5: ssl_ctx = SSL_CTX_new (TLS_client_method ()); 
+                    SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2); break;
+#endif
                 }
       
 		if (!ssl_ctx) {
@@ -1232,6 +1273,9 @@ main(int argc, char **argv)
             case 3: printf (" --ssl-protocol=SSLv3"); break;
 #endif
             case 4: printf (" --ssl-protocol=TLSv1"); break;
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
+            case 5: printf (" --ssl-protocol=TLSv1_3"); break;
+#endif
         }
 #endif
 	if (param.additional_header)
