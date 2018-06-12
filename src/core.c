@@ -1400,7 +1400,7 @@ core_loop(void)
 void
 core_loop(void)
 {
-	int n, nfds;
+	int n;
 	struct epoll_event e;
 	struct epoll_event es[1];
 	Conn      *conn;
@@ -1409,8 +1409,8 @@ core_loop(void)
 	while (running) {
 		++iteration;
 
-		nfds = epoll_wait(epollfd, events, 1, 1);
-		if (nfds < 0) {
+		n = epoll_wait(epollfd, es, 1, 1);
+		if (n < 0) {
 			fprintf(stderr, "%s.core_loop: epoll_wait failed: %s\n",
 				prog_name, strerror(errno));
 			exit(EXIT_FAILURE);
