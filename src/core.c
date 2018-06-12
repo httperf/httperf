@@ -1417,14 +1417,15 @@ core_loop(void)
 			exit(EXIT_FAILURE);
 		}
 
-		timer_tick();
 		for (i = 0; i < n; i++) {
 			e = es[i];
+			conn = e.data.ptr;
+			conn_inc_ref(conn);
+
+			timer_tick();
 			if (e.events & EPOLLRDHUP) {
 				conn_failure(conn, ECONNRESET);
 			} else if (e.events & EPOLLIN || e.events & EPOLLOUT) {
-				conn = e.data.ptr;
-				conn_inc_ref(conn);
 
 				if (conn->watchdog) {
 					timer_cancel(conn->watchdog);
