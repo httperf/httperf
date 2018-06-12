@@ -109,6 +109,7 @@ static int      max_sd = 0;
 #ifdef HAVE_KEVENT
 static int	kq = 0;
 #else
+#define MAX_EVENTS 32
 static int	epollfd = 0;
 #endif
 static struct sockaddr_in myaddr;
@@ -1400,16 +1401,16 @@ core_loop(void)
 void
 core_loop(void)
 {
-	int n;
+	int i, n;
 	struct epoll_event e;
-	struct epoll_event es[1];
+	struct epoll_event es[MAX_EVENTS];
 	Conn      *conn;
 	Any_Type   arg;
 
 	while (running) {
 		++iteration;
 
-		n = epoll_wait(epollfd, es, 1, 0);
+		n = epoll_wait(epollfd, es, MAX_EVENTS, 0);
 		if (n < 0) {
 			fprintf(stderr, "%s.core_loop: epoll_wait failed: %s\n",
 				prog_name, strerror(errno));
@@ -1417,43 +1418,44 @@ core_loop(void)
 		} else if (n == 0) {
 			timer_tick();
 		} else {
-			e = es[0];
-			if (e.events & EPOLLRDHUP) {
-				conn_failure(conn, ECONNRESET);
-			} else if (e.events & EPOLLIN || e.events & EPOLLOUT) {
-				conn = e.data.ptr;
-				conn_inc_ref(conn);
+			for (i = 0; i < n; i++) {
+				e = es[i];
+				if (e.events & EPOLLRDHUP) {
+					conn_failure(conn, ECONNRESET);
+				} else if (e.events & EPOLLIN || e.events & EPOLLOUT) {
+					conn = e.data.ptr;
+					conn_inc_ref(conn);
 
-				if (conn->watchdog) {
-					timer_cancel(conn->watchdog);
-					conn->watchdog = 0;
-				}
-				if (conn->state == S_CONNECTING) {
-#ifdef HAVE_SSL
-					if (param.use_ssl)
-						core_ssl_connect(conn);
-					else
-#endif
-					if (e.events & EPOLLOUT) {
-						clear_active(conn, WRITE);
-						conn->state = S_CONNECTED;
-						arg.l = 0;
-						event_signal(EV_CONN_CONNECTED, (Object*)conn, arg);
+					if (conn->watchdog) {
+						timer_cancel(conn->watchdog);
+						conn->watchdog = 0;
 					}
+					if (conn->state == S_CONNECTING) {
+#ifdef HAVE_SSL
+						if (param.use_ssl)
+							core_ssl_connect(conn);
+						else
+#endif
+						if (e.events & EPOLLOUT) {
+							clear_active(conn, WRITE);
+							conn->state = S_CONNECTED;
+							arg.l = 0;
+							event_signal(EV_CONN_CONNECTED, (Object*)conn, arg);
+						}
+					} else {
+						if ((e.events & EPOLLOUT) && conn->sendq)
+							do_send(conn);
+						if ((e.events & EPOLLIN) && conn->recvq)
+							do_recv(conn);
+					}
+
+					conn_dec_ref(conn);
 				} else {
-					if ((e.events & EPOLLOUT) && conn->sendq)
-						do_send(conn);
-					if ((e.events & EPOLLIN) && conn->recvq)
-						do_recv(conn);
+					fprintf(stderr,
+						"%s.core_loop: unexpected events: %d\n",
+						prog_name, e.events);
 				}
-
-				conn_dec_ref(conn);
-			} else {
-				fprintf(stderr,
-					"%s.core_loop: unexpected events: %d\n",
-					prog_name, e.events);
 			}
-
 		}
 	}
 
