@@ -91,7 +91,7 @@ object_destroy (Object *obj)
       break;
 
     default:
-      assert (0);
+      panic ("object_destroy: bad object type %d\n", type);
       break;
     }
   arg.l = 0;
