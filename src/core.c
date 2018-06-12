@@ -671,8 +671,8 @@ do_recv(Conn * s)
 	}
 	while (buf_len > 0);
 
-	if (!s->recvq)
-		clear_active(c->conn, READ);
+	if (s->recvq)
+		set_active(c->conn, READ);
 }
 
 struct sockaddr_in *
@@ -1404,8 +1404,6 @@ core_loop(void)
 	struct epoll_event e;
 	struct epoll_event es[1];
 	Conn      *conn;
-
-	int        is_readable, is_writable, n, nfds, sd, bit, min_i, max_i, i = 0;
 	Any_Type   arg;
 
 	while (running) {
