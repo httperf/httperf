@@ -50,6 +50,7 @@
 #include <sys/time.h>
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
+#include <sys/epoll.h>
 #endif
 #ifdef HAVE_KEVENT
 #include <sys/event.h>
@@ -104,18 +105,15 @@ struct address_pool {
 static volatile int      running = 1;
 static int      iteration;
 static u_long   max_burst_len;
+static int      max_sd = 0;
 #ifdef HAVE_KEVENT
-static int	kq, max_sd = 0;
+static int	kq = 0;
 #else
-static fd_set   rdfds, wrfds;
-static int      min_sd = 0x7fffffff, max_sd = 0, alloced_sd_to_conn = 0;
-static struct timeval select_timeout;
+#define MAX_EVENTS 32
+static int	epollfd = 0;
 #endif
 static struct sockaddr_in myaddr;
 static struct address_pool myaddrs;
-#ifndef HAVE_KEVENT
-Conn          **sd_to_conn;
-#endif
 static char     http10req[] =
     " HTTP/1.0\r\nUser-Agent: httperf/" VERSION
     "\r\nConnection: keep-alive\r\nHost: ";
@@ -150,13 +148,13 @@ static char     http11req_nohost[] =
 
 enum Syscalls {
 	SC_BIND, SC_CONNECT, SC_READ, SC_SELECT, SC_SOCKET, SC_WRITEV,
-	SC_SSL_READ, SC_SSL_WRITEV, SC_KEVENT,
+	SC_SSL_READ, SC_SSL_WRITEV, SC_KEVENT, SC_EPOLL_WAIT,
 	SC_NUM_SYSCALLS
 };
 
 static const char *const syscall_name[SC_NUM_SYSCALLS] = {
 	"bind", "connct", "read", "select", "socket", "writev",
-	"ssl_read", "ssl_writev", "kevent"
+	"ssl_read", "ssl_writev", "kevent", "epoll_wait"
 };
 static Time     syscall_time[SC_NUM_SYSCALLS];
 static u_int    syscall_count[SC_NUM_SYSCALLS];
@@ -373,14 +371,6 @@ clear_active(Conn * s, enum IO_DIR dir)
 		    "write" : "read");
 		exit(1);
 	}
-#else
-	fd_set *	fdset;
-	
-	if (dir == WRITE)
-		fdset = &wrfds;
-	else
-		fdset = &rdfds;
-	FD_CLR(sd, fdset);
 #endif
 	if (dir == WRITE)
 		s->writing = 0;
@@ -404,16 +394,6 @@ set_active(Conn * s, enum IO_DIR dir)
 		    "write" : "read");
 		exit(1);
 	}
-#else
-	fd_set *	fdset;
-	
-	if (dir == WRITE)
-		fdset = &wrfds;
-	else
-		fdset = &rdfds;
-	FD_SET(sd, fdset);
-	if (sd < min_sd)
-		min_sd = sd;
 #endif
 	if (sd >= max_sd)
 		max_sd = sd;
@@ -883,8 +863,13 @@ core_init(void)
 
 	memset(&hash_table, 0, sizeof(hash_table));
 #ifndef HAVE_KEVENT
-	memset(&rdfds, 0, sizeof(rdfds));
-	memset(&wrfds, 0, sizeof(wrfds));
+	epollfd = epoll_create1(0);
+	if (epollfd == -1) {
+		fprintf(stderr,
+			"%s: failed to create epoll queue: %s",
+			prog_name, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 #endif
 	memset(&myaddr, 0, sizeof(myaddr));
 #ifdef __FreeBSD__
@@ -921,24 +906,6 @@ core_init(void)
 		    "%s: failed to add timer event: %s", prog_name,
 		    strerror(errno));
 	}	
-#else
-#ifdef DONT_POLL
-	/*
-	 * This causes select() to take several milliseconds on both Linux/x86 
-	 * and HP-UX 10.20.  
-	 */
-	select_timeout.tv_sec = (u_long) TIMER_INTERVAL;
-	select_timeout.tv_usec = (u_long) (TIMER_INTERVAL * 1e6);
-#else
-	/*
-	 * This causes httperf to become a CPU hog as it polls for
-	 * filedescriptors to become readable/writable.  This is OK as long as 
-	 * httperf is the only (interesting) user-level process that executes
-	 * on a machine.  
-	 */
-	select_timeout.tv_sec = 0;
-	select_timeout.tv_usec = 0;
-#endif
 #endif
 
 	/*
@@ -1120,29 +1087,6 @@ core_connect(Conn * s)
 	}
 
 	s->sd = sd;
-#ifndef HAVE_KEVENT
-	if (sd >= alloced_sd_to_conn) {
-		size_t          size, old_size;
-
-		old_size = alloced_sd_to_conn * sizeof(sd_to_conn[0]);
-		alloced_sd_to_conn += 2048;
-		size = alloced_sd_to_conn * sizeof(sd_to_conn[0]);
-		if (sd_to_conn)
-			sd_to_conn = realloc(sd_to_conn, size);
-		else
-			sd_to_conn = malloc(size);
-		if (!sd_to_conn) {
-			if (DBG > 0)
-				fprintf(stderr,
-					"%s.core_connect.realloc: %s\n",
-					prog_name, strerror(errno));
-			goto failure;
-		}
-		memset((char *) sd_to_conn + old_size, 0, size - old_size);
-	}
-	assert(!sd_to_conn[sd]);
-	sd_to_conn[sd] = s;
-#endif
 
 	sin = hash_lookup(s->hostname, s->hostname_len, s->port);
 	if (!sin) {
@@ -1192,30 +1136,44 @@ core_connect(Conn * s)
 
 	SYSCALL(CONNECT,
 		result = connect(sd, (struct sockaddr *) sin, sizeof(*sin)));
-	if (result == 0) {
-#ifdef HAVE_SSL
-		if (param.use_ssl)
-			core_ssl_connect(s);
-		else
-#endif
-		{
-			s->state = S_CONNECTED;
-			arg.l = 0;
-			event_signal(EV_CONN_CONNECTED, (Object *) s, arg);
+
+	if (result == 0 || errno == EINPROGRESS) {
+		struct epoll_event epev;
+
+		epev.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP;
+		epev.data.fd = sd;
+		epev.data.ptr = s;
+		if (epoll_ctl(epollfd, EPOLL_CTL_ADD, sd, &epev) == -1) {
+			perror("epoll_ctl: ADD");
+			exit(EXIT_FAILURE);
 		}
-	} else if (errno == EINPROGRESS) {
-		/*
-		 * The socket becomes writable only after the connection has
-		 * been established.  Hence we wait for writability to detect
-		 * connection establishment.  
-		 */
-		s->state = S_CONNECTING;
-		set_active(s, WRITE);
-		if (param.timeout > 0.0) {
-			arg.vp = s;
-			assert(!s->watchdog);
-			s->watchdog =
-			    timer_schedule(conn_timeout, arg, param.timeout);
+
+		if (result == 0) {
+#ifdef HAVE_SSL
+			if (param.use_ssl)
+				core_ssl_connect(s);
+			else
+#endif
+			{
+				s->state = S_CONNECTED;
+				arg.l = 0;
+				event_signal(EV_CONN_CONNECTED, (Object *) s, arg);
+			}
+		} else {
+			/*
+			 * The socket becomes writable only after the connection has
+			 * been established.  Hence we wait for writability to detect
+			 * connection establishment.  
+			 */
+			s->state = S_CONNECTING;
+
+			set_active(s, WRITE);
+			if (param.timeout > 0.0) {
+				arg.vp = s;
+				assert(!s->watchdog);
+				s->watchdog =
+					timer_schedule(conn_timeout, arg, param.timeout);
+			}
 		}
 	} else {
 		len = sizeof(async_errno);
@@ -1369,11 +1327,6 @@ core_close(Conn * conn)
 
 	if (sd >= 0) {
 		close(sd);
-#ifndef HAVE_KEVENT
-		sd_to_conn[sd] = 0;
-		FD_CLR(sd, &wrfds);
-		FD_CLR(sd, &rdfds);
-#endif
 		conn->reading = 0;
 		conn->writing = 0;
 	}
@@ -1448,97 +1401,66 @@ core_loop(void)
 void
 core_loop(void)
 {
-	int        is_readable, is_writable, n, sd, bit, min_i, max_i, i = 0;
-	fd_set     readable, writable;
-	fd_mask    mask;
-	Any_Type   arg;
+	int i, n;
+	struct epoll_event e;
+	struct epoll_event es[MAX_EVENTS];
 	Conn      *conn;
- 
+	Any_Type   arg;
+
 	while (running) {
-	    struct timeval  tv = select_timeout;
+		++iteration;
 
-	    timer_tick();
+		n = epoll_wait(epollfd, es, MAX_EVENTS, 0);
+		if (n < 0) {
+			fprintf(stderr, "%s.core_loop: epoll_wait failed: %s\n",
+				prog_name, strerror(errno));
+			exit(EXIT_FAILURE);
+		}
 
-	    readable = rdfds;
-	    writable = wrfds;
-	    min_i = min_sd / NFDBITS;
-	    max_i = max_sd / NFDBITS;
+		for (i = 0; i < n; i++) {
+			e = es[i];
+			conn = e.data.ptr;
+			conn_inc_ref(conn);
 
-	    SYSCALL(SELECT,	n = select(max_sd + 1, &readable, &writable, 0, &tv));
+			timer_tick();
+			if (e.events & EPOLLRDHUP) {
+				conn_failure(conn, ECONNRESET);
+			} else if (e.events & EPOLLIN || e.events & EPOLLOUT) {
 
-	    ++iteration;
-
-	    if (n <= 0) {
-	        if (n < 0) {
-	            fprintf(stderr, "%s.core_loop: select failed: %s\n", prog_name, strerror(errno));
-	            exit(1);
-	        }
-	        continue;
-	    }
-
-	    while (n > 0) {
-	        /*
-	         * find the index of the fdmask that has something
-	         * going on: 
-	         */
-	        do {
-	            ++i;
-	            if (i > max_i)
-	                i = min_i;
-
-	            assert(i <= max_i);
-	            mask = readable.fds_bits[i] | writable.fds_bits[i];
-	        } while (!mask);
-	        bit = 0;
-	        sd = i * NFDBITS + bit;
-	        do {
-	            if (mask & 1) {
-	                --n;
-	                is_readable = (FD_ISSET(sd, &readable) && FD_ISSET(sd, &rdfds));
-	                is_writable = (FD_ISSET(sd, &writable) && FD_ISSET(sd, &wrfds));
-	                
-	                if (is_readable || is_writable) {
-	                    /*
-	                     * only handle sockets that
-	                     * haven't timed out yet
-	                     */
-	                    conn = sd_to_conn[sd];
-	                    conn_inc_ref(conn);
-
-	                    if (conn->watchdog) {
-	                        timer_cancel(conn->watchdog);
-	                        conn->watchdog = 0;
-	                    }
-	                    if (conn->state == S_CONNECTING) {
+				if (conn->watchdog) {
+					timer_cancel(conn->watchdog);
+					conn->watchdog = 0;
+				}
+				if (conn->state == S_CONNECTING) {
 #ifdef HAVE_SSL
-	                        if (param.use_ssl)
-	                             core_ssl_connect(conn);
-	                        else
+					if (param.use_ssl)
+						core_ssl_connect(conn);
+					else
 #endif
-	                        if (is_writable) {
-				    clear_active(conn, WRITE);
-	                            conn->state = S_CONNECTED;
-	                            arg.l = 0;
-	                            event_signal(EV_CONN_CONNECTED, (Object*)conn, arg);
-	                        }
-	                    } else {
-	                        if (is_writable && conn->sendq)
-	                            do_send(conn);
-	                        if (is_readable && conn->recvq)
-	                            do_recv(conn);
-	                    }
-	                    
-	                    conn_dec_ref(conn);
-	                    
-	                    if (n > 0)
-	                         timer_tick();
-	                }
-	            }
-	            mask = ((u_long) mask) >> 1;
-	            ++sd;
-	        } while (mask);
-	    }
+					if (e.events & EPOLLOUT) {
+						clear_active(conn, WRITE);
+						conn->state = S_CONNECTED;
+						arg.l = 0;
+						event_signal(EV_CONN_CONNECTED,
+							(Object*)conn, arg);
+					}
+				} else {
+					if ((e.events & EPOLLOUT) && conn->sendq)
+						do_send(conn);
+					if ((e.events & EPOLLIN) && conn->recvq)
+						do_recv(conn);
+				}
+
+				conn_dec_ref(conn);
+			} else {
+				fprintf(stderr,
+					"%s.core_loop: unexpected events: %d\n",
+					prog_name, e.events);
+			}
+		}
 	}
+
+	close(epollfd);
 }
 #endif
 
