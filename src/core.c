@@ -1409,12 +1409,13 @@ core_loop(void)
 	while (running) {
 		++iteration;
 
-		n = epoll_wait(epollfd, es, 1, 1);
+		n = epoll_wait(epollfd, es, 1, 0);
 		if (n < 0) {
 			fprintf(stderr, "%s.core_loop: epoll_wait failed: %s\n",
 				prog_name, strerror(errno));
 			exit(EXIT_FAILURE);
 		} else if (n == 0) {
+			fprintf(stderr, "%s.core_loop: timer tick\n", prog_name);
 			timer_tick();
 		} else {
 			e = es[0];
