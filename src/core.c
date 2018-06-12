@@ -1415,7 +1415,6 @@ core_loop(void)
 				prog_name, strerror(errno));
 			exit(EXIT_FAILURE);
 		} else if (n == 0) {
-			fprintf(stderr, "%s.core_loop: timer tick\n", prog_name);
 			timer_tick();
 		} else {
 			e = es[0];
