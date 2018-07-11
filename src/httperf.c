@@ -1030,8 +1030,11 @@ main(int argc, char **argv)
                     case 2: 
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
                     ssl_ctx = SSL_CTX_new (TLS_client_method ());
-                    SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2);
-break;
+#if (OPENSSL_VERSION_NUMBER >= 0x10101000L)
+                    SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2 | SSL_OP_NO_TLSv1_3); break;
+#else
+		    SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 | SSL_OP_NO_TLSv1_2); break;
+#endif
 #else
                     ssl_ctx = SSL_CTX_new (SSLv2_client_method ()); break;
 #endif
