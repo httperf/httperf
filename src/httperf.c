@@ -1088,6 +1088,14 @@ main(int argc, char **argv)
 		    SSL_CTX_set_options(ssl_ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1); break;
 #endif
 
+#if (OPENSSL_VERSION_NUMBER >= 0x10101000L)
+                    /* 7/TLSv1.3 */
+                    ssl_ctx = SSL_CTX_new (TLS_client_method ());
+                    SSL_CTX_set_min_proto_version(ssl_ctx, TLS1_3_VERSION);
+		    SSL_CTX_set_max_proto_version(ssl_ctx, TLS1_3_VERSION);
+		    break;
+#endif
+
                 }
       
 		if (!ssl_ctx) {
