@@ -1007,12 +1007,9 @@ main(int argc, char **argv)
 
                 SSL_library_init ();
 		SSL_load_error_strings ();
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
-                OpenSSL_add_all_algorithms ();
-#else
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L)
                 SSLeay_add_all_algorithms ();
 #endif
-		SSLeay_add_ssl_algorithms ();
 
 		switch (param.ssl_protocol)
                 {
