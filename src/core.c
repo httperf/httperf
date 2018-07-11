@@ -1039,9 +1039,9 @@ core_ssl_connect(Conn * s)
 				"suites!\n");
 		else
 			fprintf(stderr,
-				"core_ssl_connect: cipher=%s, valid=%d, id=%lu\n",
-				ssl_cipher->name, ssl_cipher->valid,
-				ssl_cipher->id);
+				"core_ssl_connect: cipher=%s, id=%lu\n",
+				SSL_CIPHER_get_name(ssl_cipher),
+				SSL_CIPHER_get_id(ssl_cipher));
 	}
 
 	arg.l = 0;

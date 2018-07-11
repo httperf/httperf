@@ -146,13 +146,13 @@ struct Sess_Private_Data
 /* Methods allowed for a request: */
 enum
   {
-    HM_DELETE, HM_GET, HM_HEAD, HM_OPTIONS, HM_POST, HM_PUT, HM_TRACE,
+    HM_DELETE, HM_GET, HM_HEAD, HM_OPTIONS, HM_POST, HM_PUT, HM_PROPFIND, HM_REPORT, HM_TRACE,
     HM_LEN
   };
 
 static const char *call_method_name[] =
   {
-    "DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"
+    "DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "PROPFIND", "REPORT", "TRACE"
   };
 
 static size_t sess_private_data_offset;
