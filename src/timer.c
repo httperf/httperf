@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <string.h>
 
 #include <generic_types.h>
 #include <list.h>
