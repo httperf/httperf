@@ -678,8 +678,16 @@ main(int argc, char **argv)
                             else if (strcasecmp (optarg, "SSLv3") == 0)
                                 param.ssl_protocol = 3;
 #endif
-                            else if (strcasecmp (optarg, "TLSv1") == 0)
+                            else if (strcasecmp (optarg, "TLSv1.0") == 0 || strcasecmp (optarg, "TLSv1_0") == 0 || strcasecmp (optarg, "TLSv1") == 0)
                                 param.ssl_protocol = 4;
+			    else if (strcasecmp (optarg, "TLSv1.1") == 0 || strcasecmp (optarg, "TLSv1_1") == 0)
+                                param.ssl_protocol = 5;
+			    else if (strcasecmp (optarg, "TLSv1.2") == 0 || strcasecmp (optarg, "TLSv1_2") == 0)
+                                param.ssl_protocol = 6;
+#if (OPENSSL_VERSION_NUMBER >= 0x10101000L)
+                            else if (strcasecmp (optarg, "TLSv1.3") == 0 || strcasecmp (optarg, "TLSv1_3") == 0)
+                                param.ssl_protocol = 7;
+#endif
                             else
                             {
                                 fprintf (stderr, "%s: illegal SSL protocol %s\n",
@@ -1260,7 +1268,12 @@ break;
 #ifndef OPENSSL_NO_SSL3
             case 3: printf (" --ssl-protocol=SSLv3"); break;
 #endif
-            case 4: printf (" --ssl-protocol=TLSv1"); break;
+            case 4: printf (" --ssl-protocol=TLSv1.0"); break;
+	    case 5: printf (" --ssl-protocol=TLSv1.1"); break;
+	    case 6: printf (" --ssl-protocol=TLSv1.2"); break;
+#if (OPENSSL_VERSION_NUMBER >= 0x10101000L)
+            case 7: printf (" --ssl-protocol=TLSv1.3"); break;
+#endif
         }
 #endif
 	if (param.additional_header)
