@@ -112,6 +112,7 @@ conn_init(Conn *conn)
 	conn->sd = -1;
 	conn->myport = -1;
 	conn->line.iov_base = conn->line_buf;
+	conn->fqdname_len = strcspn(conn->fqdname,"\r\n"); // Chomp since used in Host header record
 
 #ifdef HAVE_SSL
 	if (param.use_ssl) {
