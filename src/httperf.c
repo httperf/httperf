@@ -668,6 +668,8 @@ main(int argc, char **argv)
                                 param.ssl_ca_path = optarg;
                         else if (flag == &param.ssl_protocol)
                         {
+			    param.use_ssl = 1;
+
                             if (strcasecmp (optarg, "auto") == 0)
                                 param.ssl_protocol = 0;
 #ifndef OPENSSL_NO_SSL2
