@@ -1092,6 +1092,7 @@ main(int argc, char **argv)
 
 #if (OPENSSL_VERSION_NUMBER >= 0x10101000L)
                     /* 7/TLSv1.3 */
+		    case 7:
                     ssl_ctx = SSL_CTX_new (TLS_client_method ());
                     SSL_CTX_set_min_proto_version(ssl_ctx, TLS1_3_VERSION);
 		    SSL_CTX_set_max_proto_version(ssl_ctx, TLS1_3_VERSION);
