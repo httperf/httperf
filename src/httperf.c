@@ -144,6 +144,7 @@ static struct option longopts[] = {
 #ifdef HAVE_SSL
 	{"ssl", no_argument, &param.use_ssl, 1},
 	{"ssl-ciphers", required_argument, (int *) &param.ssl_cipher_list, 0},
+	{"tls-server-name", required_argument, (int *) &param.tls_server_name, 0},
 	{"ssl-no-reuse", no_argument, &param.ssl_reuse, 0},
         {"ssl-certificate", required_argument, (int *) &param.ssl_cert,     0},
         {"ssl-key",      required_argument, (int *) &param.ssl_key,         0},
@@ -697,6 +698,19 @@ main(int argc, char **argv)
                                 exit (1);
                             }
                         }
+						else if (flag == &param.tls_server_name)
+						{
+							if (param.ssl_protocol >= 4)
+							{
+								param.tls_server_name = optarg;
+							}
+							else
+                            {
+                                fprintf (stderr, "%s: Error setting the SNI (Server Name Indication) server name to %s. The --tls-server-name option can only be used if --ssl-protocol-version is set to TLSv1.0 and above.\n",
+                                        prog_name, optarg);
+                                exit (1);
+                            }
+						}
 #endif
 			else if (flag == &param.uri)
 				param.uri = optarg;
@@ -1294,6 +1308,8 @@ main(int argc, char **argv)
 		printf(" --ssl");
 	if (param.ssl_cipher_list)
 		printf(" --ssl-ciphers=%s", param.ssl_cipher_list);
+	if (param.tls_server_name)
+		printf(" --tls-server-name=%s", param.tls_server_name);
 	if (!param.ssl_reuse)
 		printf(" --ssl-no-reuse");
         if (param.ssl_cert) printf (" --ssl-cert=%s", param.ssl_cert);
