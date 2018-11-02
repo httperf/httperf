@@ -121,6 +121,7 @@ typedef struct Cmdline_Params
     int ssl_reuse;	/* reuse SSL Session ID */
     int ssl_verify;     /* whether to verify the server certificate */
     int ssl_protocol;   /* which SSL protocol to use */
+    const char *tls_server_name; /* TLS SNI (server name indication) */
     const char *ssl_cipher_list; /* client's list of SSL cipher suites */
     const char *ssl_cert; /* client certificate file name */
     const char *ssl_key; /* client key file name */

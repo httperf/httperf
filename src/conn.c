@@ -122,6 +122,11 @@ conn_init(Conn *conn)
 			exit(-1);
 		}
 
+		if (param.tls_server_name)
+		{
+			SSL_set_tlsext_host_name(conn->ssl, param.tls_server_name);
+		}
+		
 		if (param.ssl_cipher_list) {
 			/* set order of ciphers */
 			int ssl_err = SSL_set_cipher_list(conn->ssl, param.ssl_cipher_list);
