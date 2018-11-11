@@ -122,7 +122,7 @@ A list of all available options can be obtained by specifying the
 --help option (all option names can be abbreviated as long as they
 remain unambiguous).
 
-A more realistic test case might be to issue 1000 HTTP requests at a
+A more realistic test case might be to issue 100 HTTP requests at a
 rate of 10 requests per second.  This can be achieved by additionally
 specifying the --num-conns and --rate options.  When specifying the
 --rate option, it's generally a good idea to also specify a timeout
