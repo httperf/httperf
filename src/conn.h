@@ -109,6 +109,9 @@ typedef struct Conn
 #ifdef HAVE_SSL
     SSL *ssl;			/* SSL connection info */
 #endif
+#ifdef HAVE_EPOLL
+    int epoll_added;	/* is fd added into epoll? */
+#endif
   }
 Conn;
 

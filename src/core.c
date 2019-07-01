@@ -51,6 +51,10 @@
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
+#ifdef HAVE_EPOLL
+#include <sys/epoll.h>
+#endif
+
 #ifdef HAVE_KEVENT
 #include <sys/event.h>
 
@@ -107,9 +111,16 @@ static u_long   max_burst_len;
 #ifdef HAVE_KEVENT
 static int	kq, max_sd = 0;
 #else
+#ifdef HAVE_EPOLL
+#define	EPOLL_N_MAX		8192
+static int epoll_fd, max_sd = 0;
+static struct epoll_event *epoll_events;
+static int epoll_timeout;
+#else
 static fd_set   rdfds, wrfds;
 static int      min_sd = 0x7fffffff, max_sd = 0, alloced_sd_to_conn = 0;
 static struct timeval select_timeout;
+#endif
 #endif
 static struct sockaddr_in myaddr;
 static struct address_pool myaddrs;
@@ -151,12 +162,14 @@ static char     http11req_nohost[] =
 enum Syscalls {
 	SC_BIND, SC_CONNECT, SC_READ, SC_SELECT, SC_SOCKET, SC_WRITEV,
 	SC_SSL_READ, SC_SSL_WRITEV, SC_KEVENT,
+	SC_EPOLL_CREATE, SC_EPOLL_CTL, SC_EPOLL_WAIT,
 	SC_NUM_SYSCALLS
 };
 
 static const char *const syscall_name[SC_NUM_SYSCALLS] = {
 	"bind", "connct", "read", "select", "socket", "writev",
-	"ssl_read", "ssl_writev", "kevent"
+	"ssl_read", "ssl_writev", "kevent",
+	"epoll_create", "epoll_ctl", "epoll_wait"
 };
 static Time     syscall_time[SC_NUM_SYSCALLS];
 static u_int    syscall_count[SC_NUM_SYSCALLS];
@@ -374,6 +387,23 @@ clear_active(Conn * s, enum IO_DIR dir)
 		exit(1);
 	}
 #else
+#ifdef HAVE_EPOLL
+	struct epoll_event ev;
+	int error;
+
+	if (dir == WRITE)
+		ev.events = EPOLLIN;
+	else
+		ev.events = EPOLLOUT;
+	ev.data.ptr = s;
+
+	error = epoll_ctl(epoll_fd, EPOLL_CTL_MOD, sd, &ev);
+	if (error < 0) {
+		error = errno;
+		fprintf(stderr, "failed to EPOLL_CTL_DEL\n");
+		exit(1);
+	}
+#else
 	fd_set *	fdset;
 	
 	if (dir == WRITE)
@@ -381,6 +411,7 @@ clear_active(Conn * s, enum IO_DIR dir)
 	else
 		fdset = &rdfds;
 	FD_CLR(sd, fdset);
+#endif
 #endif
 	if (dir == WRITE)
 		s->writing = 0;
@@ -405,6 +436,28 @@ set_active(Conn * s, enum IO_DIR dir)
 		exit(1);
 	}
 #else
+#ifdef HAVE_EPOLL
+	struct epoll_event ev;
+	int error;
+
+	if (dir == WRITE)
+		ev.events = EPOLLOUT;
+	else
+		ev.events = EPOLLIN;
+	ev.data.ptr = s;
+
+	if (s->epoll_added)
+		error = epoll_ctl(epoll_fd, EPOLL_CTL_MOD, sd, &ev);
+	else {
+		error = epoll_ctl(epoll_fd, EPOLL_CTL_ADD, sd, &ev);
+		s->epoll_added = 1;
+	}
+	if (error < 0) {
+		error = errno;
+		fprintf(stderr, "failed to EPOLL_CTL_MOD\n");
+		exit(1);
+	}
+#else
 	fd_set *	fdset;
 	
 	if (dir == WRITE)
@@ -414,6 +467,7 @@ set_active(Conn * s, enum IO_DIR dir)
 	FD_SET(sd, fdset);
 	if (sd < min_sd)
 		min_sd = sd;
+#endif
 #endif
 	if (sd >= max_sd)
 		max_sd = sd;
@@ -882,7 +936,7 @@ core_init(void)
 	Any_Type        arg;
 
 	memset(&hash_table, 0, sizeof(hash_table));
-#ifndef HAVE_KEVENT
+#if !defined(HAVE_KEVENT) && !defined(HAVE_EPOLL)
 	memset(&rdfds, 0, sizeof(rdfds));
 	memset(&wrfds, 0, sizeof(wrfds));
 #endif
@@ -922,6 +976,23 @@ core_init(void)
 		    strerror(errno));
 	}	
 #else
+#ifdef HAVE_EPOLL
+	epoll_fd = epoll_create(EPOLL_N_MAX);
+	if (epoll_fd < 0) {
+		fprintf(stderr,
+		    "%s: failed to create epoll: %s", prog_name,
+		    strerror(errno));
+		exit(1);
+	}
+	epoll_events = calloc(EPOLL_N_MAX, sizeof(struct epoll_event));
+	if (epoll_events == NULL) {
+		fprintf(stderr,
+		    "%s: failed to create epoll_events: %s", prog_name,
+		    strerror(errno));
+		exit(1);
+	}
+	epoll_timeout = 0;
+#else
 #ifdef DONT_POLL
 	/*
 	 * This causes select() to take several milliseconds on both Linux/x86 
@@ -938,6 +1009,7 @@ core_init(void)
 	 */
 	select_timeout.tv_sec = 0;
 	select_timeout.tv_usec = 0;
+#endif
 #endif
 #endif
 
@@ -1120,7 +1192,7 @@ core_connect(Conn * s)
 	}
 
 	s->sd = sd;
-#ifndef HAVE_KEVENT
+#if !defined(HAVE_KEVENT) && !defined(HAVE_EPOLL)
 	if (sd >= alloced_sd_to_conn) {
 		size_t          size, old_size;
 
@@ -1368,8 +1440,19 @@ core_close(Conn * conn)
 #endif
 
 	if (sd >= 0) {
+#ifdef HAVE_EPOLL
+		struct epoll_event ev = { 0, { 0 } };
+		int error;
+
+		error = epoll_ctl(epoll_fd, EPOLL_CTL_DEL, sd, &ev);
+		if (error < 0) {
+			error = errno;
+			printf("EPOLL_CTL_DEL: %d %d %d\n", epoll_fd, sd, error);
+			assert(error == 0);
+		}
+#endif
 		close(sd);
-#ifndef HAVE_KEVENT
+#if !defined(HAVE_KEVENT) && !defined(HAVE_EPOLL)
 		sd_to_conn[sd] = 0;
 		FD_CLR(sd, &wrfds);
 		FD_CLR(sd, &rdfds);
@@ -1443,6 +1526,58 @@ core_loop(void)
 			break;
 		}
 	}
+}
+#else
+#ifdef HAVE_EPOLL
+void
+core_loop(void)
+{
+	struct epoll_event *ep;
+	int i, n;
+	Any_Type   arg;
+	Conn      *conn;
+
+	while (running) {
+		++iteration;
+
+		timer_tick();
+		n = epoll_wait(epoll_fd, epoll_events, EPOLL_N_MAX, epoll_timeout);
+		if (n < 0 && errno == EINTR) {
+			fprintf(stderr, "failed to fetch event: %s",
+			    strerror(errno));
+			continue;
+		}
+		ep = epoll_events;
+		for (i = 0; i < n; i++, ep++) {
+			conn = ep->data.ptr;
+			conn_inc_ref(conn);
+
+			if (conn->watchdog) {
+				timer_cancel(conn->watchdog);
+				conn->watchdog = 0;
+			}
+			if (conn->state == S_CONNECTING) {
+#ifdef HAVE_SSL
+				if (param.use_ssl)
+					core_ssl_connect(conn);
+				else
+#endif
+				if (ep->events & EPOLLOUT) {
+					clear_active(conn, WRITE);
+					conn->state = S_CONNECTED;
+					arg.l = 0;
+					event_signal(EV_CONN_CONNECTED, (Object*)conn, arg);
+				}
+			} else {
+				if (ep->events & (EPOLLIN | EPOLLHUP) && conn->recvq)
+					do_recv(conn);
+				if (ep->events & EPOLLOUT && conn->sendq)
+					do_send(conn);
+			}
+			conn_dec_ref(conn);
+		}
+	}
+	close(epoll_fd);
 }
 #else
 void
@@ -1540,6 +1675,7 @@ core_loop(void)
 	    }
 	}
 }
+#endif
 #endif
 
 void
