@@ -93,4 +93,9 @@ if test "$enable_debug" = yes; then
       CFLAGS="${CFLAGS} -DDEBUG"
 fi
 
+AC_ARG_WITH(epoll, AS_HELP_STRING([--with-epoll], [use epoll if available]))
+AS_IF([test "$with_epoll" != "no"],
+	AC_CHECK_FUNC(epoll_create,
+		AC_DEFINE([HAVE_EPOLL], 1, [#undef HAVE_EPOLL])))
+
 AC_OUTPUT(Makefile man/Makefile src/stat/Makefile src/lib/Makefile src/gen/Makefile src/Makefile)
