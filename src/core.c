@@ -1446,9 +1446,11 @@ core_close(Conn * conn)
 
 		error = epoll_ctl(epoll_fd, EPOLL_CTL_DEL, sd, &ev);
 		if (error < 0) {
-			error = errno;
-			printf("EPOLL_CTL_DEL: %d %d %d\n", epoll_fd, sd, error);
-			assert(error == 0);
+			if (conn->epoll_added == 1 && error != ENOENT) {
+				error = errno;
+				printf("EPOLL_CTL_DEL: %d %d %d\n", epoll_fd, sd, error);
+				assert(error == 0);
+			}
 		}
 #endif
 		close(sd);
