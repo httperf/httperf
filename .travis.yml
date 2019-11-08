@@ -1,0 +1,19 @@
+branches:
+  except:
+  - gh-pages
+
+language: c
+
+addons:
+  apt:
+    packages:
+      - libssl-dev
+      - libtool
+
+before_script:
+  - libtoolize --force
+  - autoreconf -i
+  - automake
+
+script:
+  - ./configure && make && make check
