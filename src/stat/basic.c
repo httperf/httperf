@@ -56,7 +56,7 @@
  */
 #define MAX_LIFETIME	100.0	/* max. conn. lifetime in seconds */
 #define BIN_WIDTH	1e-3
-#define NUM_BINS	((u_int) (MAX_LIFETIME / BIN_WIDTH))
+#define NUM_BINS	100000
 
 static struct {
 	u_long           num_conns_issued;	/* total # of connections * issued */

@@ -39,7 +39,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_OPENSSL_SSL_H
+#ifdef HAVE_SSL
 
 /* AIX requires this to be the first thing in the file.  */
 #ifndef __GNUC__
@@ -106,4 +106,4 @@ SSL_writev (SSL *ssl, const struct iovec *vector, int count)
   return SSL_write (ssl, buffer, bytes);
 }
 
-#endif /* HAVE_OPENSSL_SSL_H */
+#endif /* HAVE_SSL */
