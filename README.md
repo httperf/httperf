@@ -14,11 +14,19 @@ mechanism.  The following steps can be used to build it:
 In this example, SRCDIR refers to the httperf source directory.  The
 last step may have to be executed as "root".
 
-	$ mkdir build
-	$ cd build
-	$ SRCDIR/configure
+First, some tools which are required for the build process need to be installed.
+
+	$ sudo apt install automake libtool
+
+Then, run the following steps in order to build. Note that some of these might have to be executed as "root", i.e., with sudo.
+
+	$ autoconf
+	$ libtoolize --force
+	$ autoreconf -i
+	$ automake
+	$ ./configure
 	$ make
-	$ make install
+	$ sudo make install
 
 NOTE: If building source code exported from CVS Repository rather than
 the official gzipped source tar file, the following commands must be 
