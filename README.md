@@ -5,27 +5,24 @@ httperf is a tool for measuring web server performance. It provides a flexible f
 
 The focus of httperf is not on implementing one particular benchmark but on providing a robust, high-performance tool that facilitates the construction of both micro- and macro-level benchmarks. The three distinguishing characteristics of httperf are its robustness, which includes the ability to generate and sustain server overload, support for the HTTP/1.1 and SSL protocols, and its extensibility to new workload generators and performance measurements.
 
-
 ## Building httperf
 
 This release of httperf is using the standard GNU configuration
 mechanism.  The following steps can be used to build it:
 
-In this example, SRCDIR refers to the httperf source directory.  The
-last step may have to be executed as "root".
+	# Install libtool
+	libtoolize --force
+	# Install autoconf, automake
+	aclocal
+	autoheader
+	automake --force-missing --add-missing
+	autoconf
+	./configure
+	make
 
-	$ mkdir build
-	$ cd build
-	$ SRCDIR/configure
-	$ make
-	$ make install
+This step may need to be run as root:
 
-NOTE: If building source code exported from CVS Repository rather than
-the official gzipped source tar file, the following commands must be 
-executed before the preceding ones.
-
-	$ cd SRCDIR/
-	$ autoreconf -i
+	make install
 
 Since httperf 0.9.1, the the idleconn program is no longer built by
 default.  Using the configure option --enable-idleconn will instruct
