@@ -5,7 +5,6 @@ httperf is a tool for measuring web server performance. It provides a flexible f
 
 The focus of httperf is not on implementing one particular benchmark but on providing a robust, high-performance tool that facilitates the construction of both micro- and macro-level benchmarks. The three distinguishing characteristics of httperf are its robustness, which includes the ability to generate and sustain server overload, support for the HTTP/1.1 and SSL protocols, and its extensibility to new workload generators and performance measurements.
 
-
 ## Building httperf
 
 This release of httperf is using the standard GNU configuration
@@ -28,12 +27,9 @@ Then, run the following steps in order to build. Note that some of these might h
 	$ make
 	$ sudo make install
 
-NOTE: If building source code exported from CVS Repository rather than
-the official gzipped source tar file, the following commands must be 
-executed before the preceding ones.
+This step may need to be run as root:
 
-	$ cd SRCDIR/
-	$ autoreconf -i
+	make install
 
 Since httperf 0.9.1, the the idleconn program is no longer built by
 default.  Using the configure option --enable-idleconn will instruct
