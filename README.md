@@ -10,15 +10,22 @@ The focus of httperf is not on implementing one particular benchmark but on prov
 This release of httperf is using the standard GNU configuration
 mechanism.  The following steps can be used to build it:
 
-	# Install libtool
-	libtoolize --force
-	# Install autoconf, automake
-	aclocal
-	autoheader
-	automake --force-missing --add-missing
-	autoconf
-	./configure
-	make
+In this example, SRCDIR refers to the httperf source directory.  The
+last step may have to be executed as "root".
+
+First, some tools which are required for the build process need to be installed.
+
+	$ sudo apt install automake libtool
+
+Then, run the following steps in order to build. Note that some of these might have to be executed as "root", i.e., with sudo.
+
+	$ autoconf
+	$ libtoolize --force
+	$ autoreconf -i
+	$ automake
+	$ ./configure
+	$ make
+	$ sudo make install
 
 This step may need to be run as root:
 
