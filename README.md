@@ -31,7 +31,7 @@ This step may need to be run as root:
 
 	make install
 
-Since httperf 0.9.1, the the idleconn program is no longer built by
+Since httperf 0.9.1, the idleconn program is no longer built by
 default.  Using the configure option --enable-idleconn will instruct
 the build system to compile the tool.
 
