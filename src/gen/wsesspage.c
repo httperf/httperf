@@ -369,7 +369,7 @@ call_recv_data (Event_Type et, Object *obj, Any_Type regarg, Any_Type callarg)
 		    }
 		  else
 		    {
-		      memcpy (cpriv->buf, cpriv->buf + 1, 3);
+		      memmove (cpriv->buf, cpriv->buf + 1, 3);
 		      cpriv->buf_len = 3;
 		    }
 		}
@@ -391,7 +391,7 @@ call_recv_data (Event_Type et, Object *obj, Any_Type regarg, Any_Type callarg)
 		    }
 		  else
 		    {
-		      memcpy (cpriv->buf, cpriv->buf + 1, 4);
+		      memmove (cpriv->buf, cpriv->buf + 1, 4);
 		      cpriv->buf_len = 4;
 		    }
 		}
